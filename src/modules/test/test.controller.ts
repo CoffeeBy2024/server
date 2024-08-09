@@ -7,24 +7,22 @@ export class TestController {
   constructor(private readonly testService: TestService) {}
 
   @Post()
-  async create(@Body() createTestDto: CreateTestDto) {
-    const createTest = await this.testService.create(createTestDto);
-    return createTest;
+  create(@Body() createTestDto: CreateTestDto) {
+    return this.testService.create(createTestDto);
   }
 
   @Get()
-  async findAll() {
-    const tests = await this.testService.findAll();
-    return tests;
+  findAll() {
+    return this.testService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.testService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.testService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.testService.remove(+id);
+  remove(@Param('id') id: number) {
+    return this.testService.remove(id);
   }
 }

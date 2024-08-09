@@ -21,11 +21,13 @@ export class TestService {
     return `This action returns all tests - ${JSON.stringify(tests)}`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} test`;
+  async findOne(id: number) {
+    const test = await this.testRepository.findOneBy({ id: id });
+    return `This action return a #${id} ${test ? JSON.stringify(test) : 'Non-Existing'} test`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} test`;
+  async remove(id: number) {
+    const test = await this.testRepository.delete({ id: id });
+    return `This action removes a #${id} ${test.affected && test.affected > 0 ? '' : 'Non-Existing'} test`;
   }
 }

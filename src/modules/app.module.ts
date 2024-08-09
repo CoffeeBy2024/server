@@ -5,8 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { Test } from './test/entities/test.entity';
 import { TestModule } from './test/test.module';
+import { WorkingHoursModule } from './shop/working_hours/working_hours.module';
+import { ShopModule } from './shop/shop/shop.module';
+import { IsUniqueConstraint } from 'src/common/validators/is-unique.validator';
 
 @Module({
   imports: [
@@ -14,13 +16,16 @@ import { TestModule } from './test/test.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [Test],
+      entities: ['dist/**/*.entity{.ts,.js}'],
       migrations: ['migrations/**/*.ts'],
+      autoLoadEntities: true,
       synchronize: true,
     }),
     TestModule,
+    WorkingHoursModule,
+    ShopModule,
   ],
-  providers: [AppService],
+  providers: [AppService, IsUniqueConstraint],
   controllers: [AppController],
 })
 export class AppModule {}
