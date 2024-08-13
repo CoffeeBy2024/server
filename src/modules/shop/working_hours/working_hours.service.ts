@@ -13,22 +13,38 @@ export class WorkingHoursService {
   ) {}
 
   async create(createWorkingHoursDto: CreateWorkingHoursDto) {
-    const workingHours = this.workingHoursRepository.create(
-      createWorkingHoursDto
+    const { day_of_the_week, shop } = createWorkingHoursDto;
+    const WHrepeatition = await this.workingHoursRepository.findOne({
+      where: { day_of_the_week: day_of_the_week, shop: shop },
+    });
+    if (WHrepeatition)
+      throw new Error(
+        `Working Hours for ${day_of_the_week} day in ${shop.id} shop already exists`
+      );
+
+    return await this.workingHoursRepository.save(
+      this.workingHoursRepository.create(createWorkingHoursDto)
     );
-    return await this.workingHoursRepository.save(workingHours);
+  }
+
+  async findAllById(id: number) {
+    return await this.workingHoursRepository.find({
+      where: { shop: { id } },
+    });
   }
 
   async update(id: number, updateWorkingHoursDto: UpdateWorkingHoursDto) {
-    const existingWorkingHours = await this.workingHoursRepository.findOneBy({
-      id: id,
-    });
-    if (!existingWorkingHours)
-      throw new Error('Information about Wokring Hours was Not Found');
-    const updatedWorkingHours = {
-      ...existingWorkingHours,
+    return await this.workingHoursRepository.save({
+      ...this.ensureWH(await this.workingHoursRepository.findOneBy({ id: id })),
       ...updateWorkingHoursDto,
-    };
-    return await this.workingHoursRepository.save(updatedWorkingHours);
+    });
+  }
+
+  ensureWH(workingHour: WorkingHour | null): WorkingHour {
+    if (!workingHour) {
+      console.error('Trying to reach non-existing working_hour');
+      throw new Error('Trying to reach non-existing working_hour');
+    }
+    return workingHour;
   }
 }
