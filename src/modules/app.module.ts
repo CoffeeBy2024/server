@@ -5,10 +5,11 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { TestModule } from './test/test.module';
 import { WorkingHoursModule } from './shop/working_hours/working_hours.module';
 import { ShopModule } from './shop/shop/shop.module';
-import { IsUniqueConstraint } from 'src/common/validators/is-unique.validator';
+import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
+import { ProductModule } from './product/product.module';
+import { CategoryModule } from './shop/category/category.module';
 
 @Module({
   imports: [
@@ -21,11 +22,13 @@ import { IsUniqueConstraint } from 'src/common/validators/is-unique.validator';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    TestModule,
     WorkingHoursModule,
     ShopModule,
+    ShopCategoryModule,
+    ProductModule,
+    CategoryModule,
   ],
-  providers: [AppService, IsUniqueConstraint],
+  providers: [AppService],
   controllers: [AppController],
 })
 export class AppModule {}

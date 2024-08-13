@@ -18,33 +18,45 @@ export class ShopService {
   }
 
   async create(createShopDto: CreateShopDto) {
-    const shop = this.shopRepository.create(createShopDto);
-    return await this.shopRepository.save(shop);
+    return await this.shopRepository.save(
+      this.shopRepository.create(createShopDto)
+    );
+  }
+
+  async findAll() {
+    return await this.shopRepository.find();
+  }
+
+  async findByName(name: string) {
+    return await this.shopRepository.find({ where: { name: name } });
   }
 
   async findOne(id: number) {
     return await this.shopRepository.findOneBy({ id: id });
   }
 
-  async findWHByShop(id: number) {
-    const shop = await this.shopRepository.findOneBy({ id: id });
-    return shop?.working_hours;
-  }
-
   async update(id: number, updateShopDto: UpdateShopDto) {
-    const existingShop = await this.shopRepository.findOneBy({ id: id });
+    const existingShop = this.handleNonExistingShop(
+      id,
+      await this.shopRepository.findOneBy({ id: id })
+    );
 
-    if (!existingShop) {
-      console.error('Trying to add Working Hours to non-existing shop');
-      throw new Error(`Shop with id - ${id} doesn't exist`);
-    }
-
-    const updatedShop = { ...existingShop, ...updateShopDto };
-    return await this.shopRepository.save(updatedShop);
+    return await this.shopRepository.save({
+      ...existingShop,
+      ...updateShopDto,
+    });
   }
 
   async remove(id: number) {
     const shop = await this.shopRepository.delete({ id: id });
-    return `This action removes a #${id} ${shop.affected && shop.affected > 0 ? '' : 'Non-Existing'} shop`;
+    return shop.affected && shop.affected > 0;
+  }
+
+  handleNonExistingShop(id: number, shop: Shop | null): Shop {
+    if (!shop) {
+      console.error('Trying to reach non-existing shop');
+      throw new Error(`Shop with id - ${id} doesn't exist`);
+    }
+    return shop;
   }
 }
