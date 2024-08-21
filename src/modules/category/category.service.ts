@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CATEGORY, Category } from './entities/category.entity';
@@ -23,11 +23,15 @@ export class CategoryService {
   }
 
   async findOneByName(name: string) {
+    const categoryName = CATEGORY[this.convertToEnum(name)];
     const category = await this.categoryRepository.findOne({
-      where: { name: CATEGORY[this.convertToEnum(name)] },
+      where: { name: categoryName },
     });
 
-    if (!category) throw new Error("Such Category wasn't found");
+    if (!category)
+      throw new NotFoundException(
+        `Category with name ${categoryName} not found`
+      );
     return category;
   }
 
@@ -42,7 +46,7 @@ export class CategoryService {
       case 'odds':
         return CATEGORY.odds;
       default:
-        throw new Error('Non-Existing Category');
+        throw new NotFoundException(`Category with name ${category} not found`);
     }
   }
 }

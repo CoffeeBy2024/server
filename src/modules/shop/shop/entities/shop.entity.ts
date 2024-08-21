@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { WorkingHour } from '../../working_hours/entities/working_hour.entity';
-import { ShopCategory } from 'src/modules/shop/shop-category/entities/shop-category.entity';
+import { ShopCategory } from '../../../shop/shop-category/entities/shop-category.entity';
 
 @Entity()
 export class Shop {

@@ -9,7 +9,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    })
+  );
 
   const options = new DocumentBuilder()
     .setTitle('CoffeeBy')

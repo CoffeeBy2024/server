@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ShopCategory } from 'src/modules/shop/shop-category/entities/shop-category.entity';
+import { ShopCategory } from '../../shop/shop-category/entities/shop-category.entity';
 
 @Entity()
 export class Product {
