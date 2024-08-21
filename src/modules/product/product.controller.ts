@@ -14,7 +14,9 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ShopService } from '../shop/shop/shop.service';
 import { CategoryService } from '../shop/category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('product')
 @Controller()
 export class ProductController {
   constructor(
@@ -44,9 +46,9 @@ export class ProductController {
     return this.productService.create(createProductDto, shopCategory);
   }
 
-  @Get('shop/:sid/product/:pid')
-  findOne(@Param('sid') sid: number, @Param('pid') pid: number) {
-    return this.productService.findOneBy(pid);
+  @Get('shop/:sid/product/:id')
+  findOne(@Param('sid') sid: number, @Param('id') id: number) {
+    return this.productService.findOneBy(id);
   }
 
   @Get('shop/:id/products/')
