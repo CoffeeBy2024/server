@@ -14,7 +14,7 @@ import { UpdateShopDto } from './dto/update-shop.dto';
 
 import { ShopService } from './shop.service';
 import { ShopCategoryService } from '../shop-category/shop-category.service';
-import { CategoryService } from '../category/category.service';
+import { CategoryService } from '../../category/category.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('shop')

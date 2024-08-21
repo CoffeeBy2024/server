@@ -7,8 +7,8 @@ import { ShopCategory } from '../shop/shop-category/entities/shop-category.entit
 import { ShopService } from '../shop/shop/shop.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
 import { Shop } from '../shop/shop/entities/shop.entity';
-import { Category } from '../shop/category/entities/category.entity';
-import { CategoryService } from '../shop/category/category.service';
+import { Category } from '../category/entities/category.entity';
+import { CategoryService } from '../category/category.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, ShopCategory, Shop, Category])],

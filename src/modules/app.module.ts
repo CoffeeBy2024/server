@@ -9,7 +9,7 @@ import { WorkingHoursModule } from './shop/working_hours/working_hours.module';
 import { ShopModule } from './shop/shop/shop.module';
 import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
 import { ProductModule } from './product/product.module';
-import { CategoryModule } from './shop/category/category.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [

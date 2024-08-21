@@ -42,7 +42,7 @@ export class CategoryService {
       case 'odds':
         return CATEGORY.odds;
       default:
-        throw new Error('Trying to get Non-Existing Category');
+        throw new Error('Non-Existing Category');
     }
   }
 }

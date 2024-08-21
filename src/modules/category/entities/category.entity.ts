@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ShopCategory } from '../../shop-category/entities/shop-category.entity';
+import { ShopCategory } from '../../shop/shop-category/entities/shop-category.entity';
 
 export enum CATEGORY {
   'coffee',

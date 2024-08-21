@@ -12,7 +12,7 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ShopService } from '../shop/shop/shop.service';
-import { CategoryService } from '../shop/category/category.service';
+import { CategoryService } from '../category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
 import { ApiTags } from '@nestjs/swagger';
 
