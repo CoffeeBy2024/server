@@ -11,10 +11,11 @@ import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
 import { UserModule } from '@user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -29,6 +30,7 @@ import { UserModule } from '@user/user.module';
     ProductModule,
     CategoryModule,
     UserModule,
+    AuthModule,
   ],
   providers: [AppService],
   controllers: [AppController],

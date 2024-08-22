@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -24,12 +20,6 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const user = await this.getUser(dto.email);
-    if (user) {
-      throw new ConflictException(
-        `The user with the email address '${user.email}' already exists`
-      );
-    }
     const hashedPassword = this.hashPassword(dto.password);
     return this.userRepository.save({ ...dto, password: hashedPassword });
   }
