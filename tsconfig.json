@@ -16,6 +16,14 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@user": [
+        "src/modules/user"
+      ],
+      "@user/*": [
+        "src/modules/user/*"
+      ],
+    }
   }
 }
