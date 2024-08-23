@@ -16,6 +16,9 @@ export class UserService {
   async getUser(idOrEmail: string) {
     return this.userRepository.findOne({
       where: [{ id: Number(idOrEmail) || 0 }, { email: idOrEmail }],
+      relations: {
+        tokens: true,
+      },
     });
   }
 
