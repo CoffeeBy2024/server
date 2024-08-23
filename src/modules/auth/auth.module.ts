@@ -7,11 +7,13 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '@user/user.module';
 import { options } from './config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
+    ConfigModule,
     JwtModule.registerAsync(options()),
     TypeOrmModule.forFeature([Token]),
   ],

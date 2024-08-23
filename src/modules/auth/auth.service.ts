@@ -18,12 +18,16 @@ import {
   CreateTokensParams,
   Tokens,
 } from './types';
+import { Response } from 'express';
+import { REFRESH_TOKEN } from './constants';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     @InjectRepository(Token)
     private readonly tokenService: Repository<Token>
   ) {}
@@ -38,12 +42,14 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  async login(dto: LoginUserDto, agent: string): Promise<Tokens> {
+  async login(dto: LoginUserDto, agent: string, res: Response) {
     const user = await this.userService.getUser(dto.email);
     if (!user || !compareSync(dto.password, user?.password)) {
       throw new BadRequestException('Invalid email or password');
     }
-    return this.createTokens({ user, agent });
+    const tokens = await this.createTokens({ user, agent });
+    this.saveRefreshTokenToCookie(tokens.refreshToken, res);
+    return tokens.accessToken;
   }
 
   private async createTokens({
@@ -72,10 +78,23 @@ export class AuthService {
   private async createRefreshToken({ user, agent }: CreateRefreshTokenParams) {
     const token = await this.tokenService.save({
       value: v4(),
-      expiresAt: new Date().toISOString(),
+      expiresAt: this.getRefreshTokenExpiresAt().toISOString(),
       userAgent: agent,
       user: user,
     });
     return token.value;
+  }
+
+  private saveRefreshTokenToCookie(refreshToken: string, res: Response) {
+    res.cookie(REFRESH_TOKEN, refreshToken, {
+      httpOnly: true,
+      expires: this.getRefreshTokenExpiresAt(),
+    });
+  }
+
+  private getRefreshTokenExpiresAt(): Date {
+    return new Date(
+      Date.now() + Number(this.configService.get('JWT_REFRESH_EXP'))
+    );
   }
 }
