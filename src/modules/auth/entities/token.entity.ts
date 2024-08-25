@@ -6,7 +6,7 @@ export class Token {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   value: string;
 
   @Column({ type: 'timestamptz' })
@@ -15,6 +15,8 @@ export class Token {
   @Column()
   userAgent: string;
 
-  @ManyToOne(() => User, (user) => user.tokens)
+  @ManyToOne(() => User, (user) => user.tokens, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }

@@ -1,8 +1,9 @@
 import { User } from '@user/entities/user.entity';
+import { Token } from '../entities/token.entity';
 
 export interface Tokens {
   accessToken: string;
-  refreshToken: string;
+  refreshToken: Token;
 }
 
 export interface CreateTokensParams {

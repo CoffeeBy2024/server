@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -18,8 +19,6 @@ import {
   CreateTokensParams,
   Tokens,
 } from './types';
-import { Response } from 'express';
-import { REFRESH_TOKEN } from './constants';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -42,14 +41,34 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  async login(dto: LoginUserDto, agent: string, res: Response) {
+  async login(dto: LoginUserDto, agent: string) {
     const user = await this.userService.getUser(dto.email);
     if (!user || !compareSync(dto.password, user?.password)) {
       throw new BadRequestException('Invalid email or password');
     }
-    const tokens = await this.createTokens({ user, agent });
-    this.saveRefreshTokenToCookie(tokens.refreshToken, res);
-    return tokens.accessToken;
+    return this.createTokens({ user, agent });
+  }
+
+  async refreshTokens(refreshToken: string, agent: string) {
+    const token = await this.tokenService.findOne({
+      where: {
+        value: refreshToken,
+        userAgent: agent,
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException();
+    }
+    if (new Date(token?.expiresAt) < new Date()) {
+      await this.tokenService.remove(token);
+      throw new UnauthorizedException();
+    }
+    const { user } = token;
+    return this.createTokens({ agent, user });
   }
 
   private async createTokens({
@@ -76,20 +95,26 @@ export class AuthService {
   }
 
   private async createRefreshToken({ user, agent }: CreateRefreshTokenParams) {
-    const token = await this.tokenService.save({
+    const token = await this.tokenService.findOne({
+      where: {
+        user: user,
+        userAgent: agent,
+      },
+    });
+    if (token) {
+      token.value = v4();
+      token.expiresAt = this.getRefreshTokenExpiresAt();
+      await this.tokenService.save(token);
+      return token;
+    }
+    const newToken = await this.tokenService.save({
       value: v4(),
       expiresAt: this.getRefreshTokenExpiresAt().toISOString(),
       userAgent: agent,
       user: user,
     });
-    return token.value;
-  }
 
-  private saveRefreshTokenToCookie(refreshToken: string, res: Response) {
-    res.cookie(REFRESH_TOKEN, refreshToken, {
-      httpOnly: true,
-      expires: this.getRefreshTokenExpiresAt(),
-    });
+    return newToken;
   }
 
   private getRefreshTokenExpiresAt(): Date {
