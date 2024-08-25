@@ -14,16 +14,19 @@ import { Response } from 'express';
 import { Cookies } from 'src/common/decorators/cookies.decorator';
 import { REFRESH_TOKEN } from './constants';
 import { Token } from './entities/token.entity';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('register')
   register(@Body() dto: RegisterUserDto) {
     return this.authService.register(dto);
   }
 
+  @Public()
   @Post('login')
   async login(
     @Body() dto: LoginUserDto,

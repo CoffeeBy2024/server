@@ -20,3 +20,8 @@ export interface CreateRefreshTokenParams {
   user: User;
   agent: string;
 }
+
+export interface JWTPayload {
+  id: number;
+  email: string;
+}
