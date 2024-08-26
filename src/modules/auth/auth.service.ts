@@ -71,6 +71,16 @@ export class AuthService {
     return this.createTokens({ agent, user });
   }
 
+  async removeRefreshToken(refreshTokenValue: string) {
+    const token = await this.tokenService.findOneBy({
+      value: refreshTokenValue,
+    });
+    if (token) {
+      return this.tokenService.remove(token);
+    }
+    return null;
+  }
+
   private async createTokens({
     user,
     agent,

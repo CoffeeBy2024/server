@@ -39,7 +39,19 @@ export class AuthController {
   }
 
   @Get('logout')
-  logout() {}
+  async logout(
+    @Cookies(REFRESH_TOKEN) refreshTokenValue: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    if (!refreshTokenValue) {
+      return null;
+    }
+    const token = await this.authService.removeRefreshToken(refreshTokenValue);
+    if (token) {
+      this.removeRefreshTokenFromCookie(res);
+    }
+    return token;
+  }
 
   @Get('refresh-tokens')
   async refreshTokens(
@@ -59,6 +71,13 @@ export class AuthController {
     res.cookie(REFRESH_TOKEN, refreshToken.value, {
       httpOnly: true,
       expires: new Date(refreshToken.expiresAt),
+    });
+  }
+
+  private removeRefreshTokenFromCookie(res: Response) {
+    res.cookie(REFRESH_TOKEN, '', {
+      httpOnly: true,
+      expires: new Date(),
     });
   }
 }
