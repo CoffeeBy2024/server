@@ -29,7 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(Token)
-    private readonly tokenService: Repository<Token>
+    private readonly tokenRepository: Repository<Token>
   ) {}
 
   async register(dto: RegisterUserDto) {
@@ -51,7 +51,7 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string, agent: string) {
-    const token = await this.tokenService.findOne({
+    const token = await this.tokenRepository.findOne({
       where: {
         value: refreshToken,
         userAgent: agent,
@@ -65,7 +65,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     if (new Date(token?.expiresAt) < new Date()) {
-      await this.tokenService.remove(token);
+      await this.tokenRepository.remove(token);
       throw new UnauthorizedException();
     }
     const { user } = token;
@@ -73,11 +73,11 @@ export class AuthService {
   }
 
   async removeRefreshToken(refreshTokenValue: string) {
-    const token = await this.tokenService.findOneBy({
+    const token = await this.tokenRepository.findOneBy({
       value: refreshTokenValue,
     });
     if (token) {
-      return this.tokenService.remove(token);
+      return this.tokenRepository.remove(token);
     }
     return null;
   }
@@ -115,7 +115,7 @@ export class AuthService {
   }
 
   private async createRefreshToken({ user, agent }: CreateRefreshTokenParams) {
-    const token = await this.tokenService.findOne({
+    const token = await this.tokenRepository.findOne({
       where: {
         user: user,
         userAgent: agent,
@@ -124,10 +124,10 @@ export class AuthService {
     if (token) {
       token.value = v4();
       token.expiresAt = this.getRefreshTokenExpiresAt();
-      await this.tokenService.save(token);
+      await this.tokenRepository.save(token);
       return token;
     }
-    const newToken = await this.tokenService.save({
+    const newToken = await this.tokenRepository.save({
       value: v4(),
       expiresAt: this.getRefreshTokenExpiresAt().toISOString(),
       userAgent: agent,
