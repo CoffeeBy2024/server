@@ -144,9 +144,6 @@ export class AuthController {
   }
 
   private removeRefreshTokenFromCookie(res: Response) {
-    res.cookie(REFRESH_TOKEN, '', {
-      httpOnly: true,
-      expires: new Date(),
-    });
+    res.clearCookie(REFRESH_TOKEN);
   }
 }
