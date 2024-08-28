@@ -2,9 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { GoogleAuthUserDto } from '../auth/dto/google-auth-user.dto';
 
 @Injectable()
 export class UserService {
@@ -22,9 +23,12 @@ export class UserService {
     });
   }
 
-  async createUser(dto: CreateUserDto) {
-    const hashedPassword = this.hashPassword(dto.password);
-    return this.userRepository.save({ ...dto, password: hashedPassword });
+  async createUser(dto: CreateUserDto | GoogleAuthUserDto) {
+    if ('password' in dto) {
+      const hashedPassword = this.hashPassword(dto.password);
+      return this.userRepository.save({ ...dto, password: hashedPassword });
+    }
+    return this.userRepository.save({ ...dto });
   }
 
   async getAllUsers() {

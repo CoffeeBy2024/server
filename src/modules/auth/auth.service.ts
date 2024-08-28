@@ -20,6 +20,7 @@ import {
   Tokens,
 } from './types';
 import { ConfigService } from '@nestjs/config';
+import { GoogleAuthUserDto } from './dto/google-auth-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -79,6 +80,15 @@ export class AuthService {
       return this.tokenService.remove(token);
     }
     return null;
+  }
+
+  async providerAuth(dto: GoogleAuthUserDto, agent: string) {
+    const user = await this.userService.getUser(dto.email);
+    if (user) {
+      return this.createTokens({ user, agent });
+    }
+    const newUser = await this.userService.createUser(dto);
+    return this.createTokens({ user: newUser, agent });
   }
 
   private async createTokens({

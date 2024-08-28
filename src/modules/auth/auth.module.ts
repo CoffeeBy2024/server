@@ -6,9 +6,10 @@ import { Token } from './entities/token.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '@user/user.module';
-import { options } from './config';
+import { httpModuleAsyncOptions, options } from './config';
 import { ConfigModule } from '@nestjs/config';
-import { JWTStrategy } from './strategies/jwt.strategy';
+import { STRATEGIES } from './strategies';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -17,8 +18,9 @@ import { JWTStrategy } from './strategies/jwt.strategy';
     ConfigModule,
     JwtModule.registerAsync(options()),
     TypeOrmModule.forFeature([Token]),
+    HttpModule.registerAsync(httpModuleAsyncOptions()),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JWTStrategy],
+  providers: [AuthService, ...STRATEGIES],
 })
 export class AuthModule {}
