@@ -54,7 +54,6 @@ export class AuthService {
     const token = await this.tokenRepository.findOne({
       where: {
         value: refreshToken,
-        userAgent: agent,
       },
       relations: {
         user: true,
