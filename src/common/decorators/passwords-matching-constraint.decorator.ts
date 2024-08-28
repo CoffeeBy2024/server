@@ -10,7 +10,7 @@ export class PasswordsMatchingConstraint
   implements ValidatorConstraintInterface
 {
   validate(
-    confirmPassword: any,
+    confirmPassword: string,
     validationArguments?: ValidationArguments
   ): Promise<boolean> | boolean {
     const obj = validationArguments?.object as RegisterUserDto;
