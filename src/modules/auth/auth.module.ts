@@ -6,7 +6,7 @@ import { Token } from './entities/token.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '@user/user.module';
-import { httpModuleAsyncOptions, options } from './config';
+import { httpModuleAsyncOptions, jwtModuleAsyncOptions } from './config';
 import { ConfigModule } from '@nestjs/config';
 import { STRATEGIES } from './strategies';
 import { HttpModule } from '@nestjs/axios';
@@ -16,7 +16,7 @@ import { HttpModule } from '@nestjs/axios';
     UserModule,
     PassportModule,
     ConfigModule,
-    JwtModule.registerAsync(options()),
+    JwtModule.registerAsync(jwtModuleAsyncOptions()),
     TypeOrmModule.forFeature([Token]),
     HttpModule.registerAsync(httpModuleAsyncOptions()),
   ],

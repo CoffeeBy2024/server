@@ -1,14 +1,15 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtModuleAsyncOptions, JwtModuleOptions } from '@nestjs/jwt';
 
-const jwtModuleOptions = (config: ConfigService): JwtModuleOptions => ({
-  secret: config.get('JWT_ACCESS_SECRET'),
+const jwtModuleOptions = (configService: ConfigService): JwtModuleOptions => ({
+  secret: configService.get('JWT_ACCESS_SECRET'),
   signOptions: {
-    expiresIn: config.get('JWT_ACCESS_EXP'),
+    expiresIn: configService.get('JWT_ACCESS_EXP'),
   },
 });
 
-export const options = (): JwtModuleAsyncOptions => ({
+export const jwtModuleAsyncOptions = (): JwtModuleAsyncOptions => ({
   inject: [ConfigService],
-  useFactory: (config: ConfigService) => jwtModuleOptions(config),
+  useFactory: async (configService: ConfigService) =>
+    jwtModuleOptions(configService),
 });
