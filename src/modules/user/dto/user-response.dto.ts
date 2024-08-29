@@ -1,4 +1,4 @@
-import { User } from '@user/entities/user.entity';
+import { Provider, User } from '@user/entities/user.entity';
 import { Exclude } from 'class-transformer';
 import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
 import { Token } from 'src/modules/auth/entities/token.entity';
@@ -10,7 +10,7 @@ export class UserResponseDto implements UserResponseDtoType {
   firstName: string;
   lastName: string;
   email: string;
-
+  provider: Provider;
   @Exclude()
   password: string;
 

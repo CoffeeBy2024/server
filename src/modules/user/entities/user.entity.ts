@@ -1,6 +1,11 @@
 import { Token } from 'src/modules/auth/entities/token.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum Provider {
+  PASSWORD = 'password',
+  GOOGLE = 'google',
+}
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -17,6 +22,12 @@ export class User {
 
   @Column({ nullable: true })
   password: string;
+
+  @Column({
+    type: 'enum',
+    enum: Provider,
+  })
+  provider: Provider;
 
   @Column('jsonb', { nullable: true })
   location: string;

@@ -26,6 +26,7 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
+import { Provider } from '@user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -38,7 +39,7 @@ export class AuthController {
   @Public()
   @Post('register')
   async register(@Body() dto: RegisterUserDto) {
-    const user = await this.authService.register(dto);
+    const user = await this.authService.register(dto, Provider.PASSWORD);
     return new UserResponseDto(user);
   }
 
@@ -122,7 +123,8 @@ export class AuthController {
                 firstName: given_name,
                 lastName: family_name,
               },
-              agent
+              agent,
+              Provider.GOOGLE
             )
           ),
           tap(({ refreshToken }) =>

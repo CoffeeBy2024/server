@@ -21,6 +21,7 @@ import {
 } from './types';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthUserDto } from './dto/google-auth-user.dto';
+import { Provider } from '@user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -32,14 +33,14 @@ export class AuthService {
     private readonly tokenRepository: Repository<Token>
   ) {}
 
-  async register(dto: RegisterUserDto) {
+  async register(dto: RegisterUserDto, provider: Provider) {
     const user = await this.userService.getUser(dto.email);
     if (user) {
       throw new ConflictException(
         `The user with the email address '${user.email}' already exists`
       );
     }
-    return this.userService.createUser(dto);
+    return this.userService.createUser({ ...dto, provider });
   }
 
   async login(dto: LoginUserDto, agent: string) {
@@ -81,12 +82,16 @@ export class AuthService {
     return null;
   }
 
-  async providerAuth(dto: GoogleAuthUserDto, agent: string) {
+  async providerAuth(
+    dto: GoogleAuthUserDto,
+    agent: string,
+    provider: Provider
+  ) {
     const user = await this.userService.getUser(dto.email);
     if (user) {
       return this.createTokens({ user, agent });
     }
-    const newUser = await this.userService.createUser(dto);
+    const newUser = await this.userService.createUser({ ...dto, provider });
     return this.createTokens({ user: newUser, agent });
   }
 
