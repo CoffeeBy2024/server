@@ -22,14 +22,15 @@ export class WorkingHoursController {
       id,
       await this.shopService.findOne(id)
     );
-    this.workingHoursService.ensureWH(
+
+    await this.shopService.createWorkingHours(shop);
+
+    return this.workingHoursService.ensureWH(
       await this.workingHoursService.create({
         ...createWorkingHoursDto,
         shop: shop,
       })
     );
-
-    return this.shopService.createWorkingHours(shop);
   }
 
   @Get(':id/working_hours')
