@@ -1,5 +1,5 @@
 import { IsInt, IsNotEmpty, IsString, Min, Max } from 'class-validator';
-import { IsMilitaryTime } from 'src/common/validators/is-military-time.validator';
+import { IsMilitaryTime } from '../../../../common/validators/is-military-time.validator';
 import { Shop } from '../../shop/entities/shop.entity';
 import { ApiProperty } from '@nestjs/swagger';
 

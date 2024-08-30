@@ -45,31 +45,27 @@ describe('CategoryService', () => {
   });
 
   describe('findOneByName', () => {
-    describe('when category with following name exists', () => {
-      it('a', async () => {
-        const categoryName = 'coffee';
-        const expectedCategory = { name: 'coffee' };
+    it('when category with following name exists', async () => {
+      const expectedCategory = { name: 'coffee' };
 
-        categoryRepository.findOne?.mockReturnValue(expectedCategory);
-        const category = await service.findOneByName(categoryName);
-        expect(category).toEqual(expectedCategory);
-      });
+      categoryRepository.findOne?.mockReturnValue(expectedCategory);
+      const category = await service.findOneByName(expectedCategory.name);
+      expect(category).toEqual(expectedCategory);
     });
-    describe('should throw the "NotFoundException"', () => {
-      it('b', async () => {
-        const categoryName = 'blabla';
-        categoryRepository.findOne?.mockReturnValue(undefined);
 
-        try {
-          await service.findOneByName(categoryName);
-          expect(false).toBeTruthy(); // we should never hit this line
-        } catch (err) {
-          expect(err).toBeInstanceOf(NotFoundException);
-          expect(err.message).toEqual(
-            `Category with name ${categoryName} not found`
-          );
-        }
-      });
+    it('should throw the "NotFoundException"', async () => {
+      const categoryName = 'blabla';
+      categoryRepository.findOne?.mockReturnValue(undefined);
+
+      try {
+        await service.findOneByName(categoryName);
+        expect(false).toBeTruthy(); // we should never hit this line
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(
+          `Category with name ${categoryName} not found`
+        );
+      }
     });
   });
 });
