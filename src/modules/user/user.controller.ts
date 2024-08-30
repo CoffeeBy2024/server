@@ -14,6 +14,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -56,5 +57,11 @@ export class UserController {
   ) {
     const user = await this.userService.updateUser(dto, IdOrEmail);
     return new UserResponseDto(user);
+  }
+
+  @Public()
+  @Get('verify-email/:emailVerificationLink')
+  verify(@Param('emailVerificationLink') emailVerificationLink: string) {
+    return this.userService.verifyEmail(emailVerificationLink);
   }
 }

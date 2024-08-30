@@ -11,6 +11,9 @@ export class UserResponseDto implements UserResponseDtoType {
   lastName: string;
   email: string;
   provider: Provider;
+  emailVerified: boolean;
+  emailVerificationLink: string;
+
   @Exclude()
   password: string;
 

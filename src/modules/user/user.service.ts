@@ -53,6 +53,16 @@ export class UserService {
     return this.userRepository.save(updatedUser);
   }
 
+  async verifyEmail(emailVerificationLink: string) {
+    const user = await this.userRepository.findOneBy({ emailVerificationLink });
+    if (!user) {
+      throw new BadRequestException('Email verification link is not correct');
+    }
+    user.emailVerified = true;
+    await this.userRepository.save(user);
+    return user;
+  }
+
   private hashPassword(password: string) {
     return hashSync(password, genSaltSync(5));
   }

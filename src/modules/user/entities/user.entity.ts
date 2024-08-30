@@ -29,6 +29,12 @@ export class User {
   })
   provider: Provider;
 
+  @Column()
+  emailVerified: boolean;
+
+  @Column({ nullable: true })
+  emailVerificationLink: string;
+
   @Column('jsonb', { nullable: true })
   location: string;
 

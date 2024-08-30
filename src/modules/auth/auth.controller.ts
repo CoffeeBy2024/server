@@ -116,16 +116,18 @@ export class AuthController {
           },
         })
         .pipe(
-          mergeMap(({ data: { email, given_name, family_name } }) =>
-            this.authService.providerAuth(
-              {
-                email,
-                firstName: given_name,
-                lastName: family_name,
-              },
-              agent,
-              Provider.GOOGLE
-            )
+          mergeMap(
+            ({ data: { email, given_name, family_name, email_verified } }) =>
+              this.authService.providerAuth(
+                {
+                  email,
+                  firstName: given_name,
+                  lastName: family_name,
+                  emailVerified: email_verified,
+                },
+                agent,
+                Provider.GOOGLE
+              )
           ),
           tap(({ refreshToken }) =>
             this.saveRefreshTokenToCookie(refreshToken, res)

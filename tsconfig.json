@@ -18,11 +18,29 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@utils": [
+        "src/common/utils"
+      ],
+      "@utils/*": [
+        "src/common/utils/*"
+      ],
       "@user": [
         "src/modules/user"
       ],
       "@user/*": [
         "src/modules/user/*"
+      ],
+      "@sendgrid": [
+        "src/modules/sendgrid"
+      ],
+      "@sendgrid/*": [
+        "src/modules/sendgrid/*"
+      ],
+      "@mail": [
+        "src/modules/mail"
+      ],
+      "@mail/*": [
+        "src/modules/mail/*"
       ],
     }
   }

@@ -23,6 +23,7 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return payload;
+
+    return user;
   }
 }

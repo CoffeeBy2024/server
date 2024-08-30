@@ -40,7 +40,14 @@ export class AuthService {
         `The user with the email address '${user.email}' already exists`
       );
     }
-    return this.userService.createUser({ ...dto, provider });
+    const emailVerificationLink = v4();
+    const emailVerified = false;
+    return this.userService.createUser({
+      ...dto,
+      provider,
+      emailVerified,
+      emailVerificationLink,
+    });
   }
 
   async login(dto: LoginUserDto, agent: string) {
