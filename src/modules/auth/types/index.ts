@@ -17,3 +17,10 @@ export interface GoogleUserInfo {
 export interface GoogleUserValidateResponse {
   accessToken: string;
 }
+
+export type GoogleAuthUserInfo = {
+  email: string;
+  firstName: string;
+  lastName?: string;
+  emailVerified: boolean;
+};

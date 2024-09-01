@@ -13,8 +13,8 @@ import { Token } from './entities';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
-import { GoogleAuthUserDto } from './dto/google-auth-user.dto';
 import { Provider, User } from '@user/entities';
+import { GoogleAuthUserInfo } from './types';
 
 @Injectable()
 export class AuthService {
@@ -83,15 +83,18 @@ export class AuthService {
   }
 
   async providerAuth(
-    dto: GoogleAuthUserDto,
+    userInfo: GoogleAuthUserInfo,
     agent: string,
     provider: Provider
   ) {
-    const user = await this.userService.getUser(dto.email);
+    const user = await this.userService.getUser(userInfo.email);
     if (user) {
       return this.createTokens(user, agent);
     }
-    const newUser = await this.userService.createUser({ ...dto, provider });
+    const newUser = await this.userService.createUser({
+      ...userInfo,
+      provider,
+    });
     return this.createTokens(newUser, agent);
   }
 
