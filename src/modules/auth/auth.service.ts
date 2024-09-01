@@ -12,15 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Token } from './entities';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
-import {
-  CreateAccessTokenParams,
-  CreateRefreshTokenParams,
-  CreateTokensParams,
-  Tokens,
-} from './types';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthUserDto } from './dto/google-auth-user.dto';
-import { Provider } from '@user/entities';
+import { Provider, User } from '@user/entities';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +48,7 @@ export class AuthService {
     if (!user || !compareSync(dto.password, user?.password)) {
       throw new BadRequestException('Invalid email or password');
     }
-    return this.createTokens({ user, agent });
+    return this.createTokens(user, agent);
   }
 
   async refreshTokens(refreshToken: string, agent: string) {
@@ -75,7 +69,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const { user } = token;
-    return this.createTokens({ agent, user });
+    return this.createTokens(user, agent);
   }
 
   async removeRefreshToken(refreshTokenValue: string) {
@@ -95,36 +89,27 @@ export class AuthService {
   ) {
     const user = await this.userService.getUser(dto.email);
     if (user) {
-      return this.createTokens({ user, agent });
+      return this.createTokens(user, agent);
     }
     const newUser = await this.userService.createUser({ ...dto, provider });
-    return this.createTokens({ user: newUser, agent });
+    return this.createTokens(newUser, agent);
   }
 
-  private async createTokens({
-    user,
-    agent,
-  }: CreateTokensParams): Promise<Tokens> {
-    const accessToken = this.createAccessToken({
-      id: user.id,
-      email: user.email,
-    });
+  private async createTokens(user: User, agent: string) {
+    const accessToken = this.createAccessToken(user.id, user.email);
 
-    const refreshToken = await this.createRefreshToken({
-      user,
-      agent,
-    });
+    const refreshToken = await this.createRefreshToken(user, agent);
     return { accessToken, refreshToken };
   }
 
-  private createAccessToken({ id, email }: CreateAccessTokenParams) {
+  private createAccessToken(id: number, email: string) {
     return this.jwtService.sign({
       id,
       email,
     });
   }
 
-  private async createRefreshToken({ user, agent }: CreateRefreshTokenParams) {
+  private async createRefreshToken(user: User, agent: string) {
     const token = await this.tokenRepository.findOne({
       where: {
         user: user,
@@ -147,7 +132,7 @@ export class AuthService {
     return newToken;
   }
 
-  private getRefreshTokenExpiresAt(): Date {
+  private getRefreshTokenExpiresAt() {
     return new Date(
       Date.now() + Number(this.configService.get('JWT_REFRESH_EXP'))
     );

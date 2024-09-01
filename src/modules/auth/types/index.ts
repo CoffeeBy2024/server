@@ -1,26 +1,3 @@
-import { User } from '@user/entities';
-import { Token } from '@auth/entities';
-
-export interface Tokens {
-  accessToken: string;
-  refreshToken: Token;
-}
-
-export interface CreateTokensParams {
-  user: User;
-  agent: string;
-}
-
-export interface CreateAccessTokenParams {
-  id: number;
-  email: string;
-}
-
-export interface CreateRefreshTokenParams {
-  user: User;
-  agent: string;
-}
-
 export interface JWTPayload {
   id: number;
   email: string;
