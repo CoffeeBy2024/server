@@ -18,17 +18,35 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@utils": [
-        "src/common/utils"
+      "@common": [
+        "src/common"
       ],
-      "@utils/*": [
-        "src/common/utils/*"
+      "@common/*": [
+        "src/common/*"
       ],
-      "@user": [
-        "src/modules/user"
+      "@auth": [
+        "src/modules/auth"
       ],
-      "@user/*": [
-        "src/modules/user/*"
+      "@auth/*": [
+        "src/modules/auth/*"
+      ],
+      "@category": [
+        "src/modules/category"
+      ],
+      "@category/*": [
+        "src/modules/category/*"
+      ],
+      "@mail": [
+        "src/modules/mail"
+      ],
+      "@mail/*": [
+        "src/modules/mail/*"
+      ],
+      "@product": [
+        "src/modules/product"
+      ],
+      "@product/*": [
+        "src/modules/product/*"
       ],
       "@sendgrid": [
         "src/modules/sendgrid"
@@ -36,11 +54,17 @@
       "@sendgrid/*": [
         "src/modules/sendgrid/*"
       ],
-      "@mail": [
-        "src/modules/mail"
+      "@shop": [
+        "src/modules/shop"
       ],
-      "@mail/*": [
-        "src/modules/mail/*"
+      "@shop/*": [
+        "src/modules/shop/*"
+      ],
+      "@user": [
+        "src/modules/user"
+      ],
+      "@user/*": [
+        "src/modules/user/*"
       ],
     }
   }

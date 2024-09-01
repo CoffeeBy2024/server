@@ -1,7 +1,7 @@
-import { Provider, User } from '@user/entities/user.entity';
+import { Provider, User } from '@user/entities';
 import { Exclude } from 'class-transformer';
-import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
-import { Token } from 'src/modules/auth/entities/token.entity';
+import { RegisterUserDto } from '@auth/dto';
+import { Token } from '@auth/entities';
 
 type UserResponseDtoType = User & RegisterUserDto;
 

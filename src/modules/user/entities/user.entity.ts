@@ -1,4 +1,4 @@
-import { Token } from 'src/modules/auth/entities/token.entity';
+import { Token } from '@auth/entities';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Provider {

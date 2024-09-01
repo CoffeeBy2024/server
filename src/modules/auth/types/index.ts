@@ -1,5 +1,5 @@
-import { User } from '@user/entities/user.entity';
-import { Token } from '../entities/token.entity';
+import { User } from '@user/entities';
+import { Token } from '@auth/entities';
 
 export interface Tokens {
   accessToken: string;

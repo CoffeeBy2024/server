@@ -12,21 +12,18 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { RegisterUserDto, LoginUserDto } from './dto';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { UserAgent } from 'src/common/decorators/user-agent.decorator';
+import { UserAgent, Cookies, Public } from '@common/decorators';
 import { Response, Request } from 'express';
-import { Cookies } from 'src/common/decorators/cookies.decorator';
 import { REFRESH_TOKEN } from './constants';
-import { Token } from './entities/token.entity';
-import { Public } from 'src/common/decorators/public.decorator';
-import { UserResponseDto } from '@user/dto/user-response.dto';
+import { Token } from './entities';
+import { UserResponseDto } from '@user/dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
-import { Provider } from '@user/entities/user.entity';
+import { Provider } from '@user/entities';
 
 @Controller('auth')
 export class AuthController {

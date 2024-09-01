@@ -5,12 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { RegisterUserDto, LoginUserDto } from './dto';
 import { compareSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Token } from './entities/token.entity';
+import { Token } from './entities';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import {
@@ -21,7 +20,7 @@ import {
 } from './types';
 import { ConfigService } from '@nestjs/config';
 import { GoogleAuthUserDto } from './dto/google-auth-user.dto';
-import { Provider } from '@user/entities/user.entity';
+import { Provider } from '@user/entities';
 
 @Injectable()
 export class AuthService {

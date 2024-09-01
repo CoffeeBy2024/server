@@ -9,12 +9,10 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, UserResponseDto, UpdateUserDto } from './dto';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserResponseDto } from './dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { Public } from 'src/common/decorators/public.decorator';
+import { Public } from '@common/decorators';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
