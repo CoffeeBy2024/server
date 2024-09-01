@@ -1,9 +1,9 @@
-export interface JWTPayload {
+export type JWTPayload = {
   id: number;
   email: string;
-}
+};
 
-export interface GoogleUserInfo {
+export type GoogleUserInfo = {
   sub: string; // Google user ID
   name: string;
   given_name: string;
@@ -12,11 +12,11 @@ export interface GoogleUserInfo {
   email: string;
   email_verified: boolean;
   locale: string;
-}
+};
 
-export interface GoogleUserValidateResponse {
+export type GoogleUserValidateResponse = {
   accessToken: string;
-}
+};
 
 export type GoogleAuthUserInfo = {
   email: string;
