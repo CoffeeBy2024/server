@@ -1,6 +1,8 @@
 export type JWTPayload = {
   id: number;
   email: string;
+  iat: number;
+  exp: number;
 };
 
 export type GoogleUserInfo = {
