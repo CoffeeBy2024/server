@@ -57,7 +57,6 @@ export class ShopCategoryService {
     shopCategory: ShopCategory | null
   ): ShopCategory {
     if (!shopCategory) {
-      console.error("Such category doesn't exist in this shop");
       throw new Error(
         `Shop with id - ${id} doesn\'t have such category of products`
       );
