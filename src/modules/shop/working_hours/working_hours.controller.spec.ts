@@ -1,9 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { WorkingHoursController } from './working_hours.controller';
 import { WorkingHoursService } from './working_hours.service';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { WorkingHour } from './entities/working_hour.entity';
 import { ShopService } from '../shop/shop.service';
 import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
 
@@ -15,6 +12,7 @@ import {
   arrMockWorkingHours,
   mockWorkingHours,
   updateWorkingHours,
+  workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 
 describe('WorkingHoursController', () => {
@@ -28,10 +26,7 @@ describe('WorkingHoursController', () => {
         WorkingHoursService,
         ShopService,
         shopRepositoryProvider,
-        {
-          provide: getRepositoryToken(WorkingHour),
-          useValue: Repository<WorkingHour>,
-        },
+        workingHoursRepositoryProvider,
       ],
     }).compile();
 

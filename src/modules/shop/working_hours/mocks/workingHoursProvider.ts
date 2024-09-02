@@ -1,6 +1,13 @@
 import { WorkingHour } from '../entities/working_hour.entity';
 import { shopMock as shop } from '../../shop/mocks/shopProvider';
 import { CreateWorkingHoursDto } from '../dto/create-working_hour.dto';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+
+const workingHoursRepositoryProvider = {
+  provide: getRepositoryToken(WorkingHour),
+  useValue: Repository<WorkingHour>,
+};
 
 const workingHoursDto: CreateWorkingHoursDto = {
   day_of_the_week: 1,
@@ -28,6 +35,7 @@ const updateWorkingHours: WorkingHour = {
 };
 
 export {
+  workingHoursRepositoryProvider,
   workingHoursDto,
   mockWorkingHours,
   arrMockWorkingHours,

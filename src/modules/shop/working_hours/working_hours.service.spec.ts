@@ -11,7 +11,6 @@ import {
 import { shopMock } from '../shop/mocks/shopProvider';
 import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -21,12 +20,7 @@ const createMockRepository = <
   T extends ObjectLiteral = any,
 >(): MockRepository<T> => ({
   findOne: jest.fn(),
-  create: jest.fn().mockImplementation((dto: CreateWorkingHoursDto) =>
-    Promise.resolve({
-      id: 1,
-      ...dto,
-    })
-  ),
+  create: jest.fn(),
   save: jest
     .fn()
     .mockImplementation((working_hours) => Promise.resolve(working_hours)),
@@ -63,6 +57,7 @@ describe('WorkingHoursService', () => {
   describe('Create', () => {
     it('should create Working Hours object', async () => {
       workingHoursRepository.findOne?.mockResolvedValue(null);
+      workingHoursRepository.create?.mockResolvedValue(mockWorkingHours);
 
       const result = await service.create(workingHoursDto);
 
