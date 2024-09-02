@@ -4,20 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { categoryRepositoryProvider } from './mocks/categoryProvider';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
-
-const createMockRepository = <
-  T extends ObjectLiteral = any,
->(): MockRepository<T> => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  save: jest.fn(),
-  find: jest.fn(),
-  delete: jest.fn(),
-});
 
 describe('CategoryService', () => {
   let service: CategoryService;
@@ -25,13 +16,7 @@ describe('CategoryService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CategoryService,
-        {
-          provide: getRepositoryToken(Category),
-          useValue: createMockRepository(),
-        },
-      ],
+      providers: [CategoryService, categoryRepositoryProvider],
     }).compile();
 
     service = await module.resolve<CategoryService>(CategoryService);
