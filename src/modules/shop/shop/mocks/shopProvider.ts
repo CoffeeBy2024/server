@@ -2,6 +2,7 @@ import { ObjectLiteral, Repository } from 'typeorm';
 import { Shop } from '../entities/shop.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateShopDto } from '../dto/create-shop.dto';
+import { UpdateShopDto } from '../dto/update-shop.dto';
 
 const shopDto: CreateShopDto = {
   coordinates: { type: 'Point', coordinates: [31, 32] },
@@ -50,6 +51,14 @@ const createMockRepository = <
       shopCategories: [],
     };
   }),
+  update: jest
+    .fn()
+    .mockImplementation((id: number, updateShopDto: UpdateShopDto) => {
+      return Promise.resolve({
+        ...shopMock,
+        ...updateShopDto,
+      });
+    }),
   delete: jest.fn().mockImplementation(() => ({ affected: 1 })),
 });
 

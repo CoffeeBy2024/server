@@ -5,13 +5,13 @@ import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../../modules/category/category.service';
 import {
   arrMockShop,
+  shopDto,
   shopMock,
   shopRepositoryProvider,
   updatedShop,
 } from './mocks/shopProvider';
 import { shopCategoryRepositoryProvider } from '../shop-category/mocks/shopCategoryProvider';
 import { categoryRepositoryProvider } from '../../../modules/category/mocks/categoryProvider';
-import { UpdateShopDto } from './dto/update-shop.dto';
 
 describe('Shop Controller', () => {
   let controller: ShopController;
@@ -93,24 +93,17 @@ describe('Shop Controller', () => {
     it('should create new shop', async () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(shopMock);
 
-      const result = await controller.create(shopMock);
+      const result = await controller.create(shopDto);
 
       expect(spyService.create).toHaveBeenCalled();
-      expect(spyService.create).toHaveBeenCalledWith(shopMock);
+      expect(spyService.create).toHaveBeenCalledWith(shopDto);
       expect(result).toBe(shopMock);
     });
   });
 
   describe('Patch Shop', () => {
     it('should update shop info', async () => {
-      jest
-        .spyOn(spyService, 'update')
-        .mockImplementation((id: number, updateShopDto: UpdateShopDto) => {
-          return Promise.resolve({
-            ...shopMock,
-            ...updateShopDto,
-          });
-        });
+      jest.spyOn(spyService, 'update').mockResolvedValue(updatedShop);
 
       const result = await controller.update(shopMock.id, updatedShop);
 
