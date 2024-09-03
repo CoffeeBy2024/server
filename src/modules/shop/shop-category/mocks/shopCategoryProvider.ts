@@ -18,12 +18,12 @@ type MockRepository<T extends ObjectLiteral = any> = {
 const createMockRepository = <
   T extends ObjectLiteral = any,
 >(): MockRepository<T> => ({
-  create: jest.fn(),
+  create: jest.fn().mockImplementation(() => Promise.resolve(shopCategoryMock)),
   save: jest.fn(),
   find: jest.fn().mockImplementation(() => {
     return [shopCategoryMock];
   }),
-  findOne: jest.fn(),
+  findOne: jest.fn().mockImplementation(() => shopCategoryMock),
   findOneBy: jest.fn(),
   delete: jest.fn(),
 });
