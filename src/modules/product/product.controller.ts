@@ -14,7 +14,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ShopService } from '../shop/shop/shop.service';
 import { CategoryService } from '../category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('product')
 @Controller()
@@ -29,18 +29,18 @@ export class ProductController {
   @Post('shop/:id/product')
   async create(
     @Param('id') id: number,
+    @Query('category') categoryName: string,
     @Body() createProductDto: CreateProductDto
   ) {
-    let shopCategory = await this.shopCategoryService.findOneByName(
-      createProductDto.category
-    );
+    const category = await this.categoryService.findOneByName(categoryName);
+    let shopCategory = await this.shopCategoryService.findOneByName(category);
     if (!shopCategory) {
       shopCategory = await this.shopCategoryService.create({
         shop: this.shopService.handleNonExistingShop(
           id,
           await this.shopService.findOne(id)
         ),
-        category: createProductDto.category,
+        category: category,
       });
     }
     return this.productService.create(createProductDto, shopCategory);
@@ -52,9 +52,15 @@ export class ProductController {
   }
 
   @Get('shop/:id/products/')
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: 'string',
+    explode: false,
+  })
   async getCategorySelection(
     @Param('id') shop_id: number,
-    @Query('category') category: string
+    @Query('category') category?: string
   ) {
     return !category
       ? await this.productService.findAll()

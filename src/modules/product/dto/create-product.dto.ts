@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Category } from '../../category/entities/category.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -14,7 +13,4 @@ export class CreateProductDto {
   description: string;
 
   image: Buffer;
-
-  @IsNotEmpty()
-  category: Category;
 }
