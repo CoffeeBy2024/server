@@ -92,7 +92,7 @@ describe('Product Controller', () => {
   });
 
   describe('POST product', () => {
-    it('should post product into concrete Shop', async () => {
+    it('should post product of existing category into concrete Shop', async () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(productMock);
 
       const result = await controller.create(
@@ -106,6 +106,25 @@ describe('Product Controller', () => {
         productDto,
         shopCategoryMock
       );
+      expect(result).toBe(productMock);
+    });
+
+    it('should post product of not yet existing category into concrete Shop', async () => {
+      jest.spyOn(spyService, 'create').mockResolvedValue(productMock);
+
+      const differentCategory = 'drinks';
+
+      const result = await controller.create(
+        shopMock.id,
+        differentCategory,
+        productDto
+      );
+
+      expect(spyService.create).toHaveBeenCalled();
+      expect(spyService.create).toHaveBeenCalledWith(productDto, {
+        ...shopCategoryMock,
+        category: { ...shopCategoryMock.category, name: differentCategory },
+      });
       expect(result).toBe(productMock);
     });
   });
@@ -138,6 +157,6 @@ describe('Product Controller', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 });

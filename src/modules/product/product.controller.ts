@@ -35,13 +35,11 @@ export class ProductController {
     const category = await this.categoryService.findOneByName(categoryName);
     let shopCategory = await this.shopCategoryService.findOneByName(category);
     if (!shopCategory) {
-      shopCategory = await this.shopCategoryService.create({
-        shop: this.shopService.handleNonExistingShop(
-          id,
-          await this.shopService.findOne(id)
-        ),
-        category: category,
-      });
+      const shop = this.shopService.handleNonExistingShop(
+        id,
+        await this.shopService.findOne(id)
+      );
+      shopCategory = await this.shopCategoryService.create({ shop, category });
     }
     return this.productService.create(createProductDto, shopCategory);
   }
@@ -68,7 +66,7 @@ export class ProductController {
           (
             await this.shopCategoryService.findOneById(
               shop_id,
-              (await this.categoryService.findOneByName(category)).id
+              await this.categoryService.findOneByName(category)
             )
           ).id
         );
