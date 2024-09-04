@@ -1,12 +1,29 @@
 import { WorkingHour } from '../entities/working_hour.entity';
 import { shopMock as shop } from '../../shop/mocks/shopProvider';
 import { CreateWorkingHoursDto } from '../dto/create-working_hour.dto';
-import { Repository } from 'typeorm';
+import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
+type MockRepository<T extends ObjectLiteral = any> = {
+  [P in keyof Repository<T>]?: jest.Mock<any, any>;
+};
+
+const createMockRepository = <
+  T extends ObjectLiteral = any,
+>(): MockRepository<T> => ({
+  findOne: jest.fn(),
+  create: jest.fn(),
+  save: jest
+    .fn()
+    .mockImplementation((working_hours) => Promise.resolve(working_hours)),
+  find: jest.fn(),
+  findOneBy: jest.fn(),
+  delete: jest.fn(),
+});
 
 const workingHoursRepositoryProvider = {
   provide: getRepositoryToken(WorkingHour),
-  useValue: Repository<WorkingHour>,
+  useValue: createMockRepository(),
 };
 
 const workingHoursDto: CreateWorkingHoursDto = {

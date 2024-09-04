@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { WorkingHoursController } from './working_hours.controller';
 import { WorkingHoursService } from './working_hours.service';
 import { ShopService } from '../shop/shop.service';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 
 import {
   shopMock as shop,

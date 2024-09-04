@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WorkingHour } from './entities/working_hour.entity';
@@ -15,7 +15,8 @@ export class WorkingHoursService {
   async create(createWorkingHoursDto: CreateWorkingHoursDto) {
     const { day_of_the_week, shop } = createWorkingHoursDto;
     const WHrepeatition = await this.workingHoursRepository.findOne({
-      where: { day_of_the_week: day_of_the_week, shop: shop },
+      where: { day_of_the_week: day_of_the_week },
+      relations: ['shop'],
     });
     if (WHrepeatition)
       throw new Error(

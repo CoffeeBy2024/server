@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { ShopService } from '../shop/shop.service';
 import { WorkingHoursService } from './working_hours.service';
 import { ApiTags } from '@nestjs/swagger';

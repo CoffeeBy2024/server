@@ -7,27 +7,15 @@ import {
   mockWorkingHours,
   updateWorkingHours,
   workingHoursDto,
+  workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 import { shopMock } from '../shop/mocks/shopProvider';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
-
-const createMockRepository = <
-  T extends ObjectLiteral = any,
->(): MockRepository<T> => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  save: jest
-    .fn()
-    .mockImplementation((working_hours) => Promise.resolve(working_hours)),
-  find: jest.fn(),
-  findOneBy: jest.fn(),
-  delete: jest.fn(),
-});
 
 describe('WorkingHoursService', () => {
   let service: WorkingHoursService;
@@ -35,13 +23,7 @@ describe('WorkingHoursService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WorkingHoursService,
-        {
-          provide: getRepositoryToken(WorkingHour),
-          useValue: createMockRepository(),
-        },
-      ],
+      providers: [WorkingHoursService, workingHoursRepositoryProvider],
     }).compile();
 
     service = await module.resolve<WorkingHoursService>(WorkingHoursService);
@@ -140,5 +122,9 @@ describe('WorkingHoursService', () => {
 
       consoleErrorSpy.mockRestore();
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });
