@@ -1,4 +1,4 @@
-import { IsMilitaryTime } from '../is-military-time.validator'; // Adjust the import path as necessary
+import { IsMilitaryTime } from '../is-military-time.validator';
 import { IsNotEmpty } from 'class-validator';
 
 export class TimeDto {
