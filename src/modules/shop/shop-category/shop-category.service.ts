@@ -35,11 +35,11 @@ export class ShopCategoryService {
     });
   }
 
-  async findOneById(shop_id: number, category_id: number) {
+  async findOneById(shop_id: number, category: Category) {
     return this.handleNonExistingShopCategory(
       shop_id,
       await this.shopCategoryRepository.findOne({
-        where: { shop: { id: shop_id }, category: { id: category_id } },
+        where: { shop: { id: shop_id }, category },
         relations: ['category', 'shop'],
       })
     );

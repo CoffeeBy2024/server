@@ -4,10 +4,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ShopCategory } from './entities/shop-category.entity';
 import { Category } from '../../category/entities/category.entity';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { CreateShopCategoryDto } from './dto/create-shop-category.dto';
 import { categoryMock } from '../../../modules/category/mocks/categoryProvider';
 import { shopMock } from '../shop/mocks/shopProvider';
 import {
+  createShopCategoryDto,
   shopCategoryMock,
   shopCategoryRepositoryProvider,
 } from './mocks/shopCategoryProvider';
@@ -37,14 +37,6 @@ describe('ShopCategoryService', () => {
 
   describe('Create', () => {
     it('should create a new shop category', async () => {
-      const createShopCategoryDto: CreateShopCategoryDto = {
-        category: categoryMock,
-        shop: shopMock,
-      };
-
-      shopCategoryRepository.create?.mockReturnValue(shopCategoryMock);
-      shopCategoryRepository.save?.mockResolvedValue(shopCategoryMock);
-
       const result = await service.create(createShopCategoryDto);
 
       expect(shopCategoryRepository.create).toHaveBeenCalledWith(
@@ -94,12 +86,12 @@ describe('ShopCategoryService', () => {
       it('should find one shop category by shop and category id', async () => {
         shopCategoryRepository.findOne?.mockResolvedValue(shopCategoryMock);
 
-        const result = await service.findOneById(shopMock.id, categoryMock.id);
+        const result = await service.findOneById(shopMock.id, categoryMock);
 
         expect(shopCategoryRepository.findOne).toHaveBeenCalledWith({
           where: {
             shop: { id: shopMock.id },
-            category: { id: categoryMock.id },
+            category: categoryMock,
           },
           relations: ['category', 'shop'],
         });
@@ -110,7 +102,7 @@ describe('ShopCategoryService', () => {
         shopCategoryRepository.findOne?.mockResolvedValue(null);
 
         await expect(
-          service.findOneById(shopMock.id, categoryMock.id)
+          service.findOneById(shopMock.id, categoryMock)
         ).rejects.toThrow(
           `Shop with id - ${shopCategoryMock.id} doesn't have such category of products`
         );
@@ -118,7 +110,7 @@ describe('ShopCategoryService', () => {
         expect(shopCategoryRepository.findOne).toHaveBeenCalledWith({
           where: {
             shop: { id: shopMock.id },
-            category: { id: categoryMock.id },
+            category: categoryMock,
           },
           relations: ['category', 'shop'],
         });

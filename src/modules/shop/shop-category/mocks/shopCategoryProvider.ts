@@ -3,12 +3,18 @@ import { shopMock } from '../../shop/mocks/shopProvider';
 import { categoryMock } from '../../../../modules/category/mocks/categoryProvider';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ObjectLiteral, Repository } from 'typeorm';
+import { CreateShopCategoryDto } from '../dto/create-shop-category.dto';
 
 const shopCategoryMock: ShopCategory = {
   id: 1,
   shop: shopMock,
   category: categoryMock,
   products: [],
+};
+
+const createShopCategoryDto: CreateShopCategoryDto = {
+  category: categoryMock,
+  shop: shopMock,
 };
 
 type MockRepository<T extends ObjectLiteral = any> = {
@@ -18,12 +24,22 @@ type MockRepository<T extends ObjectLiteral = any> = {
 const createMockRepository = <
   T extends ObjectLiteral = any,
 >(): MockRepository<T> => ({
-  create: jest.fn().mockImplementation(() => Promise.resolve(shopCategoryMock)),
-  save: jest.fn(),
+  create: jest
+    .fn()
+    .mockImplementation(({ shop, category }: CreateShopCategoryDto) => ({
+      ...shopCategoryMock,
+      shop,
+      category,
+    })),
+  save: jest
+    .fn()
+    .mockImplementation((shopCategory: ShopCategory) => shopCategory),
   find: jest.fn().mockImplementation(() => {
     return [shopCategoryMock];
   }),
-  findOne: jest.fn().mockImplementation(() => shopCategoryMock),
+  findOne: jest.fn().mockImplementation(({ where: { category } }) => {
+    return category.name === categoryMock.name ? shopCategoryMock : undefined;
+  }),
   findOneBy: jest.fn(),
   delete: jest.fn(),
 });
@@ -33,4 +49,8 @@ const shopCategoryRepositoryProvider = {
   useValue: createMockRepository(),
 };
 
-export { shopCategoryRepositoryProvider, shopCategoryMock };
+export {
+  createShopCategoryDto,
+  shopCategoryRepositoryProvider,
+  shopCategoryMock,
+};
