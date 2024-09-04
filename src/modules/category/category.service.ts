@@ -35,7 +35,7 @@ export class CategoryService {
     return category;
   }
 
-  private convertToEnum(category: string): CATEGORY {
+  convertToEnum(category: string): CATEGORY {
     switch (category) {
       case 'coffee':
         return CATEGORY.coffee;

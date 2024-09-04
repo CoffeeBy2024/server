@@ -4,7 +4,11 @@ import { CategoryService } from './category.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
-import { arrMockCategories } from './mocks/categoryProvider';
+import {
+  arrMockCategories,
+  categoryDto,
+  categoryMock,
+} from './mocks/categoryProvider';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -38,10 +42,27 @@ describe('CategoryController', () => {
 
       expect(result).toBe(arrMockCategories);
     });
-    it('should get concrete category by name', () => {});
+
+    it('should get concrete category by name', async () => {
+      jest.spyOn(spyService, 'findOneByName').mockResolvedValue(categoryMock);
+
+      const result = await controller.findOneByName(categoryMock.name);
+
+      expect(spyService.findOneByName).toHaveBeenCalled();
+      expect(spyService.findOneByName).toHaveBeenCalledWith(categoryMock.name);
+      expect(result).toBe(categoryMock);
+    });
   });
 
   describe('POST', () => {
-    it('shoul post new category from enum list', () => {});
+    it('shoul post new category from enum list', async () => {
+      jest.spyOn(spyService, 'create').mockResolvedValue(categoryMock);
+
+      const result = await controller.create(categoryDto);
+
+      expect(spyService.create).toHaveBeenCalled();
+      expect(spyService.create).toHaveBeenCalledWith(categoryDto);
+      expect(result).toBe(categoryMock);
+    });
   });
 });
