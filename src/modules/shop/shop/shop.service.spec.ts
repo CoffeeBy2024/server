@@ -104,6 +104,26 @@ describe('ShopService', () => {
     });
   });
 
+  describe('Handler', () => {
+    it('should ensure that shop exists', () => {
+      const result = service.handleNonExistingShop(shopMock.id, shopMock);
+
+      expect(result).toEqual(shopMock);
+    });
+
+    it('should throw Error due to non-existing shop', () => {
+      try {
+        service.handleNonExistingShop(shopMock.id, null);
+        expect(false).toBeTruthy(); // we should never hit this line
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect(err.message).toEqual(
+          `Shop with id - ${shopMock.id} doesn't exist`
+        );
+      }
+    });
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });

@@ -54,7 +54,6 @@ export class ShopService {
 
   handleNonExistingShop(id: number, shop: Shop | null): Shop {
     if (!shop) {
-      console.error('Trying to reach non-existing shop');
       throw new Error(`Shop with id - ${id} doesn't exist`);
     }
     return shop;
