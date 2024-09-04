@@ -62,8 +62,7 @@ export class UserService {
       throw new BadRequestException('Email verification link is not correct');
     }
     user.emailVerified = true;
-    await this.userRepository.save(user);
-    return user;
+    return this.userRepository.save(user);
   }
 
   private hashPassword(password: string) {
