@@ -37,6 +37,7 @@ export class UserService {
     if (user) {
       return this.userRepository.remove(user);
     }
+    return null;
   }
 
   async updateUser(dto: UpdateUserDto, IdOrEmail: string) {
