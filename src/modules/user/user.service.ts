@@ -23,7 +23,9 @@ export class UserService {
 
   async createUser(dto: Partial<User>) {
     const hashedPassword = dto.password && this.hashPassword(dto.password);
-    return this.userRepository.save({ ...dto, password: hashedPassword });
+    return this.userRepository.save(
+      this.userRepository.create({ ...dto, password: hashedPassword })
+    );
   }
 
   async getAllUsers() {
