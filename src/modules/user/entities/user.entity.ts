@@ -14,14 +14,14 @@ export class User {
   @Column()
   firstName: string;
 
-  @Column({ nullable: true })
-  lastName: string;
+  @Column({ type: 'varchar', nullable: true })
+  lastName: string | null;
 
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: true })
-  password: string;
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null;
 
   @Column({
     type: 'enum',
@@ -32,11 +32,11 @@ export class User {
   @Column()
   emailVerified: boolean;
 
-  @Column({ nullable: true })
-  emailVerificationLink: string;
+  @Column({ type: 'varchar', nullable: true })
+  emailVerificationLink: string | null;
 
   @Column('jsonb', { nullable: true })
-  location: string;
+  location: string | null;
 
   @OneToMany(() => Token, (token) => token.user)
   tokens: Token[];

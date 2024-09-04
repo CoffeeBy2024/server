@@ -45,7 +45,7 @@ export class AuthService {
 
   async login(dto: LoginUserDto, agent: string) {
     const user = await this.userService.getUser(dto.email);
-    if (!user || !compareSync(dto.password, user?.password)) {
+    if (!user || !user.password || !compareSync(dto.password, user?.password)) {
       throw new BadRequestException('Invalid email or password');
     }
     return this.createTokens(user, agent);
