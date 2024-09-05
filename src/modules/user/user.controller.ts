@@ -60,7 +60,10 @@ export class UserController {
 
   @Public()
   @Get('verify-email/:emailVerificationLink')
-  async verify(@Param('emailVerificationLink') emailVerificationLink: string) {
-    return this.userService.verifyEmail(emailVerificationLink);
+  async verifyEmail(
+    @Param('emailVerificationLink') emailVerificationLink: string
+  ) {
+    const user = await this.userService.verifyEmail(emailVerificationLink);
+    return new UserResponseDto(user);
   }
 }
