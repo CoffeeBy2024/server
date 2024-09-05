@@ -27,7 +27,9 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterUserDto, provider: Provider) {
-    const user = await this.userService.getUser(dto.email);
+    const user = await this.userService.getUserByConditions({
+      email: dto.email,
+    });
     if (user) {
       throw new ConflictException(
         `The user with the email address '${user.email}' already exists`
@@ -44,7 +46,9 @@ export class AuthService {
   }
 
   async login(dto: LoginUserDto, agent: string) {
-    const user = await this.userService.getUser(dto.email);
+    const user = await this.userService.getUserByConditions({
+      email: dto.email,
+    });
     if (!user || !user.password || !compareSync(dto.password, user?.password)) {
       throw new BadRequestException('Invalid email or password');
     }
@@ -87,7 +91,9 @@ export class AuthService {
     agent: string,
     provider: Provider
   ) {
-    const user = await this.userService.getUser(userInfo.email);
+    const user = await this.userService.getUserByConditions({
+      email: userInfo.email,
+    });
     if (user) {
       return this.createTokens(user, agent);
     }

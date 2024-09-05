@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UseInterceptors,
@@ -30,30 +31,30 @@ export class UserController {
     return plainToInstance(UserResponseDto, this.userService.getAllUsers());
   }
 
-  @Get(':IdOrEmail')
-  async getUser(@Param('IdOrEmail') idOrEmail: string) {
-    const user = await this.userService.getUser(idOrEmail);
+  @Get(':id')
+  async getUser(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.getUserByConditions({ id });
     if (user) {
       return new UserResponseDto(user);
     }
     return null;
   }
 
-  @Delete(':IdOrEmail')
-  async deleteUser(@Param('IdOrEmail') IdOrEmail: string) {
-    const user = await this.userService.deleteUser(IdOrEmail);
+  @Delete(':id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.deleteUser(id);
     if (user) {
       return new UserResponseDto(user);
     }
     return null;
   }
 
-  @Patch(':IdOrEmail')
+  @Patch(':id')
   async updateUser(
     @Body() dto: UpdateUserDto,
-    @Param('IdOrEmail') IdOrEmail: string
+    @Param('id', ParseIntPipe) id: number
   ) {
-    const user = await this.userService.updateUser(dto, IdOrEmail);
+    const user = await this.userService.updateUser(dto, id);
     return new UserResponseDto(user);
   }
 

@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { UpdateUserDto } from './dto';
+import { OptionalWithoutNull } from './types';
 
 @Injectable()
 export class UserService {
@@ -12,12 +13,13 @@ export class UserService {
     private readonly userRepository: Repository<User>
   ) {}
 
-  async getUser(idOrEmail: string) {
+  async getUserByConditions(
+    conditions: OptionalWithoutNull<User>,
+    options: Omit<FindOneOptions<User>, 'where'> = {}
+  ) {
     return this.userRepository.findOne({
-      where: [{ id: Number(idOrEmail) || 0 }, { email: idOrEmail }],
-      relations: {
-        tokens: true,
-      },
+      where: conditions,
+      ...options,
     });
   }
 
@@ -32,20 +34,18 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async deleteUser(IdOrEmail: string) {
-    const user = await this.getUser(IdOrEmail);
+  async deleteUser(id: number) {
+    const user = await this.getUserByConditions({ id });
     if (user) {
       return this.userRepository.remove(user);
     }
     return null;
   }
 
-  async updateUser(dto: UpdateUserDto, IdOrEmail: string) {
-    const user = await this.getUser(IdOrEmail);
+  async updateUser(dto: UpdateUserDto, id: number) {
+    const user = await this.getUserByConditions({ id });
     if (!user) {
-      throw new BadRequestException(
-        `Cannot find user with '${IdOrEmail}' id or email`
-      );
+      throw new BadRequestException(`Cannot find user with '${id}' id`);
     }
 
     const hashedPassword = dto.password
@@ -57,7 +57,7 @@ export class UserService {
   }
 
   async verifyEmail(emailVerificationLink: string) {
-    const user = await this.userRepository.findOneBy({ emailVerificationLink });
+    const user = await this.getUserByConditions({ emailVerificationLink });
     if (!user) {
       throw new BadRequestException('Email verification link is not correct');
     }
