@@ -27,7 +27,7 @@ export class UserController {
   }
 
   @Get()
-  getAllUsers() {
+  async getAllUsers() {
     return plainToInstance(UserResponseDto, this.userService.getAllUsers());
   }
 
@@ -60,7 +60,7 @@ export class UserController {
 
   @Public()
   @Get('verify-email/:emailVerificationLink')
-  verify(@Param('emailVerificationLink') emailVerificationLink: string) {
+  async verify(@Param('emailVerificationLink') emailVerificationLink: string) {
     return this.userService.verifyEmail(emailVerificationLink);
   }
 }
