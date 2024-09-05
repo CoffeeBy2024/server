@@ -41,11 +41,6 @@ const mockWorkingHours: WorkingHour = {
   shop: shop,
 };
 
-const arrMockWorkingHours: WorkingHour[] = [
-  { ...mockWorkingHours, id: 1 },
-  { ...mockWorkingHours, id: 2 },
-];
-
 const updateWorkingHours: WorkingHour = {
   ...mockWorkingHours,
   open_hour: '08:15',
@@ -55,6 +50,5 @@ export {
   workingHoursRepositoryProvider,
   workingHoursDto,
   mockWorkingHours,
-  arrMockWorkingHours,
   updateWorkingHours,
 };

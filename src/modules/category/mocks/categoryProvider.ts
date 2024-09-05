@@ -4,21 +4,6 @@ import { Category } from '../entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 
-const categoryMock: Category = {
-  id: 1,
-  name: 'coffee',
-  shopCategory: shopCategoryMock,
-};
-
-const categoryDto: CreateCategoryDto = {
-  name: 'coffee',
-};
-
-const arrMockCategories: Category[] = [
-  { ...categoryMock, id: 1, name: 'coffee' },
-  { ...categoryMock, id: 2, name: 'drinks' },
-];
-
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
@@ -46,9 +31,14 @@ const categoryRepositoryProvider = {
   useValue: createMockRepository(),
 };
 
-export {
-  categoryMock,
-  categoryDto,
-  arrMockCategories,
-  categoryRepositoryProvider,
+const categoryDto: CreateCategoryDto = {
+  name: 'coffee',
 };
+
+const categoryMock: Category = {
+  id: 1,
+  name: 'coffee',
+  shopCategory: shopCategoryMock,
+};
+
+export { categoryRepositoryProvider, categoryDto, categoryMock };

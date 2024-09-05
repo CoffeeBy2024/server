@@ -3,30 +3,6 @@ import { Shop } from '../entities/shop.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateShopDto } from '../dto/create-shop.dto';
 
-const shopDto: CreateShopDto = {
-  coordinates: { type: 'Point', coordinates: [31, 32] },
-  name: 'Starbucks',
-  working_hours: [],
-};
-
-const shopMock: Shop = {
-  id: 1,
-  coordinates: { type: 'Point', coordinates: [31, 32] },
-  name: 'Starbucks',
-  working_hours: [],
-  shopCategories: [],
-};
-
-const updatedShop: Shop = {
-  ...shopMock,
-  name: 'Starbucks & Co',
-};
-
-const arrMockShop: Shop[] = [
-  { ...shopMock, id: 1, name: 'Starbucks' },
-  { ...shopMock, id: 2, name: 'Dobro' },
-];
-
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
@@ -59,4 +35,23 @@ const shopRepositoryProvider = {
   useValue: createMockRepository(),
 };
 
-export { shopDto, shopMock, updatedShop, arrMockShop, shopRepositoryProvider };
+const shopDto: CreateShopDto = {
+  coordinates: { type: 'Point', coordinates: [31, 32] },
+  name: 'Starbucks',
+  working_hours: [],
+};
+
+const shopMock: Shop = {
+  id: 1,
+  coordinates: { type: 'Point', coordinates: [31, 32] },
+  name: 'Starbucks',
+  working_hours: [],
+  shopCategories: [],
+};
+
+const updatedShop: Shop = {
+  ...shopMock,
+  name: 'Starbucks & Co',
+};
+
+export { shopDto, shopMock, updatedShop, shopRepositoryProvider };

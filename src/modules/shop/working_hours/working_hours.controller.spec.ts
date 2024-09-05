@@ -9,7 +9,6 @@ import {
   shopRepositoryProvider,
 } from '../shop/mocks/shopProvider';
 import {
-  arrMockWorkingHours,
   mockWorkingHours,
   updateWorkingHours,
   workingHoursRepositoryProvider,
@@ -42,13 +41,13 @@ describe('WorkingHoursController', () => {
     it('should get working hours for concrete shop', async () => {
       jest
         .spyOn(spyService, 'findAllById')
-        .mockResolvedValue(arrMockWorkingHours);
+        .mockResolvedValue([mockWorkingHours]);
 
       const result = await controller.findWHByShop(shop.id);
 
       expect(spyService.findAllById).toHaveBeenCalled();
       expect(spyService.findAllById).toHaveBeenCalledWith(shop.id);
-      expect(result).toBe(arrMockWorkingHours);
+      expect(result).toEqual([mockWorkingHours]);
     });
   });
 

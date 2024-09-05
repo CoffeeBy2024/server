@@ -5,18 +5,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { CreateShopCategoryDto } from '../dto/create-shop-category.dto';
 
-const shopCategoryMock: ShopCategory = {
-  id: 1,
-  shop: shopMock,
-  category: categoryMock,
-  products: [],
-};
-
-const createShopCategoryDto: CreateShopCategoryDto = {
-  category: categoryMock,
-  shop: shopMock,
-};
-
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
@@ -49,8 +37,20 @@ const shopCategoryRepositoryProvider = {
   useValue: createMockRepository(),
 };
 
+const createShopCategoryDto: CreateShopCategoryDto = {
+  category: categoryMock,
+  shop: shopMock,
+};
+
+const shopCategoryMock: ShopCategory = {
+  id: 1,
+  shop: shopMock,
+  category: categoryMock,
+  products: [],
+};
+
 export {
-  createShopCategoryDto,
   shopCategoryRepositoryProvider,
+  createShopCategoryDto,
   shopCategoryMock,
 };

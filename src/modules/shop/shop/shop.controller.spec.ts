@@ -4,7 +4,6 @@ import { ShopService } from './shop.service';
 import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../../modules/category/category.service';
 import {
-  arrMockShop,
   shopDto,
   shopMock,
   shopRepositoryProvider,
@@ -68,13 +67,13 @@ describe('Shop Controller', () => {
       });
 
       it('should get all shop due to no parametrs entered', async () => {
-        jest.spyOn(spyService, 'findAll').mockResolvedValue(arrMockShop);
+        jest.spyOn(spyService, 'findAll').mockResolvedValue([shopMock]);
 
         const result = await controller.getCategorySelection('', '');
 
         expect(spyService.findAll).toHaveBeenCalled();
         expect(spyService.findAll).toHaveBeenCalledWith();
-        expect(result).toBe(arrMockShop);
+        expect(result).toEqual([shopMock]);
       });
 
       it('should throw Error due to both Parametrs entered', async () => {

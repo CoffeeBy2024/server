@@ -55,9 +55,9 @@ const updateProduct: Product = {
 };
 
 export {
+  productRepositoryProvider,
   productDto,
   productMock,
   updatedProductDto,
   updateProduct,
-  productRepositoryProvider,
 };

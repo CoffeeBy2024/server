@@ -3,7 +3,6 @@ import { WorkingHoursService } from './working_hours.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
-  arrMockWorkingHours,
   mockWorkingHours,
   updateWorkingHours,
   workingHoursDto,
@@ -63,12 +62,12 @@ describe('WorkingHoursService', () => {
 
   describe('findAllById', () => {
     it('should find Working Hours for concrete shop', async () => {
-      workingHoursRepository.find?.mockResolvedValue(arrMockWorkingHours);
+      workingHoursRepository.find?.mockResolvedValue([mockWorkingHours]);
 
       const shopId = shopMock.id;
       const result = await service.findAllById(shopId);
 
-      expect(result).toEqual(arrMockWorkingHours);
+      expect(result).toEqual([mockWorkingHours]);
       expect(workingHoursRepository.find).toHaveBeenCalledWith({
         where: { shop: { id: shopId } },
       });

@@ -4,11 +4,7 @@ import { CategoryService } from './category.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
-import {
-  arrMockCategories,
-  categoryDto,
-  categoryMock,
-} from './mocks/categoryProvider';
+import { categoryDto, categoryMock } from './mocks/categoryProvider';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -36,11 +32,11 @@ describe('CategoryController', () => {
 
   describe('GET', () => {
     it('should get all categories', async () => {
-      jest.spyOn(spyService, 'findAll').mockResolvedValue(arrMockCategories);
+      jest.spyOn(spyService, 'findAll').mockResolvedValue([categoryMock]);
 
       const result = await controller.findAll();
 
-      expect(result).toBe(arrMockCategories);
+      expect(result).toEqual([categoryMock]);
     });
 
     it('should get concrete category by name', async () => {

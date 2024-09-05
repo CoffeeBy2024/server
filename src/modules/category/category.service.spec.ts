@@ -5,7 +5,6 @@ import { CATEGORY, Category } from './entities/category.entity';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import {
-  arrMockCategories,
   categoryDto,
   categoryMock,
   categoryRepositoryProvider,
@@ -47,13 +46,13 @@ describe('CategoryService', () => {
   describe('Find', () => {
     describe('findAll', () => {
       it('should find all categories', async () => {
-        categoryRepository.find?.mockResolvedValue(arrMockCategories);
+        categoryRepository.find?.mockResolvedValue([categoryMock]);
 
         const result = await service.findAll();
 
         expect(categoryRepository.find).toHaveBeenCalled();
         expect(categoryRepository.find).toHaveBeenCalledWith();
-        expect(result).toBe(arrMockCategories);
+        expect(result).toEqual([categoryMock]);
       });
     });
 
