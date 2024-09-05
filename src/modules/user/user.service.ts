@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities';
 import { FindOneOptions, Repository } from 'typeorm';
 import { genSaltSync, hashSync } from 'bcrypt';
-import { UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { OptionalWithoutNull } from './types';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class UserService {
     });
   }
 
-  async createUser(dto: Partial<User>) {
+  async createUser(dto: CreateUserDto) {
     const hashedPassword = dto.password && this.hashPassword(dto.password);
     return this.userRepository.save(
       this.userRepository.create({ ...dto, password: hashedPassword })
