@@ -74,10 +74,10 @@ describe('ShopCategoryService', () => {
     it('should find one shop category by category name', async () => {
       shopCategoryRepository.findOne?.mockResolvedValue(shopCategoryMock);
 
-      const result = await service.findOneByName(categoryMock);
+      const result = await service.findOneByName(shopMock.id, categoryMock);
 
       expect(shopCategoryRepository.findOne).toHaveBeenCalledWith({
-        where: { category: categoryMock },
+        where: { shop: { id: shopMock.id }, category: { id: categoryMock.id } },
       });
       expect(result).toEqual(shopCategoryMock);
     });

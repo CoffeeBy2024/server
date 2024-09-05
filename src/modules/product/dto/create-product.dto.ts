@@ -12,5 +12,6 @@ export class CreateProductDto {
   @IsOptional()
   description: string;
 
+  @IsNotEmpty()
   image: Buffer;
 }

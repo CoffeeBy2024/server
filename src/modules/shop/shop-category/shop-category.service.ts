@@ -29,9 +29,9 @@ export class ShopCategoryService {
     });
   }
 
-  async findOneByName(category: Category) {
+  async findOneByName(shop_id: number, category: Category) {
     return await this.shopCategoryRepository.findOne({
-      where: { category: category },
+      where: { shop: { id: shop_id }, category: { id: category.id } },
     });
   }
 

@@ -33,7 +33,10 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto
   ) {
     const category = await this.categoryService.findOneByName(categoryName);
-    let shopCategory = await this.shopCategoryService.findOneByName(category);
+    let shopCategory = await this.shopCategoryService.findOneByName(
+      id,
+      category
+    );
     if (!shopCategory) {
       const shop = this.shopService.handleNonExistingShop(
         id,
@@ -45,7 +48,7 @@ export class ProductController {
   }
 
   @Get('shop/:sid/product/:id')
-  findOne(@Param('sid') sid: number, @Param('id') id: number) {
+  findOne(@Param('id') id: number) {
     return this.productService.findOneBy(id);
   }
 

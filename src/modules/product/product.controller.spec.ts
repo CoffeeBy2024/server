@@ -54,7 +54,7 @@ describe('Product Controller', () => {
     it('should get concrete Product from concrete Shop', async () => {
       jest.spyOn(spyService, 'findOneBy').mockResolvedValue(productMock);
 
-      const result = await controller.findOne(shopMock.id, productMock.id);
+      const result = await controller.findOne(productMock.id);
 
       expect(spyService.findOneBy).toHaveBeenCalled();
       expect(spyService.findOneBy).toHaveBeenCalledWith(productMock.id);
