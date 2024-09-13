@@ -15,7 +15,7 @@ import { UpdateShopDto } from './dto/update-shop.dto';
 import { ShopService } from './shop.service';
 import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../category/category.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('shop')
 @Controller('shop')
@@ -27,9 +27,21 @@ export class ShopController {
   ) {}
 
   @Get()
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: 'string',
+    explode: false,
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: 'string',
+    explode: false,
+  })
   async getCategorySelection(
-    @Query('category') category: string,
-    @Query('name') name: string
+    @Query('category') category?: string,
+    @Query('name') name?: string
   ) {
     if (name && category) throw new Error('Too Many Parametrs Entered');
     if (name) return await this.shopService.findByName(name);

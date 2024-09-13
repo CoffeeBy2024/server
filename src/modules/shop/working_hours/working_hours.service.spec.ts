@@ -3,37 +3,18 @@ import { WorkingHoursService } from './working_hours.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
-  arrMockWorkingHours,
   mockWorkingHours,
   updateWorkingHours,
   workingHoursDto,
+  workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 import { shopMock } from '../shop/mocks/shopProvider';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
 };
-
-const createMockRepository = <
-  T extends ObjectLiteral = any,
->(): MockRepository<T> => ({
-  findOne: jest.fn(),
-  create: jest.fn().mockImplementation((dto: CreateWorkingHoursDto) =>
-    Promise.resolve({
-      id: 1,
-      ...dto,
-    })
-  ),
-  save: jest
-    .fn()
-    .mockImplementation((working_hours) => Promise.resolve(working_hours)),
-  find: jest.fn(),
-  findOneBy: jest.fn(),
-  delete: jest.fn(),
-});
 
 describe('WorkingHoursService', () => {
   let service: WorkingHoursService;
@@ -41,13 +22,7 @@ describe('WorkingHoursService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WorkingHoursService,
-        {
-          provide: getRepositoryToken(WorkingHour),
-          useValue: createMockRepository(),
-        },
-      ],
+      providers: [WorkingHoursService, workingHoursRepositoryProvider],
     }).compile();
 
     service = await module.resolve<WorkingHoursService>(WorkingHoursService);
@@ -63,6 +38,7 @@ describe('WorkingHoursService', () => {
   describe('Create', () => {
     it('should create Working Hours object', async () => {
       workingHoursRepository.findOne?.mockResolvedValue(null);
+      workingHoursRepository.create?.mockResolvedValue(mockWorkingHours);
 
       const result = await service.create(workingHoursDto);
 
@@ -86,12 +62,12 @@ describe('WorkingHoursService', () => {
 
   describe('findAllById', () => {
     it('should find Working Hours for concrete shop', async () => {
-      workingHoursRepository.find?.mockResolvedValue(arrMockWorkingHours);
+      workingHoursRepository.find?.mockResolvedValue([mockWorkingHours]);
 
       const shopId = shopMock.id;
       const result = await service.findAllById(shopId);
 
-      expect(result).toEqual(arrMockWorkingHours);
+      expect(result).toEqual([mockWorkingHours]);
       expect(workingHoursRepository.find).toHaveBeenCalledWith({
         where: { shop: { id: shopId } },
       });
@@ -145,5 +121,9 @@ describe('WorkingHoursService', () => {
 
       consoleErrorSpy.mockRestore();
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });

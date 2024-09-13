@@ -1,20 +1,17 @@
 import { Test } from '@nestjs/testing';
 import { WorkingHoursController } from './working_hours.controller';
 import { WorkingHoursService } from './working_hours.service';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { WorkingHour } from './entities/working_hour.entity';
 import { ShopService } from '../shop/shop.service';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 
 import {
   shopMock as shop,
   shopRepositoryProvider,
 } from '../shop/mocks/shopProvider';
 import {
-  arrMockWorkingHours,
   mockWorkingHours,
   updateWorkingHours,
+  workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 
 describe('WorkingHoursController', () => {
@@ -28,10 +25,7 @@ describe('WorkingHoursController', () => {
         WorkingHoursService,
         ShopService,
         shopRepositoryProvider,
-        {
-          provide: getRepositoryToken(WorkingHour),
-          useValue: Repository<WorkingHour>,
-        },
+        workingHoursRepositoryProvider,
       ],
     }).compile();
 
@@ -47,13 +41,13 @@ describe('WorkingHoursController', () => {
     it('should get working hours for concrete shop', async () => {
       jest
         .spyOn(spyService, 'findAllById')
-        .mockResolvedValue(arrMockWorkingHours);
+        .mockResolvedValue([mockWorkingHours]);
 
       const result = await controller.findWHByShop(shop.id);
 
       expect(spyService.findAllById).toHaveBeenCalled();
       expect(spyService.findAllById).toHaveBeenCalledWith(shop.id);
-      expect(result).toBe(arrMockWorkingHours);
+      expect(result).toEqual([mockWorkingHours]);
     });
   });
 

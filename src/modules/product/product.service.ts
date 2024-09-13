@@ -49,6 +49,6 @@ export class ProductService {
 
   async remove(id: number) {
     const product = await this.productRepository.delete({ id: id });
-    return product.affected && product.raw > 0;
+    return product.affected && product.affected > 0;
   }
 }

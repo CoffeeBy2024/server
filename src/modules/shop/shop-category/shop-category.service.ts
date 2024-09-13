@@ -29,17 +29,17 @@ export class ShopCategoryService {
     });
   }
 
-  async findOneByName(category: Category) {
+  async findOneByName(shop_id: number, category: Category) {
     return await this.shopCategoryRepository.findOne({
-      where: { category: category },
+      where: { shop: { id: shop_id }, category: { id: category.id } },
     });
   }
 
-  async findOneById(shop_id: number, category_id: number) {
+  async findOneById(shop_id: number, category: Category) {
     return this.handleNonExistingShopCategory(
       shop_id,
       await this.shopCategoryRepository.findOne({
-        where: { shop: { id: shop_id }, category: { id: category_id } },
+        where: { shop: { id: shop_id }, category },
         relations: ['category', 'shop'],
       })
     );
@@ -57,7 +57,6 @@ export class ShopCategoryService {
     shopCategory: ShopCategory | null
   ): ShopCategory {
     if (!shopCategory) {
-      console.error("Such category doesn't exist in this shop");
       throw new Error(
         `Shop with id - ${id} doesn\'t have such category of products`
       );

@@ -3,6 +3,7 @@ import { Point } from 'typeorm';
 import { WorkingHour } from '../../working_hours/entities/working_hour.entity';
 
 export class CreateShopDto {
+  @IsNotEmpty()
   @IsString()
   name: string;
 
