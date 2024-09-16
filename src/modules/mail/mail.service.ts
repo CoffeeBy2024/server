@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EmailVerificationDto } from './dto';
-import { SendgridService } from '@sendgrid/sendgrid.service';
+import { SendgridService } from './sendgrid/sendgrid.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

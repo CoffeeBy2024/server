@@ -48,12 +48,6 @@
       "@product/*": [
         "src/modules/product/*"
       ],
-      "@sendgrid": [
-        "src/modules/sendgrid"
-      ],
-      "@sendgrid/*": [
-        "src/modules/sendgrid/*"
-      ],
       "@shop": [
         "src/modules/shop"
       ],

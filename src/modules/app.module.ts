@@ -12,7 +12,7 @@ import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
 import { UserModule } from '@user/user.module';
 import { AuthModule } from '@auth/auth.module';
-import { SendgridModule } from '@sendgrid/sendgrid.module';
+import { SendgridModule } from '@mail/sendgrid/sendgrid.module';
 import { MailModule } from '@mail/mail.module';
 
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';

@@ -1,12 +1,9 @@
 import { InternalServerErrorException, Module } from '@nestjs/common';
-import { SendgridService } from './sendgrid.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { MailService } from '@sendgrid/mail';
 
 @Module({
-  imports: [ConfigModule],
   providers: [
-    SendgridService,
     {
       provide: MailService,
       useFactory: (configService: ConfigService) => {
@@ -25,6 +22,6 @@ import { MailService } from '@sendgrid/mail';
       inject: [ConfigService],
     },
   ],
-  exports: [SendgridService],
+  exports: [MailService],
 })
-export class SendgridModule {}
+export class MailModule {}

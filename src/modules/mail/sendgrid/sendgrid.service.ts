@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { MailService, ClientResponse, MailDataRequired } from '@sendgrid/mail';
+import { ClientResponse, MailDataRequired, MailService } from '@sendgrid/mail';
 
 @Injectable()
 export class SendgridService {
