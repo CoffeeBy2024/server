@@ -12,4 +12,31 @@ export class CreateUserDto extends OmitType(RegisterUserDto, [
   provider: Provider;
   emailVerified: boolean;
   emailVerificationLink?: string;
+
+  constructor({
+    email,
+    emailVerificationLink,
+    emailVerified,
+    firstName,
+    lastName,
+    password,
+    provider,
+  }: Partial<
+    RegisterUserDto & {
+      provider: Provider;
+      emailVerified: boolean;
+      emailVerificationLink?: string;
+    }
+  >) {
+    super();
+    Object.assign(this, {
+      email,
+      emailVerificationLink,
+      emailVerified,
+      firstName,
+      lastName,
+      password,
+      provider,
+    });
+  }
 }

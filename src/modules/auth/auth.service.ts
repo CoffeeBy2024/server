@@ -15,6 +15,7 @@ import { v4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import { Provider, User } from '@user/entities';
 import { GoogleAuthUserInfo } from './types';
+import { CreateUserDto } from '@user/dto';
 
 @Injectable()
 export class AuthService {
@@ -37,12 +38,13 @@ export class AuthService {
     }
     const emailVerificationLink = v4();
     const emailVerified = false;
-    return this.userService.createUser({
+    const createUserDto = new CreateUserDto({
       ...dto,
       provider,
       emailVerified,
       emailVerificationLink,
     });
+    return this.userService.createUser(createUserDto);
   }
 
   async login(dto: LoginUserDto, agent: string) {
