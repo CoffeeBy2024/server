@@ -1,61 +1,65 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from '@user/dto';
 import { Provider, User } from '@user/entities';
+import { genSaltSync, hashSync } from 'bcrypt';
 import { ObjectLiteral, Repository } from 'typeorm';
 
-export const mockUser: User = {
-  id: 1,
-  firstName: 'John',
-  lastName: 'Davidson',
-  email: 'fdgdfdg@gmail.com',
-  password: '123123123',
-  provider: Provider.PASSWORD,
-  emailVerified: false,
-  emailVerificationLink: '3c039007-070d-41ab-a067-36706152a783',
-  location: null,
-  tokens: [],
-};
-
-export const mockUserGoogle: User = {
-  id: 1,
-  firstName: 'John',
-  lastName: 'Davidson',
-  email: 'fdgdfdg@gmail.com',
-  password: null,
-  provider: Provider.GOOGLE,
-  emailVerified: true,
-  emailVerificationLink: null,
-  location: null,
-  tokens: [],
-};
+export const password = '123123123';
+export const hashedPassword = hashSync(password, genSaltSync(5));
 
 export const passwordDto: CreateUserDto = {
   firstName: 'John',
   lastName: 'Davidson',
-  email: 'fdgdfdg@gmail.com',
-  password: '123123123',
+  email: 'password@gmail.com',
+  password: password,
   provider: Provider.PASSWORD,
   emailVerified: false,
-  emailVerificationLink: '3c039007-070d-41ab-a067-36706152a783',
+  emailVerificationLink: 'mock-uuid-value',
+};
+
+export const mockUser: User = {
+  id: 1,
+  firstName: passwordDto.firstName,
+  lastName: passwordDto.lastName as string,
+  email: passwordDto.email,
+  password: passwordDto.password as string,
+  provider: passwordDto.provider,
+  emailVerified: passwordDto.emailVerified,
+  emailVerificationLink: passwordDto.emailVerificationLink as string,
+  location: null,
+  tokens: [],
 };
 
 export const googleDto: CreateUserDto = {
   firstName: 'John',
   lastName: 'Davidson',
-  email: 'fdgdfdg@gmail.com',
+  email: 'google@gmail.com',
   provider: Provider.GOOGLE,
   emailVerified: true,
+};
+
+export const mockUserGoogle: User = {
+  id: 1,
+  firstName: googleDto.firstName,
+  lastName: googleDto.lastName as string,
+  email: googleDto.email,
+  password: null,
+  provider: googleDto.provider,
+  emailVerified: googleDto.emailVerified,
+  emailVerificationLink: null,
+  location: null,
+  tokens: [],
+};
+
+export const updateUserDto: UpdateUserDto = {
+  firstName: 'Bob',
+  password: 'newOne',
 };
 
 export const userArr: User[] = [
   { ...mockUser, id: 2, email: 'John@gmail.com' },
   { ...mockUser, id: 3, email: 'John1@gmail.com' },
 ];
-
-export const updateUserDto: UpdateUserDto = {
-  firstName: 'Bob',
-  password: 'newOne',
-};
 
 export const userBase = {
   id: 1,
