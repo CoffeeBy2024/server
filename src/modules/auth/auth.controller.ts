@@ -85,12 +85,12 @@ export class AuthController {
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google')
-  googleAuth() {}
+  async googleAuth() {}
 
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
-  googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
     res.redirect(
       `http://localhost:3001/auth/google/profile?access-token=${user.accessToken}`
@@ -99,7 +99,7 @@ export class AuthController {
 
   @Public()
   @Get('google/profile')
-  googleProfile(
+  async googleProfile(
     @Query('access-token') accessToken: string,
     @UserAgent() agent: string,
     @Res({ passthrough: true }) res: Response
