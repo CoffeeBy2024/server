@@ -11,17 +11,22 @@ const compilerOptions = configFile.config.compilerOptions;
 
 const jestConfig: JestConfigWithTsJest = {
   moduleFileExtensions: ['js', 'json', 'ts'],
+  coveragePathIgnorePatterns: [
+    'main.ts',
+    '<rootDir>/modules/app',
+    '.entity.ts',
+    '.module.ts',
+  ],
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
+  collectCoverageFrom: ['src/**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: {
-    '^@sendgrid/mail$': '@sendgrid/mail',
     ...pathsToModuleNameMapper(compilerOptions.paths),
   },
 };
