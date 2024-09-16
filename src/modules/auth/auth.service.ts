@@ -133,12 +133,14 @@ export class AuthService {
       await this.tokenRepository.save(token);
       return token;
     }
-    const newToken = await this.tokenRepository.save({
-      value: v4(),
-      expiresAt: this.getRefreshTokenExpiresAt().toISOString(),
-      userAgent: agent,
-      user: user,
-    });
+    const newToken = await this.tokenRepository.save(
+      this.tokenRepository.create({
+        value: v4(),
+        expiresAt: this.getRefreshTokenExpiresAt(),
+        userAgent: agent,
+        user: user,
+      })
+    );
 
     return newToken;
   }
