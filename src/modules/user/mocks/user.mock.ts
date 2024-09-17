@@ -1,11 +1,10 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from '@user/dto';
 import { Provider, User } from '@user/entities';
-import { genSaltSync, hashSync } from 'bcrypt';
 import { ObjectLiteral, Repository } from 'typeorm';
 
 export const password = '123123123';
-export const hashedPassword = hashSync(password, genSaltSync(5));
+export const hashedPassword = 'dewqrewdsdda';
 
 export const passwordDto: CreateUserDto = {
   firstName: 'John',
@@ -22,7 +21,7 @@ export const mockUser: User = {
   firstName: passwordDto.firstName,
   lastName: passwordDto.lastName as string,
   email: passwordDto.email,
-  password: passwordDto.password as string,
+  password: hashedPassword,
   provider: passwordDto.provider,
   emailVerified: passwordDto.emailVerified,
   emailVerificationLink: passwordDto.emailVerificationLink as string,

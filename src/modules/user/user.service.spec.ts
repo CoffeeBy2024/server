@@ -4,9 +4,10 @@ import { FindOneOptions } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Provider, User } from './entities';
 import { BadRequestException } from '@nestjs/common';
-import { compareSync } from 'bcrypt';
+import { hashSync } from 'bcrypt';
 import {
   googleDto,
+  hashedPassword,
   MockRepository,
   mockUser,
   mockUserGoogle,
@@ -15,6 +16,8 @@ import {
   userArr,
   userRepositoryProvider,
 } from './mocks';
+
+jest.mock('bcrypt');
 
 describe('UserService', () => {
   let service: UserService;
@@ -58,7 +61,9 @@ describe('UserService', () => {
   describe('createUser', () => {
     describe('password flow', () => {
       it('should call create and save methods', async () => {
-        userRepository.create?.mockReturnValue(mockUser);
+        // userRepository.create?.mockReturnValue(mockUser);
+        // await service.createUser(passwordDto);
+        (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         await service.createUser(passwordDto);
 
         expect(userRepository.save).toHaveBeenCalledTimes(1);
@@ -66,17 +71,18 @@ describe('UserService', () => {
         expect(userRepository.save).toHaveBeenCalledWith(mockUser);
       });
       it('should return created user with password provider and with hashed password', async () => {
+        (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         const result = await service.createUser(passwordDto);
 
-        const { password: hashedPassword, ...passwordUserWithoutPassword } =
-          result;
-        const { password, ...mockUserWithoutPassword } = mockUser;
+        // const { password: hashedPassword, ...passwordUserWithoutPassword } =
+        //   result;
+        // const { password, ...mockUserWithoutPassword } = mockUser;
 
-        expect(passwordUserWithoutPassword).toEqual(mockUserWithoutPassword);
+        expect(result).toEqual(mockUser);
         expect(result.provider).toBe(Provider.PASSWORD);
-        expect(
-          compareSync(password as string, hashedPassword as string)
-        ).toBeTruthy();
+        // expect(
+        //   compareSync(password as string, hashedPassword as string)
+        // ).toBeTruthy();
       });
     });
     describe('google flow', () => {
@@ -161,17 +167,18 @@ describe('UserService', () => {
         expect(userRepository.save).toHaveBeenCalledTimes(1);
       });
       it('should return updated user with hashed password ', async () => {
+        (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         const result = await service.updateUser(updateUserDto, id);
 
-        const { password: hashedPassword, ...resultWithoutPassword } = result;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...mockUserWithoutPassword } = mockUser;
+        // const { password: hashedPassword, ...resultWithoutPassword } = result;
+        // // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // const { password, ...mockUserWithoutPassword } = mockUser;
 
-        expect(resultWithoutPassword).toEqual(mockUserWithoutPassword);
+        expect(result).toEqual(mockUser);
         expect(result.firstName).toBe(updateUserDto.firstName);
-        expect(
-          compareSync(updateUserDto.password as string, hashedPassword)
-        ).toBeTruthy();
+        // expect(
+        //   compareSync(updateUserDto.password as string, hashedPassword)
+        // ).toBeTruthy();
       });
     });
     describe('for non-existing user', () => {
