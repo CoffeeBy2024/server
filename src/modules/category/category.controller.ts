@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { CacheTTL } from '@nestjs/cache-manager';
-import { TTLVariables } from '../../utils/constants/cache';
 
 @ApiTags('category')
 @Controller('category')
