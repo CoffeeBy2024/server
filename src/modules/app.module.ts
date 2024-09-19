@@ -10,6 +10,9 @@ import { ShopModule } from './shop/shop/shop.module';
 import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TTLVariables } from 'src/utils/constants/cache';
 
 @Module({
   imports: [
@@ -27,8 +30,16 @@ import { CategoryModule } from './category/category.module';
     ShopCategoryModule,
     ProductModule,
     CategoryModule,
+    CacheModule.register({
+      max: 100,
+      ttl: TTLVariables.common,
+      isGlobal: true,
+    }),
   ],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor },
+  ],
   controllers: [AppController],
 })
 export class AppModule {}
