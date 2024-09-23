@@ -2,8 +2,9 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { TTLVariables } from 'src/utils/constants/cache';
+import { TTLVariables } from '../../utils/constants/cache';
 import { CacheTTL } from '@nestjs/cache-manager';
+import { CATEGORY } from '../../common/enums/category.enum';
 
 @ApiTags('category')
 @Controller('category')
@@ -22,7 +23,7 @@ export class CategoryController {
   }
 
   @Get(':category')
-  findOneByName(@Param('category') category: string) {
+  findOneByName(@Param('category') category: CATEGORY) {
     return this.categoryService.findOneByName(category);
   }
 }

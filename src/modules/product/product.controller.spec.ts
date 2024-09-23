@@ -22,6 +22,7 @@ import {
   categoryMock,
   categoryRepositoryProvider,
 } from '../category/mocks/categoryProvider';
+import { CATEGORY } from '../../common/enums/category.enum';
 
 describe('Product Controller', () => {
   let controller: ProductController;
@@ -65,7 +66,10 @@ describe('Product Controller', () => {
       it('should get All products from concrete Shop', async () => {
         jest.spyOn(spyService, 'findAll').mockResolvedValue([productMock]);
 
-        const result = await controller.getCategorySelection(shopMock.id, '');
+        const result = await controller.getCategorySelection(
+          shopMock.id,
+          '' as CATEGORY
+        );
 
         expect(spyService.findAll).toHaveBeenCalled();
         expect(spyService.findAll).toHaveBeenCalledWith();
@@ -112,7 +116,7 @@ describe('Product Controller', () => {
     it('should post product of not yet existing category into concrete Shop', async () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(productMock);
 
-      const differentCategory = 'drinks';
+      const differentCategory = CATEGORY['drinks'];
 
       const result = await controller.create(
         shopMock.id,

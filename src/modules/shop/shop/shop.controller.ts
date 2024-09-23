@@ -16,6 +16,7 @@ import { ShopService } from './shop.service';
 import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CATEGORY } from '../../../common/enums/category.enum';
 
 @ApiTags('shop')
 @Controller('shop')
@@ -40,7 +41,7 @@ export class ShopController {
     explode: false,
   })
   async getCategorySelection(
-    @Query('category') category?: string,
+    @Query('category') category?: CATEGORY,
     @Query('name') name?: string
   ) {
     if (name && category) throw new Error('Too Many Parametrs Entered');

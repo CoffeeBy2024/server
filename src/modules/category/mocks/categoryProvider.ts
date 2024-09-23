@@ -3,6 +3,7 @@ import { shopCategoryMock } from '../../../modules/shop/shop-category/mocks/shop
 import { Category } from '../entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateCategoryDto } from '../dto/create-category.dto';
+import { CATEGORY } from '../../../common/enums/category.enum';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -32,12 +33,12 @@ const categoryRepositoryProvider = {
 };
 
 const categoryDto: CreateCategoryDto = {
-  name: 'coffee',
+  name: CATEGORY['coffee'],
 };
 
 const categoryMock: Category = {
   id: 1,
-  name: 'coffee',
+  ...categoryDto,
   shopCategory: shopCategoryMock,
 };
 
