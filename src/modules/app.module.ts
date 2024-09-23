@@ -13,18 +13,14 @@ import { CategoryModule } from './category/category.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
+import postgresDataSource from 'src/config/databases/postgres/postgres.source';
+import mongodbDataSource from 'src/config/databases/mongodb/mongodb.source';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      entities: ['dist/**/*.entity{.ts,.js}'],
-      migrations: ['migrations/**/*.ts'],
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
+    TypeOrmModule.forRoot(postgresDataSource.options),
+    TypeOrmModule.forRoot(mongodbDataSource.options),
     WorkingHoursModule,
     ShopModule,
     ShopCategoryModule,
