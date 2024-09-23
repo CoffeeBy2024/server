@@ -22,6 +22,11 @@ import {
   categoryMock,
   categoryRepositoryProvider,
 } from '../category/mocks/categoryProvider';
+import {
+  fileMock,
+  photoDto,
+  photoRepositoryProvider,
+} from './mocks/photoProvider';
 
 describe('Product Controller', () => {
   let controller: ProductController;
@@ -32,6 +37,7 @@ describe('Product Controller', () => {
       controllers: [ProductController],
       providers: [
         ProductService,
+        photoRepositoryProvider,
         productRepositoryProvider,
         ShopService,
         shopRepositoryProvider,
@@ -96,6 +102,7 @@ describe('Product Controller', () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(productMock);
 
       const result = await controller.create(
+        fileMock,
         shopMock.id,
         categoryMock.name,
         productDto
@@ -103,6 +110,7 @@ describe('Product Controller', () => {
 
       expect(spyService.create).toHaveBeenCalled();
       expect(spyService.create).toHaveBeenCalledWith(
+        photoDto,
         productDto,
         shopCategoryMock
       );
@@ -115,13 +123,14 @@ describe('Product Controller', () => {
       const differentCategory = 'drinks';
 
       const result = await controller.create(
+        fileMock,
         shopMock.id,
         differentCategory,
         productDto
       );
 
       expect(spyService.create).toHaveBeenCalled();
-      expect(spyService.create).toHaveBeenCalledWith(productDto, {
+      expect(spyService.create).toHaveBeenCalledWith(photoDto, productDto, {
         ...shopCategoryMock,
         category: { ...shopCategoryMock.category, name: differentCategory },
       });

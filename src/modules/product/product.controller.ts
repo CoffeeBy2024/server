@@ -7,14 +7,18 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from './dto/product/create-product.dto';
+import { UpdateProductDto } from './dto/product/update-product.dto';
 import { ShopService } from '../shop/shop/shop.service';
 import { CategoryService } from '../category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('product')
 @Controller()
@@ -27,8 +31,20 @@ export class ProductController {
   ) {}
 
   @Post('shop/:id/product')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
   async create(
-    @Param('id') id: number,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file: Express.Multer.File,
+    @Param('id')
+    id: number,
     @Query('category') categoryName: string,
     @Body() createProductDto: CreateProductDto
   ) {
@@ -44,7 +60,11 @@ export class ProductController {
       );
       shopCategory = await this.shopCategoryService.create({ shop, category });
     }
-    return this.productService.create(createProductDto, shopCategory);
+    return this.productService.create(
+      { image: file.buffer },
+      createProductDto,
+      shopCategory
+    );
   }
 
   @Get('shop/:sid/product/:id')

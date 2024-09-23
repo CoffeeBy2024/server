@@ -21,8 +21,8 @@ export class Product {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ type: 'bytea' })
-  image: Buffer;
+  @Column()
+  photo: string;
 
   @ManyToOne(() => ShopCategory, (shopCategory) => shopCategory.products)
   @JoinColumn()
