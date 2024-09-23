@@ -24,7 +24,7 @@ export class ShopCategoryService {
 
   async findAllByName(category: Category) {
     return await this.shopCategoryRepository.find({
-      where: { category: category },
+      where: { category },
       relations: ['category', 'shop'],
     });
   }

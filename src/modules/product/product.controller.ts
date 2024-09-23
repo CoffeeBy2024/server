@@ -15,6 +15,7 @@ import { ShopService } from '../shop/shop/shop.service';
 import { CategoryService } from '../category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CATEGORY } from '../../common/enums/category.enum';
 
 @ApiTags('product')
 @Controller()
@@ -29,7 +30,7 @@ export class ProductController {
   @Post('shop/:id/product')
   async create(
     @Param('id') id: number,
-    @Query('category') categoryName: string,
+    @Query('category') categoryName: CATEGORY,
     @Body() createProductDto: CreateProductDto
   ) {
     const category = await this.categoryService.findOneByName(categoryName);
@@ -61,7 +62,7 @@ export class ProductController {
   })
   async getCategorySelection(
     @Param('id') shop_id: number,
-    @Query('category') category?: string
+    @Query('category') category?: CATEGORY
   ) {
     return !category
       ? await this.productService.findAll()

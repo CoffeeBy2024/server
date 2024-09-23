@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CATEGORY, Category } from './entities/category.entity';
+import { Category } from './entities/category.entity';
+import { CATEGORY } from '../../common/enums/category.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto) {
     return await this.categoryRepository.save(
       this.categoryRepository.create({
-        name: CATEGORY[this.convertToEnum(createCategoryDto.name)],
+        name: createCategoryDto.name,
       })
     );
   }
@@ -22,31 +23,14 @@ export class CategoryService {
     return await this.categoryRepository.find();
   }
 
-  async findOneByName(name: string) {
-    const categoryName = CATEGORY[this.convertToEnum(name)];
+  async findOneByName(name: CATEGORY) {
     const category = await this.categoryRepository.findOne({
-      where: { name: categoryName },
+      where: { name },
     });
 
     if (!category)
-      throw new NotFoundException(
-        `Category with name ${categoryName} not found`
-      );
-    return category;
-  }
+      throw new NotFoundException(`Category with name ${name} not found`);
 
-  convertToEnum(category: string): CATEGORY {
-    switch (category) {
-      case 'coffee':
-        return CATEGORY.coffee;
-      case 'bakery':
-        return CATEGORY.bakery;
-      case 'drinks':
-        return CATEGORY.drinks;
-      case 'odds':
-        return CATEGORY.odds;
-      default:
-        throw new NotFoundException(`Category with name ${category} not found`);
-    }
+    return category;
   }
 }

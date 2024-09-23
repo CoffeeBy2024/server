@@ -11,6 +11,7 @@ import {
 } from './mocks/shopProvider';
 import { shopCategoryRepositoryProvider } from '../shop-category/mocks/shopCategoryProvider';
 import { categoryRepositoryProvider } from '../../../modules/category/mocks/categoryProvider';
+import { CATEGORY } from '../../../common/enums/category.enum';
 
 describe('Shop Controller', () => {
   let controller: ShopController;
@@ -51,14 +52,17 @@ describe('Shop Controller', () => {
       it('should get shop according to category', async () => {
         jest.spyOn(spyService, 'findOne').mockResolvedValue(shopMock);
 
-        const result = await controller.getCategorySelection('coffee', '');
+        const result = await controller.getCategorySelection(
+          CATEGORY['coffee'],
+          ''
+        );
         expect(result).toEqual([shopMock]);
       });
 
       it('should get shop according to name', async () => {
         jest.spyOn(spyService, 'findByName').mockResolvedValue([shopMock]);
         const resultByName = await controller.getCategorySelection(
-          '',
+          '' as CATEGORY,
           'Starbucks'
         );
         expect(spyService.findByName).toHaveBeenCalled();
@@ -69,7 +73,10 @@ describe('Shop Controller', () => {
       it('should get all shop due to no parametrs entered', async () => {
         jest.spyOn(spyService, 'findAll').mockResolvedValue([shopMock]);
 
-        const result = await controller.getCategorySelection('', '');
+        const result = await controller.getCategorySelection(
+          '' as CATEGORY,
+          ''
+        );
 
         expect(spyService.findAll).toHaveBeenCalled();
         expect(spyService.findAll).toHaveBeenCalledWith();
@@ -78,7 +85,10 @@ describe('Shop Controller', () => {
 
       it('should throw Error due to both Parametrs entered', async () => {
         try {
-          await controller.getCategorySelection('coffee', 'Starbucks');
+          await controller.getCategorySelection(
+            CATEGORY['coffee'],
+            'Starbucks'
+          );
           expect(false).toBeTruthy(); // we should never hit this line
         } catch (err) {
           expect(err).toBeInstanceOf(Error);

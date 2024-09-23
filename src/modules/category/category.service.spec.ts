@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryService } from './category.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CATEGORY, Category } from './entities/category.entity';
+import { Category } from './entities/category.entity';
+import { CATEGORY } from '../../common/enums/category.enum';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import {
@@ -58,15 +59,15 @@ describe('CategoryService', () => {
 
     describe('findOneByName', () => {
       it('should get correct category when following name exists', async () => {
-        const expectedCategory = { name: 'coffee' };
+        const expectedCategory = CATEGORY['coffee'];
 
         categoryRepository.findOne?.mockReturnValue(expectedCategory);
-        const category = await service.findOneByName(expectedCategory.name);
+        const category = await service.findOneByName(expectedCategory);
         expect(category).toEqual(expectedCategory);
       });
 
       it('should throw the "NotFoundException"', async () => {
-        const categoryName = 'bakery';
+        const categoryName = CATEGORY['bakery'];
         categoryRepository.findOne?.mockReturnValue(undefined);
 
         try {
@@ -76,34 +77,6 @@ describe('CategoryService', () => {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(
             `Category with name ${categoryName} not found`
-          );
-        }
-      });
-    });
-
-    describe('String to Enum category conversion', () => {
-      it('should correctly convert listed categories', () => {
-        const coffee = service.convertToEnum('coffee');
-        expect(coffee).toEqual(CATEGORY.coffee);
-
-        const bakery = service.convertToEnum('bakery');
-        expect(bakery).toEqual(CATEGORY.bakery);
-
-        const drinks = service.convertToEnum('drinks');
-        expect(drinks).toEqual(CATEGORY.drinks);
-
-        const odds = service.convertToEnum('odds');
-        expect(odds).toEqual(CATEGORY.odds);
-      });
-      it('should throw Error due to missmatching predefined categories', () => {
-        const wrongCategoryName = 'wrong name';
-        try {
-          service.convertToEnum(wrongCategoryName);
-          expect(false).toBeTruthy();
-        } catch (err) {
-          expect(err).toBeInstanceOf(NotFoundException);
-          expect(err.message).toEqual(
-            `Category with name ${wrongCategoryName} not found`
           );
         }
       });

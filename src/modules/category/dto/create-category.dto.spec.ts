@@ -1,5 +1,6 @@
 import { validate } from 'class-validator';
 import { CreateCategoryDto } from './create-category.dto';
+import { CATEGORY } from '../../../common/enums/category.enum';
 describe('CreateCategoryDto', () => {
   let dto: CreateCategoryDto;
 
@@ -9,7 +10,7 @@ describe('CreateCategoryDto', () => {
 
   describe('Positive Tests', () => {
     it('should succeed when name is a valid string', async () => {
-      dto.name = 'coffee';
+      dto.name = CATEGORY['coffee'];
       const errors = await validate(dto);
 
       expect(errors.length).toBe(0);
@@ -26,14 +27,14 @@ describe('CreateCategoryDto', () => {
 
     it('should fail when name has invalid type', async () => {
       dto.name = 12345 as any;
+
       const errors = await validate(dto);
 
       expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0].constraints?.isString).toBeDefined();
     });
 
     it('should fail when name is an empty string', async () => {
-      dto.name = '';
+      dto.name = '' as any;
       const errors = await validate(dto);
 
       expect(errors.length).toBeGreaterThan(0);
