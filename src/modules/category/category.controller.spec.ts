@@ -6,6 +6,8 @@ import {
   categoryMock,
   categoryRepositoryProvider,
 } from './mocks/categoryProvider';
+import { NotFoundException } from '@nestjs/common';
+import { CATEGORY } from 'src/common/enums/category.enum';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -35,13 +37,29 @@ describe('CategoryController', () => {
     });
 
     it('should get concrete category by name', async () => {
-      jest.spyOn(spyService, 'findOneByName').mockResolvedValue(categoryMock);
+      jest.spyOn(spyService, 'findOne').mockResolvedValue(categoryMock);
 
-      const result = await controller.findOneByName(categoryMock.name);
+      const result = await controller.findOne(categoryMock.name);
 
-      expect(spyService.findOneByName).toHaveBeenCalled();
-      expect(spyService.findOneByName).toHaveBeenCalledWith(categoryMock.name);
+      expect(spyService.findOne).toHaveBeenCalled();
+      expect(spyService.findOne).toHaveBeenCalledWith(categoryMock.name);
       expect(result).toBe(categoryMock);
+    });
+
+    it('should throw NotFoundException due to not-found shop', async () => {
+      jest.spyOn(spyService, 'findOne').mockResolvedValue(null);
+
+      const nonExistingCategory = 'pizza' as CATEGORY;
+
+      try {
+        await controller.findOne(nonExistingCategory);
+        expect(false).toBeTruthy(); // we should never hit this line
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(
+          `Category with name ${nonExistingCategory} not found`
+        );
+      }
     });
   });
 

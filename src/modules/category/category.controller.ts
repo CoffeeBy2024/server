@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -23,7 +30,12 @@ export class CategoryController {
   }
 
   @Get(':category')
-  findOneByName(@Param('category') category: CATEGORY) {
-    return this.categoryService.findOneByName(category);
+  async findOne(@Param('category') category: CATEGORY) {
+    const categoryEntity = await this.categoryService.findOne(category);
+
+    if (!categoryEntity)
+      throw new NotFoundException(`Category with name ${category} not found`);
+
+    return categoryEntity;
   }
 }
