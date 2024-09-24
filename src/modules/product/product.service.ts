@@ -32,14 +32,16 @@ export class ProductService {
   }
 
   async findOneBy(id: number) {
-    return await this.productRepository.findOneBy({ id: id });
+    return await this.productRepository.findOneBy({ id });
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const existingProduct = await this.productRepository.findOneBy({ id: id });
+    const existingProduct = await this.productRepository.findOneBy({ id });
+
     if (!existingProduct) {
       throw new Error('This product does not exist');
     }
+
     const updatedProduct = {
       ...existingProduct,
       ...updateProductDto,
@@ -48,7 +50,6 @@ export class ProductService {
   }
 
   async remove(id: number) {
-    const product = await this.productRepository.delete({ id: id });
-    return product.affected && product.affected > 0;
+    return !!(await this.productRepository.delete({ id })).affected;
   }
 }
