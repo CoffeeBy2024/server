@@ -4,13 +4,14 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   mockWorkingHours,
+  updateWokringHoursDto,
   updateWorkingHours,
   workingHoursDto,
   workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 import { shopMock } from '../shop/mocks/shopProvider';
-import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -88,38 +89,33 @@ describe('WorkingHoursService', () => {
 
   describe('update', () => {
     it('should update Working Hour', async () => {
-      const updateDto: UpdateWorkingHoursDto = { open_hour: '08:15' };
-
       workingHoursRepository.findOneBy?.mockResolvedValue(mockWorkingHours);
       workingHoursRepository.save?.mockResolvedValue(updateWorkingHours);
 
-      const result = await service.update(mockWorkingHours.id, updateDto);
+      const result = await service.update(
+        mockWorkingHours.id,
+        updateWokringHoursDto
+      );
 
       expect(result).toEqual(updateWorkingHours);
       expect(workingHoursRepository.findOneBy).toHaveBeenCalledWith({
-        id: mockWorkingHours.id,
+        shop: { id: mockWorkingHours.id },
       });
       expect(workingHoursRepository.save).toHaveBeenCalledWith(
         updateWorkingHours
       );
     });
-  });
 
-  describe('ensureWH', () => {
-    it('should return the WorkingHour object if it exists', () => {
-      const result = service.ensureWH(mockWorkingHours);
+    it('should throw NotFoundException due to not-found Working Hours', async () => {
+      workingHoursRepository.findOneBy?.mockResolvedValue(null);
 
-      expect(result).toBe(mockWorkingHours);
-    });
-
-    it('should throw an error if WorkingHour does not exist', () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-
-      expect(() => service.ensureWH(null)).toThrow(
-        'Trying to reach non-existing working_hour'
-      );
-
-      consoleErrorSpy.mockRestore();
+      try {
+        await service.update(mockWorkingHours.id + 1, updateWokringHoursDto);
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual('Working Hours were not found');
+      }
     });
   });
 

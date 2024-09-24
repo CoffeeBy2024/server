@@ -6,17 +6,21 @@ import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 
 import {
   shopMock as shop,
+  shopMock,
   shopRepositoryProvider,
 } from '../shop/mocks/shopProvider';
 import {
   mockWorkingHours,
   updateWorkingHours,
+  workingHoursDto,
   workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
+import { NotFoundException } from '@nestjs/common';
 
 describe('WorkingHoursController', () => {
   let controller: WorkingHoursController;
   let spyService: WorkingHoursService;
+  let shopService: ShopService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -31,6 +35,7 @@ describe('WorkingHoursController', () => {
 
     controller = module.get<WorkingHoursController>(WorkingHoursController);
     spyService = module.get<WorkingHoursService>(WorkingHoursService);
+    shopService = module.get<ShopService>(ShopService);
   });
 
   it('should be defined', () => {
@@ -64,6 +69,18 @@ describe('WorkingHoursController', () => {
       expect(spyService.create).toHaveBeenCalledWith(mockWorkingHours);
       expect(result).toBe(mockWorkingHours);
     });
+
+    it('should thow NotFoundException due to not-found shop', async () => {
+      jest.spyOn(shopService, 'findOne').mockResolvedValue(null);
+
+      try {
+        await controller.createWorkingHours(shopMock.id, workingHoursDto);
+        expect(false).toBeTruthy(); // we should never hit this line
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);
+      }
+    });
   });
 
   describe('PATCH Wokring Hours', () => {
@@ -90,6 +107,18 @@ describe('WorkingHoursController', () => {
         updateWorkingHours
       );
       expect(result).toEqual(updateWorkingHours);
+    });
+
+    it('should throw NotFoundException due to not-found shop', async () => {
+      jest.spyOn(shopService, 'findOne').mockResolvedValue(null);
+
+      try {
+        await controller.updateWorkingHours(shopMock.id, updateWorkingHours);
+        expect(false).toBeTruthy(); // we should never hit this line
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);
+      }
     });
   });
 
