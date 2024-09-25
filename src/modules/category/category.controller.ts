@@ -14,7 +14,7 @@ import { CacheTTL } from '@nestjs/cache-manager';
 import { CATEGORY } from '../../common/enums/category.enum';
 
 @ApiTags('category')
-@Controller('category')
+@Controller('categories')
 @CacheTTL(TTLVariables.rare)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

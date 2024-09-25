@@ -9,6 +9,7 @@ import {
   categoryMock,
   categoryRepositoryProvider,
 } from './mocks/categoryProvider';
+import { BadRequestException } from '@nestjs/common';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -40,6 +41,24 @@ describe('CategoryService', () => {
       expect(categoryRepository.create).toHaveBeenCalled();
       expect(categoryRepository.save).toHaveBeenCalled();
       expect(result).toEqual(categoryMock);
+    });
+
+    it('should throw BadRequestException due to already existing category', async () => {
+      const duplicate = { name: 'Duplicate Category' as CATEGORY };
+
+      jest
+        .spyOn(categoryRepository, 'save')
+        .mockRejectedValueOnce(
+          new BadRequestException(
+            `Category with the name ${duplicate.name} already exists`
+          )
+        );
+
+      expect(categoryRepository.create).toHaveBeenCalled();
+      expect(categoryRepository.save).toHaveBeenCalled();
+      await expect(service.create(duplicate)).rejects.toThrow(
+        BadRequestException
+      );
     });
   });
 
