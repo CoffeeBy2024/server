@@ -48,7 +48,7 @@ describe('WorkingHoursController', () => {
         .spyOn(spyService, 'findAllById')
         .mockResolvedValue([mockWorkingHours]);
 
-      const result = await controller.findWHByShop(shop.id);
+      const result = await controller.findByShop(shop.id);
 
       expect(spyService.findAllById).toHaveBeenCalled();
       expect(spyService.findAllById).toHaveBeenCalledWith(shop.id);
@@ -60,10 +60,7 @@ describe('WorkingHoursController', () => {
     it('should post working hours for concrete shop', async () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(mockWorkingHours);
 
-      const result = await controller.createWorkingHours(
-        shop.id,
-        mockWorkingHours
-      );
+      const result = await controller.create(shop.id, mockWorkingHours);
 
       expect(spyService.create).toHaveBeenCalled();
       expect(spyService.create).toHaveBeenCalledWith(mockWorkingHours);
@@ -74,7 +71,7 @@ describe('WorkingHoursController', () => {
       jest.spyOn(shopService, 'findOne').mockResolvedValue(null);
 
       try {
-        await controller.createWorkingHours(shopMock.id, workingHoursDto);
+        await controller.create(shopMock.id, workingHoursDto);
         expect(false).toBeTruthy(); // we should never hit this line
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
@@ -96,10 +93,7 @@ describe('WorkingHoursController', () => {
           }
         );
 
-      const result = await controller.updateWorkingHours(
-        shop.id,
-        updateWorkingHours
-      );
+      const result = await controller.update(shop.id, updateWorkingHours);
 
       expect(spyService.update).toHaveBeenCalled();
       expect(spyService.update).toHaveBeenCalledWith(
@@ -113,7 +107,7 @@ describe('WorkingHoursController', () => {
       jest.spyOn(shopService, 'findOne').mockResolvedValue(null);
 
       try {
-        await controller.updateWorkingHours(shopMock.id, updateWorkingHours);
+        await controller.update(shopMock.id, updateWorkingHours);
         expect(false).toBeTruthy(); // we should never hit this line
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);

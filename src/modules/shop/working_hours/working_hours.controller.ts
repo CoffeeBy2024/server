@@ -15,15 +15,15 @@ import { ApiTags } from '@nestjs/swagger';
 import { WorkingHour } from './entities/working_hour.entity';
 
 @ApiTags('working_hours')
-@Controller('shop')
+@Controller('working_hours/:id')
 export class WorkingHoursController {
   constructor(
     private readonly shopService: ShopService,
     private readonly workingHoursService: WorkingHoursService
   ) {}
 
-  @Post(':id/working_hours')
-  async createWorkingHours(
+  @Post()
+  async create(
     @Param('id') id: number,
     @Body() createWorkingHoursDto: CreateWorkingHoursDto
   ): Promise<WorkingHour> {
@@ -39,13 +39,13 @@ export class WorkingHoursController {
     });
   }
 
-  @Get(':id/working_hours')
-  findWHByShop(@Param('id') id: number): Promise<WorkingHour[]> {
+  @Get()
+  findByShop(@Param('id') id: number): Promise<WorkingHour[]> {
     return this.workingHoursService.findAllById(id);
   }
 
-  @Patch(':id/working_hours')
-  async updateWorkingHours(
+  @Patch()
+  async update(
     @Param('id') id: number,
     @Body() updateWorkingHoursDto: UpdateWorkingHoursDto
   ): Promise<WorkingHour> {
