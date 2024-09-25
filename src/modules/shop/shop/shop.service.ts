@@ -45,6 +45,7 @@ export class ShopService {
   }
 
   async remove(id: number) {
-    return !!(await this.shopRepository.delete({ id })).affected;
+    const deleteResult = await this.shopRepository.delete({ id });
+    return !!deleteResult.affected;
   }
 }

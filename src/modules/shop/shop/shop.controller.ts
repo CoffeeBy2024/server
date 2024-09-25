@@ -20,8 +20,8 @@ import { CategoryService } from '../../category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../../common/enums/category.enum';
 
-@ApiTags('shop')
-@Controller('shop')
+@ApiTags('shops')
+@Controller('shops')
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
@@ -34,13 +34,13 @@ export class ShopController {
     name: 'category',
     required: false,
     type: 'string',
-    description: 'Category of the shop',
+    description: 'product category',
   })
   @ApiQuery({
     name: 'name',
     required: false,
     type: 'string',
-    description: 'Name of the shop',
+    description: 'shop name',
   })
   async getCategorySelection(
     @Query('category') category?: CATEGORY,
@@ -69,7 +69,7 @@ export class ShopController {
       await this.shopCategoryServcie.findAllByCategory(categoryEntity);
 
     return Promise.all(
-      shopsByCategory.map((shop) => this.shopService.findOne(shop.shop.id))
+      shopsByCategory.map(({ shop }) => this.shopService.findOne(shop.id))
     );
   }
 
