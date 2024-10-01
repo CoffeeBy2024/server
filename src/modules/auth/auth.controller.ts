@@ -5,7 +5,6 @@ import {
   Controller,
   Get,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -100,15 +99,15 @@ export class AuthController {
   @Get('google/redirect')
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
-    res.redirect(
-      `http://localhost:3001/auth/google/profile?access-token=${user.accessToken}`
-    );
+    const redirectURI = `http://localhost:3000/auth/google?access-token=${user.accessToken}`;
+    res.redirect(redirectURI);
+    return redirectURI;
   }
 
   @Public()
-  @Get('google/profile')
+  @Post('google/profile')
   async googleProfile(
-    @Query('access-token') accessToken: string,
+    @Body() dto: { accessToken: string },
     @UserAgent() agent: string,
     @Res({ passthrough: true }) res: Response
   ) {
@@ -117,7 +116,7 @@ export class AuthController {
         .get<GoogleUserInfo>(`https://www.googleapis.com/oauth2/v3/userinfo`, {
           params: {
             alt: 'json',
-            access_token: accessToken,
+            access_token: dto.accessToken,
           },
         })
         .pipe(
