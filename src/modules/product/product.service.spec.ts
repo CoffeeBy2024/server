@@ -12,6 +12,12 @@ import {
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { shopCategoryMock } from '../shop/shop-category/mocks/shopCategoryProvider';
 import { shopMock } from '../shop/shop/mocks/shopProvider';
+import {
+  photoDto,
+  photoMock,
+  photoRepositoryProvider,
+} from './mocks/photoProvider';
+import { Photo } from './entities/photo.entity';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -20,15 +26,23 @@ type MockRepository<T extends ObjectLiteral = any> = {
 describe('ProductService', () => {
   let service: ProductService;
   let productRepository: MockRepository<Product>;
+  let photoRepository: MockRepository<Photo>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ProductService, productRepositoryProvider],
+      providers: [
+        ProductService,
+        productRepositoryProvider,
+        photoRepositoryProvider,
+      ],
     }).compile();
 
     service = await module.resolve<ProductService>(ProductService);
     productRepository = module.get<MockRepository<Product>>(
       getRepositoryToken(Product)
+    );
+    photoRepository = module.get<MockRepository<Photo>>(
+      getRepositoryToken(Photo, 'mongodb')
     );
   });
 
@@ -38,10 +52,18 @@ describe('ProductService', () => {
 
   describe('Create', () => {
     it('should create product', async () => {
-      const result = await service.create(productDto, shopCategoryMock);
+      photoRepository.save?.mockResolvedValue(photoMock);
+
+      const result = await service.create(
+        photoDto,
+        productDto,
+        shopCategoryMock
+      );
+
+      expect(photoRepository.create).toHaveBeenCalled();
+      expect(photoRepository.create).toHaveBeenCalledWith(photoDto);
 
       expect(productRepository.create).toHaveBeenCalled();
-      expect(productRepository.save).toHaveBeenCalled();
       expect(result).toEqual(productMock);
     });
   });
