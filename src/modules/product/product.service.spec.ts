@@ -16,6 +16,7 @@ import {
   photoDto,
   photoMock,
   photoRepositoryProvider,
+  updatePhotoDto,
 } from './mocks/photoProvider';
 import { Photo } from './entities/photo.entity';
 
@@ -107,7 +108,11 @@ describe('ProductService', () => {
     it('should update existing product', async () => {
       productRepository.findOneBy?.mockResolvedValue(productMock);
 
-      const result = await service.update(productMock.id, updatedProductDto);
+      const result = await service.update(
+        productMock.id,
+        updatePhotoDto,
+        updatedProductDto
+      );
 
       expect(productRepository.save).toHaveBeenCalled();
       expect(productRepository.save).toHaveBeenCalledWith(updateProduct);
@@ -118,7 +123,7 @@ describe('ProductService', () => {
       productRepository.findOneBy?.mockResolvedValue(undefined);
 
       await expect(
-        service.update(productMock.id, updatedProductDto)
+        service.update(productMock.id, updatePhotoDto, updatedProductDto)
       ).rejects.toThrow('This product does not exist');
 
       expect(productRepository.save).not.toHaveBeenCalled();

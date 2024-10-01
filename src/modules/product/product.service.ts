@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/product/create-product.dto';
 import { UpdateProductDto } from './dto/product/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { ShopCategory } from '../shop/shop-category/entities/shop-category.entity';
 import { Photo } from './entities/photo.entity';
 import { CreatePhotoDto } from './dto/photo/create-photo.dto';
+import { UpdatePhotoDto } from './dto/photo/update-photo.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ProductService {
@@ -37,30 +39,93 @@ export class ProductService {
   }
 
   async findAll() {
-    return await this.productRepository.find();
+    const products = await this.productRepository.find();
+
+    if (!products) {
+      return products;
+    }
+
+    return Promise.all(
+      products.map(async (product) => {
+        const photo = await this.photoRepository.findOneBy({
+          _id: new ObjectId(product.photo),
+        });
+
+        return {
+          ...product,
+          photo: photo?.image,
+        };
+      })
+    );
   }
 
   async findAllByCategory(id: number) {
-    return await this.productRepository.find({
+    const products = await this.productRepository.find({
       where: { shopCategory: { id } },
     });
+
+    if (!products) {
+      return products;
+    }
+
+    return Promise.all(
+      products.map(async (product) => {
+        const photo = await this.photoRepository.findOneBy({
+          _id: new ObjectId(product.photo),
+        });
+
+        return {
+          ...product,
+          photo: photo?.image,
+        };
+      })
+    );
   }
 
   async findOneBy(id: number) {
-    return await this.productRepository.findOneBy({ id });
+    const product = await this.productRepository.findOneBy({ id });
+
+    if (!product) {
+      return product;
+    }
+
+    const photo = await this.photoRepository.findOneBy({
+      _id: new ObjectId(product.photo),
+    });
+
+    return {
+      ...product,
+      photo: photo?.image,
+    };
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
+  async update(
+    id: number,
+    updatePhotoDto: UpdatePhotoDto,
+    updateProductDto: UpdateProductDto
+  ) {
     const existingProduct = await this.productRepository.findOneBy({ id });
 
     if (!existingProduct) {
-      throw new Error('This product does not exist');
+      throw new BadRequestException('This product does not exist');
     }
+
+    const existingPhoto = await this.photoRepository.findOneBy({
+      _id: new ObjectId(existingProduct.photo),
+    });
+
+    const updatedPhoto = {
+      ...existingPhoto,
+      ...updatePhotoDto,
+    };
+
+    await this.photoRepository.save(updatedPhoto);
 
     const updatedProduct = {
       ...existingProduct,
       ...updateProductDto,
     };
+
     return await this.productRepository.save(updatedProduct);
   }
 

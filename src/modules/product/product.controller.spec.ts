@@ -3,6 +3,7 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import {
   productDto,
+  productFinalMock,
   productMock,
   productRepositoryProvider,
   updateProduct,
@@ -59,30 +60,30 @@ describe('Product Controller', () => {
 
   describe('GET product', () => {
     it('should get concrete Product from concrete Shop', async () => {
-      jest.spyOn(spyService, 'findOneBy').mockResolvedValue(productMock);
+      jest.spyOn(spyService, 'findOneBy').mockResolvedValue(productFinalMock);
 
-      const result = await controller.findOne(productMock.id);
+      const result = await controller.findOne(productFinalMock.id);
 
       expect(spyService.findOneBy).toHaveBeenCalled();
-      expect(spyService.findOneBy).toHaveBeenCalledWith(productMock.id);
-      expect(result).toBe(productMock);
+      expect(spyService.findOneBy).toHaveBeenCalledWith(productFinalMock.id);
+      expect(result).toBe(productFinalMock);
     });
 
     describe('should get products from concrete Shop', () => {
       it('should get All products from concrete Shop', async () => {
-        jest.spyOn(spyService, 'findAll').mockResolvedValue([productMock]);
+        jest.spyOn(spyService, 'findAll').mockResolvedValue([productFinalMock]);
 
         const result = await controller.getCategorySelection(shopMock.id);
 
         expect(spyService.findAll).toHaveBeenCalled();
         expect(spyService.findAll).toHaveBeenCalledWith();
-        expect(result).toEqual([productMock]);
+        expect(result).toEqual([productFinalMock]);
       });
 
       it('should get all products of certain category from concrete Shop', async () => {
         jest
           .spyOn(spyService, 'findAllByCategory')
-          .mockResolvedValue([productMock]);
+          .mockResolvedValue([productFinalMock]);
 
         const result = await controller.getCategorySelection(
           shopMock.id,
@@ -93,7 +94,7 @@ describe('Product Controller', () => {
         expect(spyService.findAllByCategory).toHaveBeenCalledWith(
           shopCategoryMock.id
         );
-        expect(result).toEqual([productMock]);
+        expect(result).toEqual([productFinalMock]);
       });
     });
   });
@@ -143,7 +144,11 @@ describe('Product Controller', () => {
     it('should update product in concrete Shop', async () => {
       jest.spyOn(spyService, 'update').mockResolvedValue(updateProduct);
 
-      const result = await controller.update(productMock.id, updateProduct);
+      const result = await controller.update(
+        fileMock,
+        productMock.id,
+        updateProduct
+      );
 
       expect(spyService.update).toHaveBeenCalled();
       expect(spyService.update).toHaveBeenCalledWith(

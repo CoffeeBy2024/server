@@ -43,6 +43,11 @@ const productMock: Product = {
   shopCategory: shopCategoryMock,
 };
 
+const productFinalMock = {
+  ...productMock,
+  photo: photoMock.image,
+};
+
 const updatedProductDto: UpdateProductDto = {
   price: 9.99,
 };
@@ -56,6 +61,7 @@ export {
   productRepositoryProvider,
   productDto,
   productMock,
+  productFinalMock,
   updatedProductDto,
   updateProduct,
 };
