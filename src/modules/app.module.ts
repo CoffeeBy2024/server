@@ -13,7 +13,7 @@ import { CategoryModule } from './category/category.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
-import config from 'src/databases/config';
+import config from 'src/config/dbconfig';
 
 @Module({
   imports: [

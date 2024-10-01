@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import config from './config';
+import config from '../config/dbconfig';
 
 const inputType = process.argv.find((arg) =>
   ['mongodb', 'postgres'].includes(arg)
