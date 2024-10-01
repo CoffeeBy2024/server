@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -13,38 +13,39 @@ export class ShopService {
     private readonly shopRepository: Repository<Shop>
   ) {}
 
-  async createWorkingHours(shop: Shop) {
-    return await this.shopRepository.save(shop);
+  async create(createShopDto: CreateShopDto) {
+    return await this.shopRepository.save(
+      this.shopRepository.create(createShopDto)
+    );
   }
 
-  async create(createShopDto: CreateShopDto) {
-    const shop = this.shopRepository.create(createShopDto);
-    return await this.shopRepository.save(shop);
+  async findAll() {
+    return await this.shopRepository.find();
+  }
+
+  async findByName(name: string) {
+    return await this.shopRepository.find({ where: { name } });
   }
 
   async findOne(id: number) {
-    return await this.shopRepository.findOneBy({ id: id });
-  }
-
-  async findWHByShop(id: number) {
-    const shop = await this.shopRepository.findOneBy({ id: id });
-    return shop?.working_hours;
+    return await this.shopRepository.findOneBy({ id });
   }
 
   async update(id: number, updateShopDto: UpdateShopDto) {
-    const existingShop = await this.shopRepository.findOneBy({ id: id });
+    const existingShop = await this.shopRepository.findOneBy({ id });
 
     if (!existingShop) {
-      console.error('Trying to add Working Hours to non-existing shop');
-      throw new Error(`Shop with id - ${id} doesn't exist`);
+      throw new BadRequestException(`Shop with id - ${id} doesn't exist`);
     }
 
-    const updatedShop = { ...existingShop, ...updateShopDto };
-    return await this.shopRepository.save(updatedShop);
+    return await this.shopRepository.save({
+      ...existingShop,
+      ...updateShopDto,
+    });
   }
 
   async remove(id: number) {
-    const shop = await this.shopRepository.delete({ id: id });
-    return `This action removes a #${id} ${shop.affected && shop.affected > 0 ? '' : 'Non-Existing'} shop`;
+    const deleteResult = await this.shopRepository.delete({ id });
+    return !!deleteResult.affected;
   }
 }

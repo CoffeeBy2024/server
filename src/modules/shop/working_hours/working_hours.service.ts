@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
-import UpdateWorkingHoursDto from './dto/update-working_hour.dto';
+import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WorkingHour } from './entities/working_hour.entity';
@@ -13,22 +17,39 @@ export class WorkingHoursService {
   ) {}
 
   async create(createWorkingHoursDto: CreateWorkingHoursDto) {
-    const workingHours = this.workingHoursRepository.create(
-      createWorkingHoursDto
+    const { day_of_the_week, shop } = createWorkingHoursDto;
+    const WHrepeatition = await this.workingHoursRepository.findOne({
+      where: { day_of_the_week },
+    });
+
+    if (WHrepeatition)
+      throw new BadRequestException(
+        `Working Hours for ${day_of_the_week} day in ${shop.id} shop already exists`
+      );
+
+    return await this.workingHoursRepository.save(
+      this.workingHoursRepository.create(createWorkingHoursDto)
     );
-    return await this.workingHoursRepository.save(workingHours);
+  }
+
+  async findAllById(id: number) {
+    return await this.workingHoursRepository.find({
+      where: { shop: { id } },
+    });
   }
 
   async update(id: number, updateWorkingHoursDto: UpdateWorkingHoursDto) {
-    const existingWorkingHours = await this.workingHoursRepository.findOneBy({
-      id: id,
+    const existingWH = await this.workingHoursRepository.findOneBy({
+      shop: { id },
     });
-    if (!existingWorkingHours)
-      throw new Error('Information about Wokring Hours was Not Found');
-    const updatedWorkingHours = {
-      ...existingWorkingHours,
+
+    if (!existingWH) {
+      throw new NotFoundException('Working Hours were not found');
+    }
+
+    return await this.workingHoursRepository.save({
+      ...existingWH,
       ...updateWorkingHoursDto,
-    };
-    return await this.workingHoursRepository.save(updatedWorkingHours);
+    });
   }
 }

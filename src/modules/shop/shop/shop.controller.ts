@@ -6,63 +6,71 @@ import {
   Patch,
   Param,
   Delete,
-  UsePipes,
-  ValidationPipe,
+  Query,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
-import { ShopService } from './shop.service';
+
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
-import { CreateWorkingHoursDto } from '../working_hours/dto/create-working_hour.dto';
-import { WorkingHoursService } from '../working_hours/working_hours.service';
-import UpdateWorkingHoursDto from '../working_hours/dto/update-working_hour.dto';
 
-@Controller('shop')
+import { ShopService } from './shop.service';
+import { ShopCategoryService } from '../shop-category/shop-category.service';
+import { CategoryService } from '../../category/category.service';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CATEGORY } from '../../../common/enums/category.enum';
+
+@ApiTags('shops')
+@Controller('shops')
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
-    private readonly workingHoursService: WorkingHoursService
+    private readonly shopCategoryServcie: ShopCategoryService,
+    private readonly categoryService: CategoryService
   ) {}
 
-  @Post(':id/working_hours')
-  @UsePipes(new ValidationPipe())
-  async createWorkingHours(
-    @Param('id') id: number,
-    @Body() createWorkingHoursDto: CreateWorkingHoursDto
+  @Get()
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: 'string',
+    description: 'product category',
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: 'string',
+    description: 'shop name',
+  })
+  async getCategorySelection(
+    @Query('category') category?: CATEGORY,
+    @Query('name') name?: string
   ) {
-    const shop = await this.shopService.findOne(id);
-    if (!shop) {
-      console.error('Trying to add Working Hours to non-existing shop');
-      throw new Error(`Shop with id - ${id} doesn't exist`);
+    if (name && category) {
+      throw new BadRequestException(
+        'Too many parameters entered. Provide either name or category, not both.'
+      );
     }
 
-    createWorkingHoursDto.shop = shop;
-    const workingHour = await this.workingHoursService.create(
-      createWorkingHoursDto
+    if (name) {
+      return this.shopService.findByName(name);
+    }
+
+    if (!category) {
+      return this.shopService.findAll();
+    }
+
+    const categoryEntity = await this.categoryService.findOne(category);
+
+    if (!categoryEntity)
+      throw new NotFoundException(`Category with name ${category} not found`);
+
+    const shopsByCategory =
+      await this.shopCategoryServcie.findAllByCategory(categoryEntity);
+
+    return Promise.all(
+      shopsByCategory.map(({ shop }) => this.shopService.findOne(shop.id))
     );
-    if (!workingHour) {
-      console.error(`Failed to create Working Hours Entity for ${id} shop`);
-      throw new Error(`Working Hours for ${id} shop wasn't created`);
-    }
-
-    return this.shopService.createWorkingHours(shop);
-  }
-
-  @Get(':id/working_hours')
-  findWHByShop(@Param('id') id: number) {
-    return this.shopService.findWHByShop(id);
-  }
-
-  @Patch(':id/working_hours')
-  async updateWorkingHours(
-    @Param('id') id: number,
-    @Body() updateWorkingHours: UpdateWorkingHoursDto
-  ) {
-    const shop = await this.shopService.findOne(id);
-    if (!shop) {
-      console.error('Trying to add Working Hours to non-existing shop');
-      throw new Error(`Shop with id - ${id} doesn't exist`);
-    }
-    return this.workingHoursService.update(id, updateWorkingHours);
   }
 
   @Post()
