@@ -30,6 +30,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'http://localhost:3000',
+    credentials: true,
   });
 
   await app.listen(3001);
