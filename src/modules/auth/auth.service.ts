@@ -126,6 +126,9 @@ export class AuthService {
         user: user,
         userAgent: agent,
       },
+      relations: {
+        user: true,
+      },
     });
     if (token) {
       token.value = v4();
