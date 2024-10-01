@@ -49,7 +49,10 @@ export class AuthController {
   ) {
     const tokens = await this.authService.login(dto, agent);
     this.saveRefreshTokenToCookie(tokens.refreshToken, res);
-    return tokens.accessToken;
+    return {
+      accessToken: tokens.accessToken,
+      user: tokens.refreshToken.user,
+    };
   }
 
   @Get('logout')
@@ -64,7 +67,9 @@ export class AuthController {
     if (token) {
       this.removeRefreshTokenFromCookie(res);
     }
-    return token;
+    return {
+      refreshToken: token,
+    };
   }
 
   @Public()
@@ -79,7 +84,10 @@ export class AuthController {
     }
     const tokens = await this.authService.refreshTokens(refreshToken, agent);
     this.saveRefreshTokenToCookie(tokens.refreshToken, res);
-    return tokens.accessToken;
+    return {
+      accessToken: tokens.accessToken,
+      user: tokens.refreshToken.user,
+    };
   }
 
   @Public()
@@ -129,7 +137,10 @@ export class AuthController {
           tap(({ refreshToken }) =>
             this.saveRefreshTokenToCookie(refreshToken, res)
           ),
-          map(({ accessToken }) => accessToken),
+          map(({ accessToken, refreshToken }) => ({
+            accessToken: accessToken,
+            user: refreshToken.user,
+          })),
           catchError((err) => {
             throw new BadRequestException(err.message);
           })
