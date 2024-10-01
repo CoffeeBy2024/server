@@ -96,8 +96,26 @@ export class ProductController {
   }
 
   @Patch('shop/:sid/product/:id')
-  update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  update(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file: Express.Multer.File,
+    @Param('id') id: number,
+    @Body() updateProductDto: UpdateProductDto
+  ) {
+    return this.productService.update(
+      id,
+      { image: file.buffer },
+      updateProductDto
+    );
   }
 
   @Delete('shop/:sid/product/:id')

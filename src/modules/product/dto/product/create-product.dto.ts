@@ -13,7 +13,4 @@ export class CreateProductDto {
 
   @IsOptional()
   description: string;
-
-  @IsOptional()
-  photo: string;
 }

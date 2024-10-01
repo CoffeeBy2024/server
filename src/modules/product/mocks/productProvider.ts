@@ -34,12 +34,12 @@ const productDto: CreateProductDto = {
   name: 'Americano',
   price: 12.99,
   description: 'Product Mock',
-  photo: photoMock._id.toString(),
 };
 
 const productMock: Product = {
   id: 1,
   ...productDto,
+  photo: photoMock._id.toString(),
   shopCategory: shopCategoryMock,
 };
 
