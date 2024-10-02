@@ -4,6 +4,7 @@ import { isPublicRoute } from '@common/utils';
 import { mockContext, mockReflector, mockReflectorProvider } from './mocks';
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 jest.mock('@common/utils');
 
@@ -23,6 +24,10 @@ describe('JwtAuthGuard', () => {
   it('should be defined', () => {
     expect(jwtAuthGuard).toBeDefined();
     expect(reflector).toBeDefined();
+  });
+
+  it('should use the jwt strategy', () => {
+    expect(jwtAuthGuard).toBeInstanceOf(AuthGuard('jwt'));
   });
 
   describe('canActivate', () => {
