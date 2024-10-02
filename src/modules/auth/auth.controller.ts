@@ -61,14 +61,18 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     if (!refreshTokenValue) {
-      return null;
+      throw new UnauthorizedException('Refresh token is missing');
     }
+
     const token = await this.authService.removeRefreshToken(refreshTokenValue);
-    if (token) {
-      this.removeRefreshTokenFromCookie(res);
+    if (!token) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
+
+    this.removeRefreshTokenFromCookie(res);
+
     return {
-      refreshToken: token,
+      message: 'Logout successful',
     };
   }
 
