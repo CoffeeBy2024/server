@@ -4,6 +4,7 @@ import { Product } from './entities/product.entity';
 import { ObjectLiteral, Repository } from 'typeorm';
 import {
   productDto,
+  productFinalMock,
   productMock,
   productRepositoryProvider,
   updatedProductDto,
@@ -11,7 +12,6 @@ import {
 } from './mocks/productProvider';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { shopCategoryMock } from '../shop/shop-category/mocks/shopCategoryProvider';
-import { shopMock } from '../shop/shop/mocks/shopProvider';
 import {
   photoDto,
   photoMock,
@@ -72,15 +72,18 @@ describe('ProductService', () => {
   describe('Find', () => {
     it('should find all products', async () => {
       productRepository.find?.mockResolvedValue([productMock]);
+      photoRepository.findOneBy?.mockResolvedValue(photoMock);
+
       const result = await service.findAll();
 
-      expect(result).toEqual([productMock]);
+      expect(result).toEqual([productFinalMock]);
       expect(productRepository.find).toHaveBeenCalled();
       expect(productRepository.find).toHaveBeenCalledWith();
     });
 
     it('should find all products by category', async () => {
       productRepository.find?.mockResolvedValue([productMock]);
+      photoRepository.findOneBy?.mockResolvedValue(photoMock);
 
       const result = await service.findAllByCategory(shopCategoryMock.id);
 
@@ -88,19 +91,53 @@ describe('ProductService', () => {
       expect(productRepository.find).toHaveBeenCalledWith({
         where: { shopCategory: { id: shopCategoryMock.id } },
       });
-      expect(result).toEqual([productMock]);
+      expect(result).toEqual([productFinalMock]);
+    });
+
+    it('should fail to find all products by category', async () => {
+      productRepository.find?.mockResolvedValue([]);
+
+      const result = await service.findAllByCategory(+shopCategoryMock.id);
+
+      expect(productRepository.find).toHaveBeenCalled();
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: { shopCategory: { id: +shopCategoryMock.id } },
+      });
+      expect(result).toEqual([]);
     });
 
     it('should find concrete product', async () => {
       productRepository.findOneBy?.mockResolvedValue(productMock);
+      photoRepository.findOneBy?.mockResolvedValue(photoMock);
 
-      const result = await service.findOneBy(shopMock.id);
+      const result = await service.findOneBy(productMock.id);
 
       expect(productRepository.findOneBy).toHaveBeenCalled();
       expect(productRepository.findOneBy).toHaveBeenCalledWith({
         id: productMock.id,
       });
-      expect(result).toBe(productMock);
+      expect(result).toEqual(productFinalMock);
+    });
+
+    it('should fail to find concrete product', async () => {
+      productRepository.findOneBy?.mockResolvedValue(null);
+
+      const result = await service.findOneBy(+productMock.id);
+
+      expect(productRepository.findOneBy).toHaveBeenCalled();
+      expect(productRepository.findOneBy).toHaveBeenCalledWith({
+        id: +productMock.id,
+      });
+      expect(result).toEqual(null);
+    });
+
+    it('should not find any products', async () => {
+      productRepository.find?.mockResolvedValue([]);
+
+      const result = await service.findAll();
+
+      expect(productRepository.find).toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
   });
 

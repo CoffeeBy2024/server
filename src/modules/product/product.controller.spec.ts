@@ -6,6 +6,7 @@ import {
   productFinalMock,
   productMock,
   productRepositoryProvider,
+  updatedProductDto,
   updateProduct,
 } from './mocks/productProvider';
 import { ShopService } from '../shop/shop/shop.service';
@@ -29,10 +30,15 @@ import {
   photoDto,
   photoRepositoryProvider,
 } from './mocks/photoProvider';
+import { NotFoundException } from '@nestjs/common';
 
 describe('Product Controller', () => {
   let controller: ProductController;
   let spyService: ProductService;
+
+  let categoryService: CategoryService;
+  let shopService: ShopService;
+  let shopCategoryService: ShopCategoryService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -52,6 +58,10 @@ describe('Product Controller', () => {
 
     controller = module.get<ProductController>(ProductController);
     spyService = module.get<ProductService>(ProductService);
+
+    categoryService = module.get<CategoryService>(CategoryService);
+    shopService = module.get<ShopService>(ShopService);
+    shopCategoryService = module.get<ShopCategoryService>(ShopCategoryService);
   });
 
   it('should be defined', () => {
@@ -97,6 +107,36 @@ describe('Product Controller', () => {
         expect(result).toEqual([productFinalMock]);
       });
     });
+
+    it('should throw Error due to not-found category', async () => {
+      jest.spyOn(categoryService, 'findOne').mockResolvedValue(null);
+
+      const differentCategory = 'salad' as CATEGORY;
+
+      try {
+        await controller.getCategorySelection(shopMock.id, differentCategory);
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(
+          `Category with name ${differentCategory} not found`
+        );
+      }
+    });
+
+    it('should throw Error due to not-found shop', async () => {
+      jest.spyOn(shopCategoryService, 'findOneById').mockResolvedValue(null);
+
+      const differentId = 73;
+
+      try {
+        await controller.getCategorySelection(differentId, CATEGORY['coffee']);
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(`Shop with id ${differentId} not found`);
+      }
+    });
   });
 
   describe('POST product', () => {
@@ -104,10 +144,10 @@ describe('Product Controller', () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(productMock);
 
       const result = await controller.create(
-        fileMock,
         shopMock.id,
         categoryMock.name,
-        productDto
+        productDto,
+        fileMock
       );
 
       expect(spyService.create).toHaveBeenCalled();
@@ -125,10 +165,10 @@ describe('Product Controller', () => {
       const differentCategory = CATEGORY['drinks'];
 
       const result = await controller.create(
-        fileMock,
         shopMock.id,
         differentCategory,
-        productDto
+        productDto,
+        fileMock
       );
 
       expect(spyService.create).toHaveBeenCalled();
@@ -138,6 +178,46 @@ describe('Product Controller', () => {
       });
       expect(result).toBe(productMock);
     });
+
+    it('should throw Error due to not-found category', async () => {
+      jest.spyOn(categoryService, 'findOne').mockResolvedValue(null);
+
+      const differentCategory = 'salad' as CATEGORY;
+
+      try {
+        await controller.create(
+          shopMock.id,
+          differentCategory,
+          productDto,
+          fileMock
+        );
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(
+          `Category with name ${differentCategory} not found`
+        );
+      }
+    });
+
+    it('should throw Error due to not-found shop', async () => {
+      jest.spyOn(shopService, 'findOne').mockResolvedValue(null);
+
+      const differentId = 73;
+
+      try {
+        await controller.create(
+          differentId,
+          CATEGORY['coffee'],
+          productDto,
+          fileMock
+        );
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toEqual(`Shop with id ${differentId} not found`);
+      }
+    });
   });
 
   describe('PATCH product', () => {
@@ -145,15 +225,16 @@ describe('Product Controller', () => {
       jest.spyOn(spyService, 'update').mockResolvedValue(updateProduct);
 
       const result = await controller.update(
-        fileMock,
-        productMock.id,
-        updateProduct
+        productFinalMock.id,
+        updatedProductDto,
+        fileMock
       );
 
       expect(spyService.update).toHaveBeenCalled();
       expect(spyService.update).toHaveBeenCalledWith(
-        productMock.id,
-        updateProduct
+        productFinalMock.id,
+        { image: fileMock.buffer },
+        updatedProductDto
       );
       expect(result).toEqual(updateProduct);
     });

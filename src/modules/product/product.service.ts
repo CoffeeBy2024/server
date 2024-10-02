@@ -41,7 +41,7 @@ export class ProductService {
   async findAll() {
     const products = await this.productRepository.find();
 
-    if (!products) {
+    if (!products.length) {
       return products;
     }
 
@@ -51,10 +51,7 @@ export class ProductService {
           _id: new ObjectId(product.photo),
         });
 
-        return {
-          ...product,
-          photo: photo?.image,
-        };
+        return { ...product, photo: photo?.image };
       })
     );
   }
@@ -64,7 +61,7 @@ export class ProductService {
       where: { shopCategory: { id } },
     });
 
-    if (!products) {
+    if (!products.length) {
       return products;
     }
 
@@ -74,10 +71,7 @@ export class ProductService {
           _id: new ObjectId(product.photo),
         });
 
-        return {
-          ...product,
-          photo: photo?.image,
-        };
+        return { ...product, photo: photo?.image };
       })
     );
   }
@@ -93,10 +87,7 @@ export class ProductService {
       _id: new ObjectId(product.photo),
     });
 
-    return {
-      ...product,
-      photo: photo?.image,
-    };
+    return { ...product, photo: photo?.image };
   }
 
   async update(
@@ -130,6 +121,7 @@ export class ProductService {
   }
 
   async remove(id: number) {
-    return !!(await this.productRepository.delete({ id })).affected;
+    const deleteResult = await this.productRepository.delete({ id });
+    return !!deleteResult.affected;
   }
 }

@@ -92,6 +92,7 @@
       "main.ts",
       "<rootDir>/modules/app",
       "<rootDir>/config",
+      "<rootDir>/databases",
       ".entity.ts",
       ".module.ts"
     ],

@@ -47,16 +47,16 @@ export class ProductController {
     })
   )
   async create(
+    @Param('id')
+    id: number,
+    @Query('category') category: CATEGORY,
+    @Body() createProductDto: CreateProductDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
         .build()
     )
-    file: Express.Multer.File,
-    @Param('id')
-    id: number,
-    @Query('category') category: CATEGORY,
-    @Body() createProductDto: CreateProductDto
+    file: Express.Multer.File
   ): Promise<Product> {
     const categoryEntity = await this.categoryService.findOne(category);
 
@@ -135,18 +135,18 @@ export class ProductController {
     })
   )
   update(
+    @Param('pid') id: number,
+    @Body() updateProductDto: UpdateProductDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
         .build()
     )
-    file: Express.Multer.File,
-    @Param('id') id: number,
-    @Body() updateProductDto: UpdateProductDto
+    file?: Express.Multer.File
   ) {
     return this.productService.update(
       id,
-      { image: file.buffer },
+      { image: file?.buffer },
       updateProductDto
     );
   }
