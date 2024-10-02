@@ -15,10 +15,11 @@ import { AuthModule } from '@auth/auth.module';
 import { SendgridModule } from '@mail/sendgrid/sendgrid.module';
 import { MailModule } from '@mail/mail.module';
 
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
 import { JwtAuthGuard } from '@auth/guards';
+import { CustomCacheInterceptor } from '@common/interceptors';
 
 @Module({
   imports: [
@@ -52,7 +53,7 @@ import { JwtAuthGuard } from '@auth/guards';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: CustomCacheInterceptor },
   ],
   controllers: [AppController],
 })

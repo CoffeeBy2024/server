@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { RegisterUserDto, LoginUserDto } from './dto';
 import { AuthService } from './auth.service';
-import { UserAgent, Cookies, Public } from '@common/decorators';
+import { UserAgent, Cookies, Public, NoCache } from '@common/decorators';
 import { Response, Request } from 'express';
 import { REFRESH_TOKEN } from './constants';
 import { Token } from './entities';
@@ -24,6 +24,7 @@ import { catchError, lastValueFrom, map, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
 import { Provider } from '@user/entities';
 
+@NoCache()
 @Controller('auth')
 export class AuthController {
   constructor(
