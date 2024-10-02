@@ -5,7 +5,7 @@ import { isCachingIgnored } from '@common/utils';
 
 @Injectable()
 export class CustomCacheInterceptor extends CacheInterceptor {
-  protected isRequestCacheable(context: ExecutionContext): boolean {
+  isRequestCacheable(context: ExecutionContext): boolean {
     const http = context.switchToHttp();
     const request = http.getRequest();
 
