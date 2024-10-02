@@ -137,3 +137,7 @@ export const httpServiceProvider = () => ({
     get: jest.fn().mockReturnValue(of({ data: mockGoogleUserInfo })),
   },
 });
+
+export const mockAccessTokenDto = {
+  accessToken: 'access-token',
+};

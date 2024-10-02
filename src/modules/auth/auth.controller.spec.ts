@@ -17,6 +17,7 @@ import {
   mockRegisterUserDto,
   tokenRepositoryProvider,
   mockNow,
+  mockAccessTokenDto,
 } from './mocks';
 import { Provider } from '@user/entities';
 import { Request, Response } from 'express';
@@ -146,7 +147,7 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return access token', async () => {
+    it('should return expected value', async () => {
       (compareSync as jest.Mock).mockReturnValue(true);
 
       const result = await controller.login(
@@ -155,47 +156,69 @@ describe('AuthController', () => {
         response as Response
       );
 
-      expect(result).toBe(
-        generateJwtToken({
+      expect(result).toStrictEqual({
+        accessToken: generateJwtToken({
           id: mockUser.id,
           email: mockUser.email,
-        })
-      );
+        }),
+        user: result.user,
+      });
     });
   });
 
   describe('logout', () => {
-    it('if no refresh token should return null', async () => {
-      const result = await controller.logout('', response as Response);
+    describe('negative', () => {
+      it('if no refresh token should throw UnauthorizedException with clear message', async () => {
+        try {
+          await controller.logout('', response as Response);
+        } catch (e) {
+          expect(e).toBeInstanceOf(UnauthorizedException);
+          expect(e.message).toBe('Refresh token is missing');
+        }
+      });
 
-      expect(result).toBeNull();
+      it('if no removed refresh token should throw UnauthorizedException with clear message', async () => {
+        jest.spyOn(spyService, 'removeRefreshToken').mockResolvedValue(null);
+
+        try {
+          await controller.logout(mockToken.value, response as Response);
+        } catch (e) {
+          expect(e).toBeInstanceOf(UnauthorizedException);
+          expect(e.message).toBe('Invalid or expired refresh token');
+        }
+      });
     });
 
-    it('should call authService.removeRefreshToken method', async () => {
-      const spyMethod = jest.spyOn(spyService, 'removeRefreshToken');
+    describe('positive', () => {
+      it('should call authService.removeRefreshToken method', async () => {
+        const spyMethod = jest.spyOn(spyService, 'removeRefreshToken');
 
-      await controller.logout(mockToken.value, response as Response);
+        await controller.logout(mockToken.value, response as Response);
 
-      expect(spyMethod).toHaveBeenCalledTimes(1);
-      expect(spyMethod).toHaveBeenCalledWith(mockToken.value);
-    });
+        expect(spyMethod).toHaveBeenCalledTimes(1);
+        expect(spyMethod).toHaveBeenCalledWith(mockToken.value);
+      });
 
-    it('for removed from DB token should call response.clearCookie method', async () => {
-      await controller.logout(mockToken.value, response as Response);
+      it('for removed from DB token should call response.clearCookie method', async () => {
+        await controller.logout(mockToken.value, response as Response);
 
-      expect(response.clearCookie).toHaveBeenCalledTimes(1);
-      expect(response.clearCookie).toHaveBeenCalledWith(REFRESH_TOKEN);
-    });
+        expect(response.clearCookie).toHaveBeenCalledTimes(1);
+        expect(response.clearCookie).toHaveBeenCalledWith(REFRESH_TOKEN);
+      });
 
-    it('should return removed token', async () => {
-      jest.spyOn(spyService, 'removeRefreshToken').mockResolvedValue(mockToken);
-      const result = await controller.logout(
-        mockToken.value,
-        response as Response
-      );
+      it('should return successful message', async () => {
+        jest
+          .spyOn(spyService, 'removeRefreshToken')
+          .mockResolvedValue(mockToken);
 
-      expect(result).toEqual({
-        ...mockToken,
+        const result = await controller.logout(
+          mockToken.value,
+          response as Response
+        );
+
+        expect(result).toEqual({
+          message: 'Logout successful',
+        });
       });
     });
   });
@@ -238,20 +261,22 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return accessToken', async () => {
+    it('should return expected value', async () => {
       jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
+
       const result = await controller.refreshTokens(
         mockToken.value,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(result).toBe(
-        generateJwtToken({
+      expect(result).toStrictEqual({
+        accessToken: generateJwtToken({
           id: mockUser.id,
           email: mockUser.email,
-        })
-      );
+        }),
+        user: result.user,
+      });
     });
 
     it('for non existing refresh token should throw UnauthorizedException', async () => {
@@ -277,7 +302,7 @@ describe('AuthController', () => {
 
       expect(response.redirect).toHaveBeenCalledTimes(1);
       expect(response.redirect).toHaveBeenCalledWith(
-        `http://localhost:3001/auth/google/profile?access-token=${mockGoogleUserValidateResponse.accessToken}`
+        `http://localhost:3000/auth/google?access-token=${mockGoogleUserValidateResponse.accessToken}`
       );
     });
   });
@@ -285,7 +310,7 @@ describe('AuthController', () => {
   describe('googleProfile', () => {
     it('should call httpService.get method on googleUserProfile endpoint', async () => {
       await controller.googleProfile(
-        'access-token',
+        mockAccessTokenDto,
         mockAgents.POSTMAN,
         response as Response
       );
@@ -296,7 +321,7 @@ describe('AuthController', () => {
         {
           params: {
             alt: 'json',
-            access_token: 'access-token',
+            access_token: mockAccessTokenDto.accessToken,
           },
         }
       );
@@ -307,7 +332,7 @@ describe('AuthController', () => {
       const spyMethod = jest.spyOn(spyService, 'providerAuth');
 
       await controller.googleProfile(
-        'access-token',
+        mockAccessTokenDto,
         mockAgents.POSTMAN,
         response as Response
       );
@@ -331,7 +356,7 @@ describe('AuthController', () => {
       jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
 
       await controller.googleProfile(
-        'access-token',
+        mockAccessTokenDto,
         mockAgents.POSTMAN,
         response as Response
       );
@@ -347,21 +372,22 @@ describe('AuthController', () => {
       );
     });
 
-    it('should call return access token', async () => {
+    it('should return expectedValue', async () => {
       jest.spyOn(userService, 'getUserByConditions').mockResolvedValue(null);
 
       const result = await controller.googleProfile(
-        'access-token',
+        mockAccessTokenDto,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(result).toBe(
-        generateJwtToken({
+      expect(result).toStrictEqual({
+        accessToken: generateJwtToken({
           id: mockUserGoogle.id,
           email: mockUserGoogle.email,
-        })
-      );
+        }),
+        user: result.user,
+      });
     });
 
     it('should catch errors and throw BadRequestException with clear message', async () => {
