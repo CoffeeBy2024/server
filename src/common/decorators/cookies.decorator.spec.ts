@@ -19,10 +19,10 @@ describe('Cookies', () => {
     });
   });
   describe('for non existing cookie key', () => {
-    it('should return cookies object for non existing cookie key ', () => {
+    it('should return null', () => {
       const factory = getParamDecoratorFactory(Cookies);
       const result = factory('random', mockContext as ExecutionContext);
-      expect(result).toEqual(mockRequestCookies);
+      expect(result).toBeNull();
     });
   });
 });
