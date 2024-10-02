@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -18,8 +20,8 @@ import { CategoryService } from '../../category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../../common/enums/category.enum';
 
-@ApiTags('shop')
-@Controller('shop')
+@ApiTags('shops')
+@Controller('shops')
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
@@ -32,28 +34,42 @@ export class ShopController {
     name: 'category',
     required: false,
     type: 'string',
-    explode: false,
+    description: 'product category',
   })
   @ApiQuery({
     name: 'name',
     required: false,
     type: 'string',
-    explode: false,
+    description: 'shop name',
   })
   async getCategorySelection(
     @Query('category') category?: CATEGORY,
     @Query('name') name?: string
   ) {
-    if (name && category) throw new Error('Too Many Parametrs Entered');
-    if (name) return await this.shopService.findByName(name);
-    if (!category) return await this.shopService.findAll();
+    if (name && category) {
+      throw new BadRequestException(
+        'Too many parameters entered. Provide either name or category, not both.'
+      );
+    }
 
-    return await Promise.all(
-      (
-        await this.shopCategoryServcie.findAllByName(
-          await this.categoryService.findOneByName(category)
-        )
-      ).map((shop) => this.shopService.findOne(shop.shop.id))
+    if (name) {
+      return this.shopService.findByName(name);
+    }
+
+    if (!category) {
+      return this.shopService.findAll();
+    }
+
+    const categoryEntity = await this.categoryService.findOne(category);
+
+    if (!categoryEntity)
+      throw new NotFoundException(`Category with name ${category} not found`);
+
+    const shopsByCategory =
+      await this.shopCategoryServcie.findAllByCategory(categoryEntity);
+
+    return Promise.all(
+      shopsByCategory.map(({ shop }) => this.shopService.findOne(shop.id))
     );
   }
 

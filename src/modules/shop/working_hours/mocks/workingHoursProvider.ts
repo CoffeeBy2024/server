@@ -3,6 +3,7 @@ import { shopMock as shop } from '../../shop/mocks/shopProvider';
 import { CreateWorkingHoursDto } from '../dto/create-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { UpdateWorkingHoursDto } from '../dto/update-working_hour.dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -41,6 +42,8 @@ const mockWorkingHours: WorkingHour = {
   shop: shop,
 };
 
+const updateWokringHoursDto: UpdateWorkingHoursDto = { open_hour: '08:15' };
+
 const updateWorkingHours: WorkingHour = {
   ...mockWorkingHours,
   open_hour: '08:15',
@@ -50,5 +53,6 @@ export {
   workingHoursRepositoryProvider,
   workingHoursDto,
   mockWorkingHours,
+  updateWokringHoursDto,
   updateWorkingHours,
 };

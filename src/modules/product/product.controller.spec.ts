@@ -66,10 +66,7 @@ describe('Product Controller', () => {
       it('should get All products from concrete Shop', async () => {
         jest.spyOn(spyService, 'findAll').mockResolvedValue([productMock]);
 
-        const result = await controller.getCategorySelection(
-          shopMock.id,
-          '' as CATEGORY
-        );
+        const result = await controller.getCategorySelection(shopMock.id);
 
         expect(spyService.findAll).toHaveBeenCalled();
         expect(spyService.findAll).toHaveBeenCalledWith();

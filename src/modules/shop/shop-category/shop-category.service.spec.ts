@@ -62,7 +62,7 @@ describe('ShopCategoryService', () => {
     it('should find all shop categories by category name', async () => {
       shopCategoryRepository.find?.mockResolvedValue([shopCategoryMock]);
 
-      const result = await service.findAllByName(categoryMock);
+      const result = await service.findAllByCategory(categoryMock);
 
       expect(shopCategoryRepository.find).toHaveBeenCalledWith({
         where: { category: categoryMock },
@@ -74,7 +74,7 @@ describe('ShopCategoryService', () => {
     it('should find one shop category by category name', async () => {
       shopCategoryRepository.findOne?.mockResolvedValue(shopCategoryMock);
 
-      const result = await service.findOneByName(shopMock.id, categoryMock);
+      const result = await service.findOneByCategory(shopMock.id, categoryMock);
 
       expect(shopCategoryRepository.findOne).toHaveBeenCalledWith({
         where: { shop: { id: shopMock.id }, category: { id: categoryMock.id } },
@@ -96,24 +96,6 @@ describe('ShopCategoryService', () => {
           relations: ['category', 'shop'],
         });
         expect(result).toEqual(shopCategoryMock);
-      });
-
-      it('should throw an error if shop category does not exist', async () => {
-        shopCategoryRepository.findOne?.mockResolvedValue(null);
-
-        await expect(
-          service.findOneById(shopMock.id, categoryMock)
-        ).rejects.toThrow(
-          `Shop with id - ${shopCategoryMock.id} doesn't have such category of products`
-        );
-
-        expect(shopCategoryRepository.findOne).toHaveBeenCalledWith({
-          where: {
-            shop: { id: shopMock.id },
-            category: categoryMock,
-          },
-          relations: ['category', 'shop'],
-        });
       });
     });
   });

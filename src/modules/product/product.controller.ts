@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -16,9 +17,10 @@ import { CategoryService } from '../category/category.service';
 import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../common/enums/category.enum';
+import { Product } from './entities/product.entity';
 
-@ApiTags('product')
-@Controller()
+@ApiTags('products')
+@Controller('shops/:id/products')
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
@@ -27,62 +29,91 @@ export class ProductController {
     private readonly shopCategoryService: ShopCategoryService
   ) {}
 
-  @Post('shop/:id/product')
+  @Post()
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: 'string',
+    description: 'product category',
+  })
   async create(
     @Param('id') id: number,
-    @Query('category') categoryName: CATEGORY,
+    @Query('category') category: CATEGORY,
     @Body() createProductDto: CreateProductDto
-  ) {
-    const category = await this.categoryService.findOneByName(categoryName);
-    let shopCategory = await this.shopCategoryService.findOneByName(
-      id,
-      category
-    );
-    if (!shopCategory) {
-      const shop = this.shopService.handleNonExistingShop(
-        id,
-        await this.shopService.findOne(id)
-      );
-      shopCategory = await this.shopCategoryService.create({ shop, category });
+  ): Promise<Product> {
+    const categoryEntity = await this.categoryService.findOne(category);
+
+    if (!categoryEntity) {
+      throw new NotFoundException(`Category with name ${category} not found`);
     }
+
+    let shopCategory = await this.shopCategoryService.findOneByCategory(
+      id,
+      categoryEntity
+    );
+
+    if (!shopCategory) {
+      const shop = await this.shopService.findOne(id);
+
+      if (!shop) {
+        throw new NotFoundException(`Shop with id ${id} not found`);
+      }
+
+      shopCategory = await this.shopCategoryService.create({
+        shop,
+        category: categoryEntity,
+      });
+    }
+
     return this.productService.create(createProductDto, shopCategory);
   }
 
-  @Get('shop/:sid/product/:id')
-  findOne(@Param('id') id: number) {
-    return this.productService.findOneBy(id);
-  }
-
-  @Get('shop/:id/products/')
+  @Get()
   @ApiQuery({
     name: 'category',
     required: false,
     type: 'string',
     explode: false,
+    description: 'product category',
   })
   async getCategorySelection(
-    @Param('id') shop_id: number,
+    @Param('id') id: number,
     @Query('category') category?: CATEGORY
   ) {
-    return !category
-      ? await this.productService.findAll()
-      : this.productService.findAllByCategory(
-          (
-            await this.shopCategoryService.findOneById(
-              shop_id,
-              await this.categoryService.findOneByName(category)
-            )
-          ).id
-        );
+    if (!category) {
+      return this.productService.findAll();
+    }
+
+    const categoryEntity = await this.categoryService.findOne(category);
+
+    if (!categoryEntity) {
+      throw new NotFoundException(`Category with name ${category} not found`);
+    }
+
+    const shopCategory = await this.shopCategoryService.findOneById(
+      id,
+      categoryEntity
+    );
+
+    if (!shopCategory) {
+      throw new NotFoundException(`Shop with id ${id} not found`);
+    }
+
+    return this.productService.findAllByCategory(shopCategory.id);
   }
 
-  @Patch('shop/:sid/product/:id')
-  update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
+  @Get('/:pid')
+  findOne(@Param('pid') id: number) {
+    return this.productService.findOneBy(id);
+  }
+
+  @Patch('/:pid')
+  update(@Param('pid') id: number, @Body() updateProductDto: UpdateProductDto) {
     return this.productService.update(id, updateProductDto);
   }
 
-  @Delete('shop/:sid/product/:id')
-  remove(@Param('id') id: number) {
+  @Delete('/:pid')
+  remove(@Param('pid') id: number) {
     return this.productService.remove(id);
   }
 }

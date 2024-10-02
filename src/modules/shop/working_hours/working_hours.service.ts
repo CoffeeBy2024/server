@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
 import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
 import { Repository } from 'typeorm';
@@ -15,11 +19,11 @@ export class WorkingHoursService {
   async create(createWorkingHoursDto: CreateWorkingHoursDto) {
     const { day_of_the_week, shop } = createWorkingHoursDto;
     const WHrepeatition = await this.workingHoursRepository.findOne({
-      where: { day_of_the_week: day_of_the_week },
-      relations: ['shop'],
+      where: { day_of_the_week },
     });
+
     if (WHrepeatition)
-      throw new Error(
+      throw new BadRequestException(
         `Working Hours for ${day_of_the_week} day in ${shop.id} shop already exists`
       );
 
@@ -35,17 +39,17 @@ export class WorkingHoursService {
   }
 
   async update(id: number, updateWorkingHoursDto: UpdateWorkingHoursDto) {
+    const existingWH = await this.workingHoursRepository.findOneBy({
+      shop: { id },
+    });
+
+    if (!existingWH) {
+      throw new NotFoundException('Working Hours were not found');
+    }
+
     return await this.workingHoursRepository.save({
-      ...this.ensureWH(await this.workingHoursRepository.findOneBy({ id: id })),
+      ...existingWH,
       ...updateWorkingHoursDto,
     });
-  }
-
-  ensureWH(workingHour: WorkingHour | null): WorkingHour {
-    if (!workingHour) {
-      console.error('Trying to reach non-existing working_hour');
-      throw new Error('Trying to reach non-existing working_hour');
-    }
-    return workingHour;
   }
 }

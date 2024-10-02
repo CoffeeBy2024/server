@@ -4,12 +4,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { CATEGORY } from '../../common/enums/category.enum';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { NotFoundException } from '@nestjs/common';
 import {
   categoryDto,
   categoryMock,
   categoryRepositoryProvider,
 } from './mocks/categoryProvider';
+import { BadRequestException } from '@nestjs/common';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -42,6 +42,24 @@ describe('CategoryService', () => {
       expect(categoryRepository.save).toHaveBeenCalled();
       expect(result).toEqual(categoryMock);
     });
+
+    it('should throw BadRequestException due to already existing category', async () => {
+      const duplicate = { name: 'Duplicate Category' as CATEGORY };
+
+      jest
+        .spyOn(categoryRepository, 'save')
+        .mockRejectedValueOnce(
+          new BadRequestException(
+            `Category with the name ${duplicate.name} already exists`
+          )
+        );
+
+      expect(categoryRepository.create).toHaveBeenCalled();
+      expect(categoryRepository.save).toHaveBeenCalled();
+      await expect(service.create(duplicate)).rejects.toThrow(
+        BadRequestException
+      );
+    });
   });
 
   describe('Find', () => {
@@ -57,28 +75,13 @@ describe('CategoryService', () => {
       });
     });
 
-    describe('findOneByName', () => {
+    describe('findOne', () => {
       it('should get correct category when following name exists', async () => {
         const expectedCategory = CATEGORY['coffee'];
 
         categoryRepository.findOne?.mockReturnValue(expectedCategory);
-        const category = await service.findOneByName(expectedCategory);
+        const category = await service.findOne(expectedCategory);
         expect(category).toEqual(expectedCategory);
-      });
-
-      it('should throw the "NotFoundException"', async () => {
-        const categoryName = CATEGORY['bakery'];
-        categoryRepository.findOne?.mockReturnValue(undefined);
-
-        try {
-          await service.findOneByName(categoryName);
-          expect(false).toBeTruthy(); // we should never hit this line
-        } catch (err) {
-          expect(err).toBeInstanceOf(NotFoundException);
-          expect(err.message).toEqual(
-            `Category with name ${categoryName} not found`
-          );
-        }
       });
     });
   });

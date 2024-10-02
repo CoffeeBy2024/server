@@ -9,6 +9,7 @@ import {
   shopRepositoryProvider,
   updatedShop,
 } from './mocks/shopProvider';
+import { BadRequestException } from '@nestjs/common';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -93,6 +94,20 @@ describe('ShopService', () => {
       expect(shopRepository.save).toHaveBeenCalled();
       expect(shopRepository.save).toHaveBeenCalledWith(updatedShop);
     });
+
+    it('should throw BadRequestException due to not-found shop', async () => {
+      shopRepository.findOneBy?.mockResolvedValue(null);
+
+      try {
+        await service.update(shopMock.id + 1, updatedShop);
+        expect(false).toBeTruthy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(BadRequestException);
+        expect(err.message).toEqual(
+          `Shop with id - ${shopMock.id + 1} doesn't exist`
+        );
+      }
+    });
   });
 
   describe('Remove', () => {
@@ -101,26 +116,6 @@ describe('ShopService', () => {
 
       expect(shopRepository.delete).toHaveBeenCalled();
       expect(result).toEqual(true);
-    });
-  });
-
-  describe('Handler', () => {
-    it('should ensure that shop exists', () => {
-      const result = service.handleNonExistingShop(shopMock.id, shopMock);
-
-      expect(result).toEqual(shopMock);
-    });
-
-    it('should throw Error due to non-existing shop', () => {
-      try {
-        service.handleNonExistingShop(shopMock.id, null);
-        expect(false).toBeTruthy(); // we should never hit this line
-      } catch (err) {
-        expect(err).toBeInstanceOf(Error);
-        expect(err.message).toEqual(
-          `Shop with id - ${shopMock.id} doesn't exist`
-        );
-      }
     });
   });
 
