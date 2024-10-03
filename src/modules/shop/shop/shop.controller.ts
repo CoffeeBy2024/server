@@ -25,7 +25,7 @@ import { CATEGORY } from '../../../common/enums/category.enum';
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
-    private readonly shopCategoryServcie: ShopCategoryService,
+    private readonly shopCategoryService: ShopCategoryService,
     private readonly categoryService: CategoryService
   ) {}
 
@@ -66,7 +66,7 @@ export class ShopController {
       throw new NotFoundException(`Category with name ${category} not found`);
 
     const shopsByCategory =
-      await this.shopCategoryServcie.findAllByCategory(categoryEntity);
+      await this.shopCategoryService.findAllByCategory(categoryEntity);
 
     if (!shopsByCategory.length) {
       throw new NotFoundException(`Category ${category} was not found in shop`);
@@ -89,7 +89,7 @@ export class ShopController {
 
   @Get(':id/categories')
   async findShopCategories(@Param('id') id: number) {
-    const categories = await this.shopCategoryServcie.findAllById(id);
+    const categories = await this.shopCategoryService.findAllById(id);
 
     if (!categories.length) {
       return categories;
