@@ -10,13 +10,20 @@ import { ShopModule } from './shop/shop/shop.module';
 import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { UserModule } from '@user/user.module';
+import { AuthModule } from '@auth/auth.module';
+import { SendgridModule } from '@mail/sendgrid/sendgrid.module';
+import { MailModule } from '@mail/mail.module';
+
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
+import { JwtAuthGuard } from '@auth/guards';
+import { CustomCacheInterceptor } from '@common/interceptors';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
@@ -30,6 +37,10 @@ import { TTLVariables } from 'src/utils/constants/cache';
     ShopCategoryModule,
     ProductModule,
     CategoryModule,
+    UserModule,
+    AuthModule,
+    SendgridModule,
+    MailModule,
     CacheModule.register({
       max: 100,
       ttl: TTLVariables.common,
@@ -38,7 +49,11 @@ import { TTLVariables } from 'src/utils/constants/cache';
   ],
   providers: [
     AppService,
-    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    { provide: APP_INTERCEPTOR, useClass: CustomCacheInterceptor },
   ],
   controllers: [AppController],
 })
