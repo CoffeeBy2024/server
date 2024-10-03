@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/product/create-product.dto';
 import { UpdateProductDto } from './dto/product/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { MongoRepository, Repository } from 'typeorm';
 import { ShopCategory } from '../shop/shop-category/entities/shop-category.entity';
 import { Photo } from './entities/photo.entity';
 import { CreatePhotoDto } from './dto/photo/create-photo.dto';
@@ -17,7 +17,7 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
 
     @InjectRepository(Photo, 'mongodb')
-    private readonly photoRepository: Repository<Photo>
+    private readonly photoRepository: MongoRepository<Photo>
   ) {}
 
   async create(
@@ -45,15 +45,18 @@ export class ProductService {
       return products;
     }
 
-    return Promise.all(
-      products.map(async (product) => {
-        const photo = await this.photoRepository.findOneBy({
-          _id: new ObjectId(product.photo),
-        });
-
-        return { ...product, photo: photo?.image };
-      })
+    const productPhotIds = products.map(({ photo }) =>
+      photo ? new ObjectId(photo) : undefined
     );
+
+    const photos = await this.photoRepository.find({
+      _id: { $in: productPhotIds },
+    });
+
+    return products.map((product, index) => ({
+      ...product,
+      photo: productPhotIds[index] ? photos.shift()?.image : undefined,
+    }));
   }
 
   async findAllByCategory(id: number) {
@@ -65,15 +68,18 @@ export class ProductService {
       return products;
     }
 
-    return Promise.all(
-      products.map(async (product) => {
-        const photo = await this.photoRepository.findOneBy({
-          _id: new ObjectId(product.photo),
-        });
-
-        return { ...product, photo: photo?.image };
-      })
+    const productPhotIds = products.map(({ photo }) =>
+      photo ? new ObjectId(photo) : undefined
     );
+
+    const photos = await this.photoRepository.find({
+      _id: { $in: productPhotIds },
+    });
+
+    return products.map((product, index) => ({
+      ...product,
+      photo: productPhotIds[index] ? photos.shift()?.image : undefined,
+    }));
   }
 
   async findOneBy(id: number) {

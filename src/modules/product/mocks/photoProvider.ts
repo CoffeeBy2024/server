@@ -15,6 +15,7 @@ const createMockRepository = <
 >(): MockRepository<T> => ({
   create: jest.fn(),
   save: jest.fn(),
+  find: jest.fn(),
   findOneBy: jest.fn(),
 });
 

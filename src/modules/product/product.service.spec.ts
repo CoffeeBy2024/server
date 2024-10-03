@@ -72,18 +72,17 @@ describe('ProductService', () => {
   describe('Find', () => {
     it('should find all products', async () => {
       productRepository.find?.mockResolvedValue([productMock]);
-      photoRepository.findOneBy?.mockResolvedValue(photoMock);
+      photoRepository.find?.mockResolvedValue([photoMock]);
 
       const result = await service.findAll();
 
-      expect(result).toEqual([productFinalMock]);
       expect(productRepository.find).toHaveBeenCalled();
-      expect(productRepository.find).toHaveBeenCalledWith();
+      expect(result).toEqual([productFinalMock]);
     });
 
     it('should find all products by category', async () => {
       productRepository.find?.mockResolvedValue([productMock]);
-      photoRepository.findOneBy?.mockResolvedValue(photoMock);
+      photoRepository.find?.mockResolvedValue([photoMock]);
 
       const result = await service.findAllByCategory(shopCategoryMock.id);
 
