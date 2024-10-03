@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import {
+  hashedPassword,
   mockUser,
   passwordDto,
   updateUserDto,
@@ -10,6 +11,9 @@ import {
 } from './mocks';
 import { plainToInstance } from 'class-transformer';
 import { UserResponseDto } from './dto';
+import { hashSync } from 'bcrypt';
+
+jest.mock('bcrypt');
 
 describe('UserController', () => {
   let controller: UserController;
@@ -42,14 +46,10 @@ describe('UserController', () => {
       expect(spyService.createUser).toHaveBeenCalledWith(passwordDto);
     });
     it('should return  user', async () => {
+      (hashSync as jest.Mock).mockReturnValue(hashedPassword);
       const result = await controller.createUser(passwordDto);
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: hashedPassword, ...resultWithoutPassword } = result;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...mockUserWithoutPassword } = mockUser;
-
-      expect(resultWithoutPassword).toEqual(mockUserWithoutPassword);
+      expect(result).toEqual(mockUser);
     });
   });
 
