@@ -61,8 +61,6 @@ describe('UserService', () => {
   describe('createUser', () => {
     describe('password flow', () => {
       it('should call create and save methods', async () => {
-        // userRepository.create?.mockReturnValue(mockUser);
-        // await service.createUser(passwordDto);
         (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         await service.createUser(passwordDto);
 
@@ -74,15 +72,8 @@ describe('UserService', () => {
         (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         const result = await service.createUser(passwordDto);
 
-        // const { password: hashedPassword, ...passwordUserWithoutPassword } =
-        //   result;
-        // const { password, ...mockUserWithoutPassword } = mockUser;
-
         expect(result).toEqual(mockUser);
         expect(result.provider).toBe(Provider.PASSWORD);
-        // expect(
-        //   compareSync(password as string, hashedPassword as string)
-        // ).toBeTruthy();
       });
     });
     describe('google flow', () => {
@@ -170,15 +161,8 @@ describe('UserService', () => {
         (hashSync as jest.Mock).mockReturnValue(hashedPassword);
         const result = await service.updateUser(updateUserDto, id);
 
-        // const { password: hashedPassword, ...resultWithoutPassword } = result;
-        // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        // const { password, ...mockUserWithoutPassword } = mockUser;
-
         expect(result).toEqual(mockUser);
         expect(result.firstName).toBe(updateUserDto.firstName);
-        // expect(
-        //   compareSync(updateUserDto.password as string, hashedPassword)
-        // ).toBeTruthy();
       });
     });
     describe('for non-existing user', () => {
