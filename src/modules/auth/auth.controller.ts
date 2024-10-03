@@ -26,13 +26,13 @@ import { Provider } from '@user/entities';
 
 @NoCache()
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly httpService: HttpService
   ) {}
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Public()
   @Post('register')
   async register(@Body() dto: RegisterUserDto) {
@@ -51,7 +51,7 @@ export class AuthController {
     this.saveRefreshTokenToCookie(tokens.refreshToken, res);
     return {
       accessToken: tokens.accessToken,
-      user: tokens.refreshToken.user,
+      user: new UserResponseDto(tokens.refreshToken.user),
     };
   }
 
@@ -90,7 +90,7 @@ export class AuthController {
     this.saveRefreshTokenToCookie(tokens.refreshToken, res);
     return {
       accessToken: tokens.accessToken,
-      user: tokens.refreshToken.user,
+      user: new UserResponseDto(tokens.refreshToken.user),
     };
   }
 
@@ -143,7 +143,7 @@ export class AuthController {
           ),
           map(({ accessToken, refreshToken }) => ({
             accessToken: accessToken,
-            user: refreshToken.user,
+            user: new UserResponseDto(refreshToken.user),
           })),
           catchError((err) => {
             throw new BadRequestException(err.message);
