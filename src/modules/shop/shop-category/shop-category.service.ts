@@ -42,6 +42,13 @@ export class ShopCategoryService {
     });
   }
 
+  async findAllById(shop_id: number) {
+    return await this.shopCategoryRepository.find({
+      where: { shop: { id: shop_id } },
+      relations: ['category'],
+    });
+  }
+
   async remove(category: Category) {
     const deleteResult = await this.shopCategoryRepository.delete({ category });
     return !!deleteResult.affected;

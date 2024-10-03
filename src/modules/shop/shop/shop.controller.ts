@@ -29,7 +29,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
-    private readonly shopCategoryServcie: ShopCategoryService,
+    private readonly shopCategoryService: ShopCategoryService,
     private readonly categoryService: CategoryService
   ) {}
 
@@ -70,7 +70,11 @@ export class ShopController {
       throw new NotFoundException(`Category with name ${category} not found`);
 
     const shopsByCategory =
-      await this.shopCategoryServcie.findAllByCategory(categoryEntity);
+      await this.shopCategoryService.findAllByCategory(categoryEntity);
+
+    if (!shopsByCategory.length) {
+      throw new NotFoundException(`Category ${category} was not found in shop`);
+    }
 
     return Promise.all(
       shopsByCategory.map(({ shop }) => this.shopService.findOne(shop.id))
@@ -98,6 +102,17 @@ export class ShopController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.shopService.findOne(id);
+  }
+
+  @Get(':id/categories')
+  async findShopCategories(@Param('id') id: number) {
+    const categories = await this.shopCategoryService.findAllById(id);
+
+    if (!categories.length) {
+      return categories;
+    }
+
+    return Promise.all(categories.map(({ category: { name } }) => name));
   }
 
   @Patch(':id')

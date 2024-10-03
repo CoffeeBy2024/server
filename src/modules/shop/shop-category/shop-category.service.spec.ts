@@ -59,6 +59,15 @@ describe('ShopCategoryService', () => {
       expect(result).toEqual([shopCategoryMock]);
     });
 
+    it('should find all categories for this shop', async () => {
+      shopCategoryRepository.find?.mockResolvedValue([shopCategoryMock]);
+
+      const result = await service.findAllById(shopMock.id);
+
+      expect(shopCategoryRepository.find).toHaveBeenCalled();
+      expect(result).toEqual([shopCategoryMock]);
+    });
+
     it('should find all shop categories by category name', async () => {
       shopCategoryRepository.find?.mockResolvedValue([shopCategoryMock]);
 

@@ -9,8 +9,14 @@ import {
   shopRepositoryProvider,
   updatedShop,
 } from './mocks/shopProvider';
-import { shopCategoryRepositoryProvider } from '../shop-category/mocks/shopCategoryProvider';
-import { categoryRepositoryProvider } from '../../../modules/category/mocks/categoryProvider';
+import {
+  shopCategoryMock,
+  shopCategoryRepositoryProvider,
+} from '../shop-category/mocks/shopCategoryProvider';
+import {
+  categoryMock,
+  categoryRepositoryProvider,
+} from '../../../modules/category/mocks/categoryProvider';
 import { CATEGORY } from '../../../common/enums/category.enum';
 import { NotFoundException } from '@nestjs/common';
 import {
@@ -30,6 +36,7 @@ describe('Shop Controller', () => {
   let spyService: ShopService;
   let categoryService: CategoryService;
   let photoService: PhotoService;
+  let shopCategoryService: ShopCategoryService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -50,6 +57,7 @@ describe('Shop Controller', () => {
     spyService = module.get<ShopService>(ShopService);
     categoryService = module.get<CategoryService>(CategoryService);
     photoService = module.get<PhotoService>(PhotoService);
+    shopCategoryService = module.get<ShopCategoryService>(ShopCategoryService);
   });
 
   it('should be defined', () => {
@@ -67,9 +75,31 @@ describe('Shop Controller', () => {
       expect(result).toBe(shopMock);
     });
 
+    it('should get all categories for shop', async () => {
+      jest
+        .spyOn(shopCategoryService, 'findAllById')
+        .mockResolvedValue([shopCategoryMock]);
+
+      const result = await controller.findShopCategories(shopMock.id);
+
+      expect(shopCategoryService.findAllById).toHaveBeenCalled();
+      expect(shopCategoryService.findAllById).toHaveBeenCalledWith(shopMock.id);
+      expect(result).toEqual([shopCategoryMock.category.name]);
+    });
+
+    it('should fail all categories for shop', async () => {
+      jest.spyOn(shopCategoryService, 'findAllById').mockResolvedValue([]);
+
+      const result = await controller.findShopCategories(shopMock.id);
+      expect(result).toEqual([]);
+    });
+
     describe('should perform category selection', () => {
       it('should get shop according to category', async () => {
         jest.spyOn(spyService, 'findOne').mockResolvedValue(shopMock);
+        jest
+          .spyOn(shopCategoryService, 'findAllByCategory')
+          .mockResolvedValue([shopCategoryMock]);
 
         const result = await controller.getCategorySelection(
           CATEGORY['coffee']
@@ -125,6 +155,25 @@ describe('Shop Controller', () => {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(
             `Category with name ${nonExistingCategory} not found`
+          );
+        }
+      });
+
+      it('should throw NotFoundException due to not-found shops by category', async () => {
+        jest.spyOn(categoryService, 'findOne').mockResolvedValue(categoryMock);
+        jest
+          .spyOn(shopCategoryService, 'findAllByCategory')
+          .mockResolvedValue([]);
+
+        const category = CATEGORY['coffee'];
+
+        try {
+          await controller.getCategorySelection(category);
+          expect(false).toBeTruthy(); // we should never hit this line
+        } catch (err) {
+          expect(err).toBeInstanceOf(NotFoundException);
+          expect(err.message).toEqual(
+            `Category ${category} was not found in shop`
           );
         }
       });
