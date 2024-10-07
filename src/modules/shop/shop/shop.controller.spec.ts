@@ -13,11 +13,23 @@ import { shopCategoryRepositoryProvider } from '../shop-category/mocks/shopCateg
 import { categoryRepositoryProvider } from '../../../modules/category/mocks/categoryProvider';
 import { CATEGORY } from '../../../common/enums/category.enum';
 import { NotFoundException } from '@nestjs/common';
+import {
+  fileMock,
+  shopPhotoRepositoryProvider,
+  productPhotoRepositoryProvider,
+  shopPhotoMock as photoMock,
+  updatePhotoDto,
+  updatedPhotoMock,
+  fileUpdateMock,
+  photoDto,
+} from '../../photo/mocks/photoProvider';
+import { PhotoService } from '../../photo/photo.service';
 
 describe('Shop Controller', () => {
   let controller: ShopController;
   let spyService: ShopService;
   let categoryService: CategoryService;
+  let photoService: PhotoService;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -26,7 +38,10 @@ describe('Shop Controller', () => {
         ShopService,
         ShopCategoryService,
         CategoryService,
+        PhotoService,
         shopRepositoryProvider,
+        shopPhotoRepositoryProvider,
+        productPhotoRepositoryProvider,
         shopCategoryRepositoryProvider,
         categoryRepositoryProvider,
       ],
@@ -34,6 +49,7 @@ describe('Shop Controller', () => {
     controller = module.get<ShopController>(ShopController);
     spyService = module.get<ShopService>(ShopService);
     categoryService = module.get<CategoryService>(CategoryService);
+    photoService = module.get<PhotoService>(PhotoService);
   });
 
   it('should be defined', () => {
@@ -118,11 +134,12 @@ describe('Shop Controller', () => {
   describe('POST Shop', () => {
     it('should create new shop', async () => {
       jest.spyOn(spyService, 'create').mockResolvedValue(shopMock);
+      jest.spyOn(photoService, 'create').mockResolvedValue(photoMock);
 
-      const result = await controller.create(shopDto);
+      const result = await controller.create(shopDto, fileMock);
 
       expect(spyService.create).toHaveBeenCalled();
-      expect(spyService.create).toHaveBeenCalledWith(shopDto);
+      expect(spyService.create).toHaveBeenCalledWith(photoDto, shopDto);
       expect(result).toBe(shopMock);
     });
   });
@@ -130,11 +147,20 @@ describe('Shop Controller', () => {
   describe('Patch Shop', () => {
     it('should update shop info', async () => {
       jest.spyOn(spyService, 'update').mockResolvedValue(updatedShop);
+      jest.spyOn(photoService, 'update').mockResolvedValue(updatedPhotoMock);
 
-      const result = await controller.update(shopMock.id, updatedShop);
+      const result = await controller.update(
+        shopMock.id,
+        updatedShop,
+        fileUpdateMock
+      );
 
       expect(spyService.update).toHaveBeenCalled();
-      expect(spyService.update).toHaveBeenCalledWith(shopMock.id, updatedShop);
+      expect(spyService.update).toHaveBeenCalledWith(
+        shopMock.id,
+        updatePhotoDto,
+        updatedShop
+      );
       expect(result).toEqual(updatedShop);
     });
   });
