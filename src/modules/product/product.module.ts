@@ -9,12 +9,12 @@ import { ShopCategoryService } from '../shop/shop-category/shop-category.service
 import { Shop } from '../shop/shop/entities/shop.entity';
 import { Category } from '../category/entities/category.entity';
 import { CategoryService } from '../category/category.service';
-import { Photo } from './entities/photo.entity';
+import { PhotoModule } from '../photo/photo.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product, ShopCategory, Shop, Category]),
-    TypeOrmModule.forFeature([Photo], 'mongodb'),
+    PhotoModule,
   ],
   controllers: [ProductController],
   providers: [

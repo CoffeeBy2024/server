@@ -14,11 +14,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { shopCategoryMock } from '../shop/shop-category/mocks/shopCategoryProvider';
 import {
   photoDto,
-  photoMock,
-  photoRepositoryProvider,
+  productPhotoMock as photoMock,
   updatePhotoDto,
-} from './mocks/photoProvider';
-import { Photo } from './entities/photo.entity';
+  shopPhotoRepositoryProvider,
+  productPhotoRepositoryProvider,
+} from '../photo/mocks/photoProvider';
+import { ProductPhoto as Photo } from '../photo/entities/photo.entity';
+import { PhotoService } from '../photo/photo.service';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -34,7 +36,9 @@ describe('ProductService', () => {
       providers: [
         ProductService,
         productRepositoryProvider,
-        photoRepositoryProvider,
+        PhotoService,
+        shopPhotoRepositoryProvider,
+        productPhotoRepositoryProvider,
       ],
     }).compile();
 
