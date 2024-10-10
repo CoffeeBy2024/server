@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -13,10 +14,10 @@ import { RegisterUserDto, LoginUserDto } from './dto';
 import { AuthService } from './auth.service';
 import { UserAgent, Cookies, Public, NoCache } from '@common/decorators';
 import { Response, Request, CookieOptions } from 'express';
-import { COOKIES } from './constants';
+import { COOKIES, QUERIES } from './constants';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
-import { catchError, lastValueFrom, map, mergeMap, tap } from 'rxjs';
+import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
 import { Provider } from '@user/entities';
 
@@ -109,15 +110,15 @@ export class AuthController {
   @Get('google/redirect')
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
-    const redirectURI = `http://localhost:3000/auth/google?access-token=${user.accessToken}`;
+    const redirectURI = `http://localhost:3001/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
     res.redirect(redirectURI);
     return redirectURI;
   }
 
   @Public()
-  @Post('google/profile')
+  @Get('google/profile')
   async googleProfile(
-    @Body() dto: { accessToken: string },
+    @Query(`${QUERIES.ACCESS_TOKEN}`) accessToken: string,
     @UserAgent() agent: string,
     @Res({ passthrough: true }) res: Response
   ) {
@@ -126,7 +127,7 @@ export class AuthController {
         .get<GoogleUserInfo>(`https://www.googleapis.com/oauth2/v3/userinfo`, {
           params: {
             alt: 'json',
-            access_token: dto.accessToken,
+            access_token: accessToken,
           },
         })
         .pipe(
@@ -146,10 +147,8 @@ export class AuthController {
           tap(({ accessToken, refreshToken }) => {
             this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
             this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+            res.redirect('http://localhost:3000/');
           }),
-          map(() => ({
-            message: 'Google auth successful',
-          })),
           catchError((err) => {
             throw new BadRequestException(err.message);
           })
