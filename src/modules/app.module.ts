@@ -30,7 +30,7 @@ import { CustomCacheInterceptor } from '@common/interceptors';
       entities: ['dist/**/*.entity{.ts,.js}'],
       migrations: ['migrations/**/*.ts'],
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
     WorkingHoursModule,
     ShopModule,

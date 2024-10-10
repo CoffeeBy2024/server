@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
@@ -107,17 +108,21 @@ export class AuthService {
   }
 
   private async createTokens(user: User, agent: string) {
-    const accessToken = this.createAccessToken(user.id, user.email);
+    const accessToken = this.createAccessToken(user.id);
 
     const refreshToken = await this.createRefreshToken(user, agent);
     return { accessToken, refreshToken };
   }
 
-  private createAccessToken(id: number, email: string) {
-    return this.jwtService.sign({
-      id,
-      email,
-    });
+  private createAccessToken(id: number) {
+    return {
+      value: this.jwtService.sign({
+        sub: id,
+      }),
+      expiresAt: this.getTokenExpiresAt(
+        this.configService.get('JWT_ACCESS_EXP')
+      ),
+    };
   }
 
   private async createRefreshToken(user: User, agent: string) {
@@ -126,20 +131,21 @@ export class AuthService {
         user: user,
         userAgent: agent,
       },
-      relations: {
-        user: true,
-      },
     });
     if (token) {
       token.value = v4();
-      token.expiresAt = this.getRefreshTokenExpiresAt();
+      token.expiresAt = this.getTokenExpiresAt(
+        this.configService.get('JWT_REFRESH_EXP')
+      );
       await this.tokenRepository.save(token);
       return token;
     }
     const newToken = await this.tokenRepository.save(
       this.tokenRepository.create({
         value: v4(),
-        expiresAt: this.getRefreshTokenExpiresAt(),
+        expiresAt: this.getTokenExpiresAt(
+          this.configService.get('JWT_REFRESH_EXP')
+        ),
         userAgent: agent,
         user: user,
       })
@@ -148,9 +154,10 @@ export class AuthService {
     return newToken;
   }
 
-  private getRefreshTokenExpiresAt() {
-    return new Date(
-      Date.now() + Number(this.configService.get('JWT_REFRESH_EXP'))
-    );
+  private getTokenExpiresAt(timeToAlive: string | undefined) {
+    if (!timeToAlive) {
+      throw new InternalServerErrorException('No time to alive for token');
+    }
+    return new Date(Date.now() + Number(timeToAlive));
   }
 }

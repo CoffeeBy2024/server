@@ -13,7 +13,7 @@ import {
 import { CreateUserDto, UserResponseDto, UpdateUserDto } from './dto';
 import { UserService } from './user.service';
 import { plainToInstance } from 'class-transformer';
-import { Public } from '@common/decorators';
+import { Public, User } from '@common/decorators';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -26,13 +26,23 @@ export class UserController {
     return new UserResponseDto(user);
   }
 
-  @Get()
+  @Get('/all')
   async getAllUsers() {
     return plainToInstance(UserResponseDto, this.userService.getAllUsers());
   }
 
+  @Get('/by-token')
+  async getUserByToken(@User() requestUser: any) {
+    const { id } = requestUser;
+    const user = await this.userService.getUserByConditions({ id });
+    if (user) {
+      return new UserResponseDto(user);
+    }
+    return null;
+  }
+
   @Get(':id')
-  async getUser(@Param('id', ParseIntPipe) id: number) {
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
     const user = await this.userService.getUserByConditions({ id });
     if (user) {
       return new UserResponseDto(user);

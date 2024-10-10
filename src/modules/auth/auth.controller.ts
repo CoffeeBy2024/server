@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Get,
   Post,
@@ -9,15 +8,12 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { RegisterUserDto, LoginUserDto } from './dto';
 import { AuthService } from './auth.service';
 import { UserAgent, Cookies, Public, NoCache } from '@common/decorators';
-import { Response, Request } from 'express';
-import { REFRESH_TOKEN } from './constants';
-import { Token } from './entities';
-import { UserResponseDto } from '@user/dto';
+import { Response, Request, CookieOptions } from 'express';
+import { COOKIES } from './constants';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, map, mergeMap, tap } from 'rxjs';
@@ -26,7 +22,6 @@ import { Provider } from '@user/entities';
 
 @NoCache()
 @Controller('auth')
-@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -36,8 +31,10 @@ export class AuthController {
   @Public()
   @Post('register')
   async register(@Body() dto: RegisterUserDto) {
-    const user = await this.authService.register(dto, Provider.PASSWORD);
-    return new UserResponseDto(user);
+    await this.authService.register(dto, Provider.PASSWORD);
+    return {
+      message: 'Register successful',
+    };
   }
 
   @Public()
@@ -47,17 +44,20 @@ export class AuthController {
     @UserAgent() agent: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    const tokens = await this.authService.login(dto, agent);
-    this.saveRefreshTokenToCookie(tokens.refreshToken, res);
+    const { accessToken, refreshToken } = await this.authService.login(
+      dto,
+      agent
+    );
+    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
+    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
     return {
-      accessToken: tokens.accessToken,
-      user: new UserResponseDto(tokens.refreshToken.user),
+      message: 'Login successful',
     };
   }
 
   @Get('logout')
   async logout(
-    @Cookies(REFRESH_TOKEN) refreshTokenValue: string,
+    @Cookies(COOKIES.REFRESH_TOKEN) refreshTokenValue: string,
     @Res({ passthrough: true }) res: Response
   ) {
     if (!refreshTokenValue) {
@@ -69,7 +69,8 @@ export class AuthController {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    this.removeRefreshTokenFromCookie(res);
+    this.removeValueFromCookies(res, COOKIES.REFRESH_TOKEN);
+    this.removeValueFromCookies(res, COOKIES.ACCESS_TOKEN);
 
     return {
       message: 'Logout successful',
@@ -79,18 +80,22 @@ export class AuthController {
   @Public()
   @Get('refresh-tokens')
   async refreshTokens(
-    @Cookies(REFRESH_TOKEN) refreshToken: string,
+    @Cookies(COOKIES.REFRESH_TOKEN) cookieRefreshToken: string,
     @UserAgent() agent: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    if (!refreshToken) {
+    if (!cookieRefreshToken) {
       throw new UnauthorizedException();
     }
-    const tokens = await this.authService.refreshTokens(refreshToken, agent);
-    this.saveRefreshTokenToCookie(tokens.refreshToken, res);
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(
+      cookieRefreshToken,
+      agent
+    );
+    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
+    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+
     return {
-      accessToken: tokens.accessToken,
-      user: new UserResponseDto(tokens.refreshToken.user),
+      message: 'Tokens refreshed successfully',
     };
   }
 
@@ -138,12 +143,12 @@ export class AuthController {
                 Provider.GOOGLE
               )
           ),
-          tap(({ refreshToken }) =>
-            this.saveRefreshTokenToCookie(refreshToken, res)
-          ),
-          map(({ accessToken, refreshToken }) => ({
-            accessToken: accessToken,
-            user: new UserResponseDto(refreshToken.user),
+          tap(({ accessToken, refreshToken }) => {
+            this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
+            this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+          }),
+          map(() => ({
+            message: 'Google auth successful',
           })),
           catchError((err) => {
             throw new BadRequestException(err.message);
@@ -152,14 +157,29 @@ export class AuthController {
     );
   }
 
-  private saveRefreshTokenToCookie(refreshToken: Token, res: Response) {
-    res.cookie(REFRESH_TOKEN, refreshToken.value, {
+  private saveTokenToCookie<T extends { value: string; expiresAt: Date }>(
+    res: Response,
+    key: string,
+    { value, expiresAt }: T,
+    options?: Omit<CookieOptions, 'httpOnly' | 'expires'>
+  ) {
+    this.saveValueToCookie(res, key, value, {
       httpOnly: true,
-      expires: new Date(refreshToken.expiresAt),
+      expires: expiresAt,
+      ...options,
     });
   }
 
-  private removeRefreshTokenFromCookie(res: Response) {
-    res.clearCookie(REFRESH_TOKEN);
+  private saveValueToCookie(
+    res: Response,
+    key: string,
+    value: string,
+    options: CookieOptions
+  ) {
+    res.cookie(key, value, options);
+  }
+
+  private removeValueFromCookies(res: Response, key: string) {
+    res.clearCookie(key);
   }
 }
