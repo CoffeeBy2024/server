@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   ParseIntPipe,
   Patch,
@@ -13,12 +14,17 @@ import {
 import { CreateUserDto, UserResponseDto, UpdateUserDto } from './dto';
 import { UserService } from './user.service';
 import { plainToInstance } from 'class-transformer';
-import { Public, User } from '@common/decorators';
+import { NoCache, Public, User } from '@common/decorators';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { TTLVariables } from 'src/utils/constants/cache';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
@@ -32,11 +38,24 @@ export class UserController {
   }
 
   @Get('/by-token')
+  @NoCache()
   async getUserByToken(@User() requestUser: any) {
     const { id } = requestUser;
+    const cacheKey = `user_by_token_${id}`;
+
+    const cachedUser = await this.cacheManager.get(cacheKey);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
     const user = await this.userService.getUserByConditions({ id });
     if (user) {
-      return new UserResponseDto(user);
+      const userResponse = new UserResponseDto(user);
+
+      await this.cacheManager.set(cacheKey, userResponse, TTLVariables.common);
+
+      return userResponse;
     }
     return null;
   }
