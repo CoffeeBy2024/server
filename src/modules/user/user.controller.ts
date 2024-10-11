@@ -17,6 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
+import { getUserCacheKey } from '@common/utils/getUserCacheKey';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,7 +42,7 @@ export class UserController {
   @NoCache()
   async getUserByToken(@User() requestUser: any) {
     const { id } = requestUser;
-    const cacheKey = `user_by_token_${id}`;
+    const cacheKey = getUserCacheKey(id);
 
     const cachedUser = await this.cacheManager.get(cacheKey);
 
@@ -76,6 +77,25 @@ export class UserController {
       return new UserResponseDto(user);
     }
     return null;
+  }
+
+  @Patch('/by-token')
+  async updateUserByToken(
+    @User() requestUser: any,
+    @Body() dto: UpdateUserDto
+  ) {
+    const { id } = requestUser;
+    const cacheKey = getUserCacheKey(id);
+
+    const cachedUser = await this.cacheManager.get(cacheKey);
+
+    if (cachedUser) {
+      await this.cacheManager.del(cacheKey);
+    }
+
+    const user = await this.userService.updateUser(dto, id);
+
+    return new UserResponseDto(user);
   }
 
   @Patch(':id')
