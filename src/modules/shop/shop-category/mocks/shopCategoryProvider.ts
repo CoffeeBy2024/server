@@ -22,9 +22,7 @@ const createMockRepository = <
   save: jest
     .fn()
     .mockImplementation((shopCategory: ShopCategory) => shopCategory),
-  find: jest.fn().mockImplementation(() => {
-    return [shopCategoryMock];
-  }),
+  find: jest.fn(),
   findOne: jest.fn().mockImplementation(({ where: { category } }) => {
     return category.name === categoryMock.name ? shopCategoryMock : undefined;
   }),
