@@ -19,7 +19,7 @@ export class WorkingHoursService {
   async create(createWorkingHoursDto: CreateWorkingHoursDto) {
     const { day_of_the_week, shop } = createWorkingHoursDto;
     const WHrepeatition = await this.workingHoursRepository.findOne({
-      where: { day_of_the_week },
+      where: { day_of_the_week, shop },
     });
 
     if (WHrepeatition)
