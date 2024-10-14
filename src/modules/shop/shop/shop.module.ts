@@ -12,9 +12,12 @@ import { ShopCategory } from '../shop-category/entities/shop-category.entity';
 import { CategoryService } from '../../category/category.service';
 import { Category } from '../../category/entities/category.entity';
 
+import { PhotoModule } from 'src/modules/photo/photo.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Shop, WorkingHour, ShopCategory, Category]),
+    PhotoModule,
   ],
   controllers: [ShopController],
   providers: [

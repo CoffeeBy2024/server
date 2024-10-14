@@ -50,6 +50,7 @@ export class ShopCategoryService {
   }
 
   async remove(category: Category) {
-    return !!(await this.shopCategoryRepository.delete({ category })).affected;
+    const deleteResult = await this.shopCategoryRepository.delete({ category });
+    return !!deleteResult.affected;
   }
 }

@@ -8,6 +8,9 @@ import {
   Delete,
   Query,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,6 +21,7 @@ import { ShopCategoryService } from '../shop/shop-category/shop-category.service
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../common/enums/category.enum';
 import { Product } from './entities/product.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('products')
 @Controller('shops/:id/products')
@@ -36,10 +40,23 @@ export class ProductController {
     type: 'string',
     description: 'product category',
   })
+  @Post('shop/:id/product')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
   async create(
-    @Param('id') id: number,
+    @Param('id')
+    id: number,
     @Query('category') category: CATEGORY,
-    @Body() createProductDto: CreateProductDto
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file: Express.Multer.File
   ): Promise<Product> {
     const categoryEntity = await this.categoryService.findOne(category);
 
@@ -65,7 +82,11 @@ export class ProductController {
       });
     }
 
-    return this.productService.create(createProductDto, shopCategory);
+    return this.productService.create(
+      { image: file.buffer },
+      createProductDto,
+      shopCategory
+    );
   }
 
   @Get()
@@ -108,8 +129,26 @@ export class ProductController {
   }
 
   @Patch('/:pid')
-  update(@Param('pid') id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(id, updateProductDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  update(
+    @Param('pid') id: number,
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file?: Express.Multer.File
+  ) {
+    return this.productService.update(
+      id,
+      { image: file?.buffer },
+      updateProductDto
+    );
   }
 
   @Delete('/:pid')
