@@ -20,13 +20,15 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
 import { Provider } from '@user/entities';
+import { ConfigService } from '@nestjs/config';
 
 @NoCache()
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {}
 
   @Public()
@@ -110,7 +112,7 @@ export class AuthController {
   @Get('google/redirect')
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
-    const redirectURI = `http://localhost:3001/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
+    const redirectURI = `${this.configService.getOrThrow<string>('API_URL')}/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
     res.redirect(redirectURI);
     return redirectURI;
   }
@@ -147,7 +149,7 @@ export class AuthController {
           tap(({ accessToken, refreshToken }) => {
             this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
             this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
-            res.redirect('http://localhost:3000/');
+            res.redirect(this.configService.getOrThrow<string>('CLIENT_URL'));
           }),
           catchError((err) => {
             throw new BadRequestException(err.message);

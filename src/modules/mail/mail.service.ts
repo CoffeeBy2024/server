@@ -11,7 +11,7 @@ export class MailService {
   ) {}
 
   async verifyEmail(dto: EmailVerificationDto) {
-    const emailVerificationLink = `${this.configService.get('API_URI')}/user/verify-email/${dto.emailVerificationLink}`;
+    const emailVerificationLink = `${this.configService.get<string>('API_URL')}/user/verify-email/${dto.emailVerificationLink}`;
 
     const html = `
       <div>
