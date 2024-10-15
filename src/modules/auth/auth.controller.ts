@@ -18,7 +18,7 @@ import { COOKIES, QUERIES } from './constants';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
-import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
+import { GoogleUserInfo, GoogleUserValidateResponse, TokenBase } from './types';
 import { Provider } from '@user/entities';
 import { ConfigService } from '@nestjs/config';
 
@@ -51,8 +51,8 @@ export class AuthController {
       dto,
       agent
     );
-    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokensToCookie(res, accessToken, refreshToken);
+
     return {
       message: 'Login successful',
     };
@@ -94,8 +94,7 @@ export class AuthController {
       cookieRefreshToken,
       agent
     );
-    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokensToCookie(res, accessToken, refreshToken);
 
     return {
       message: 'Tokens refreshed successfully',
@@ -146,8 +145,7 @@ export class AuthController {
               )
           ),
           tap(({ accessToken, refreshToken }) => {
-            this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-            this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+            this.saveTokensToCookie(res, accessToken, refreshToken);
             res.redirect(this.configService.getOrThrow<string>('CLIENT_URL'));
           }),
           catchError((err) => {
@@ -157,7 +155,16 @@ export class AuthController {
     );
   }
 
-  private saveTokenToCookie<T extends { value: string; expiresAt: Date }>(
+  private saveTokensToCookie<T extends TokenBase, K extends TokenBase>(
+    res: Response,
+    accessToken: T,
+    refreshToken: K
+  ) {
+    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
+  }
+
+  private saveTokenToCookie<T extends TokenBase>(
     res: Response,
     key: string,
     { value, expiresAt }: T,
@@ -179,7 +186,7 @@ export class AuthController {
     res.cookie(key, value, options);
   }
 
-  private removeValueFromCookies(res: Response, key: string) {
+  private removeValueFromCookie(res: Response, key: string) {
     res.clearCookie(key);
   }
 }
