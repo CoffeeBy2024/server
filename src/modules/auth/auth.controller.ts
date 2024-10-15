@@ -114,7 +114,6 @@ export class AuthController {
     const user = req.user as GoogleUserValidateResponse;
     const redirectURI = `${this.configService.getOrThrow<string>('API_URL')}/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
     res.redirect(redirectURI);
-    return redirectURI;
   }
 
   @Public()
