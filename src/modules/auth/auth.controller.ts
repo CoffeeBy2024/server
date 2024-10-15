@@ -72,8 +72,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    this.removeValueFromCookies(res, COOKIES.REFRESH_TOKEN);
-    this.removeValueFromCookies(res, COOKIES.ACCESS_TOKEN);
+    this.removeTokensFromCookie(res);
 
     return {
       message: 'Logout successful',
@@ -184,6 +183,11 @@ export class AuthController {
     options: CookieOptions
   ) {
     res.cookie(key, value, options);
+  }
+
+  private removeTokensFromCookie(res: Response) {
+    this.removeValueFromCookie(res, COOKIES.REFRESH_TOKEN);
+    this.removeValueFromCookie(res, COOKIES.ACCESS_TOKEN);
   }
 
   private removeValueFromCookie(res: Response, key: string) {
