@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Post,
@@ -9,6 +10,7 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { RegisterUserDto, LoginUserDto } from './dto';
 import { AuthService } from './auth.service';
@@ -20,6 +22,8 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
 import { Provider } from '@user/entities';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
+import { UserResponseDto } from '@user/dto';
 
 @NoCache()
 @Controller('auth')
@@ -33,6 +37,7 @@ export class AuthController {
   @Post('register')
   async register(@Body() dto: RegisterUserDto) {
     await this.authService.register(dto, Provider.PASSWORD);
+
     return {
       message: 'Register successful',
     };
@@ -98,6 +103,14 @@ export class AuthController {
     return {
       message: 'Tokens refreshed successfully',
     };
+  }
+
+  @Public()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('recover-password')
+  async recoverPassword(@Body() dto: RecoverPasswordDto) {
+    const user = await this.authService.recoverPassword(dto);
+    return new UserResponseDto(user);
   }
 
   @Public()

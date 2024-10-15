@@ -25,6 +25,7 @@ export const mockUser: User = {
   provider: passwordDto.provider,
   emailVerified: passwordDto.emailVerified,
   emailVerificationLink: passwordDto.emailVerificationLink as string,
+  passwordRecoveryVerificationLink: null,
   location: null,
   tokens: [],
 };
@@ -46,13 +47,13 @@ export const mockUserGoogle: User = {
   provider: googleDto.provider,
   emailVerified: googleDto.emailVerified,
   emailVerificationLink: null,
+  passwordRecoveryVerificationLink: null,
   location: null,
   tokens: [],
 };
 
 export const updateUserDto: UpdateUserDto = {
   firstName: 'Bob',
-  password: 'newOne',
 };
 
 export const userArr: User[] = [

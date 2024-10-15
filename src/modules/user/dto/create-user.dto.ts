@@ -12,6 +12,7 @@ export class CreateUserDto extends OmitType(RegisterUserDto, [
   provider: Provider;
   emailVerified: boolean;
   emailVerificationLink?: string;
+  passwordRecoveryVerificationLink?: string;
 
   constructor({
     email,
@@ -21,11 +22,13 @@ export class CreateUserDto extends OmitType(RegisterUserDto, [
     lastName,
     password,
     provider,
+    passwordRecoveryVerificationLink,
   }: Partial<
     RegisterUserDto & {
       provider: Provider;
       emailVerified: boolean;
       emailVerificationLink?: string;
+      passwordRecoveryVerificationLink?: string;
     }
   >) {
     super();
@@ -37,6 +40,7 @@ export class CreateUserDto extends OmitType(RegisterUserDto, [
       lastName,
       password,
       provider,
+      passwordRecoveryVerificationLink,
     });
   }
 }

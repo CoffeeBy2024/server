@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Res,
   UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto, UserResponseDto, UpdateUserDto } from './dto';
@@ -18,6 +19,9 @@ import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
 import { getUserCacheKey } from '@common/utils/getUserCacheKey';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
+import { Response } from 'express';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -114,5 +118,47 @@ export class UserController {
   ) {
     const user = await this.userService.verifyEmail(emailVerificationLink);
     return new UserResponseDto(user);
+  }
+
+  @Public()
+  @Get('recover-password/:passwordRecoveryVerificationLink')
+  async recoverPassword(
+    @Param('passwordRecoveryVerificationLink')
+    passwordRecoveryVerificationLink: string,
+    @Res() res: Response
+  ) {
+    const user = await this.userService.confirmPasswordRecoveryVerificationLink(
+      passwordRecoveryVerificationLink
+    );
+    const cacheKey = getUserCacheKey(user.id);
+
+    const cachedUser = await this.cacheManager.get(cacheKey);
+
+    if (cachedUser) {
+      await this.cacheManager.del(cacheKey);
+    }
+    const redirectURI = `http://localhost:3000/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+    res.redirect(redirectURI);
+    return redirectURI;
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.userService.resetPassword(dto);
+    return {
+      message: 'Password reset success',
+    };
+  }
+
+  @Post('profile/reset-password')
+  async resetPasswordByToken(
+    @User() requestUser: any,
+    @Body() dto: ResetPasswordByTokenDto
+  ) {
+    await this.userService.resetPasswordByToken(requestUser, dto);
+    return {
+      message: 'Password reset success',
+    };
   }
 }

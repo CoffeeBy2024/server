@@ -8,5 +8,6 @@ import { MailController } from './mail.controller';
   imports: [SendgridModule, ConfigModule],
   controllers: [MailController],
   providers: [MailService],
+  exports: [MailService],
 })
 export class MailModule {}

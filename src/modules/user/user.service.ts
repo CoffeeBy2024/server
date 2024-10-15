@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities';
 import { FindOneOptions, Repository } from 'typeorm';
-import { genSaltSync, hashSync } from 'bcrypt';
+import { genSaltSync, hashSync, compareSync } from 'bcrypt';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { OptionalWithoutNull } from './types';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 
 @Injectable()
 export class UserService {
@@ -48,11 +54,7 @@ export class UserService {
       throw new BadRequestException(`Cannot find user with '${id}' id`);
     }
 
-    const hashedPassword = dto.password
-      ? this.hashPassword(dto.password)
-      : user.password;
-
-    const updatedUser = Object.assign(user, dto, { password: hashedPassword });
+    const updatedUser = Object.assign(user, dto);
     return this.userRepository.save(updatedUser);
   }
 
@@ -65,7 +67,58 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async confirmPasswordRecoveryVerificationLink(
+    passwordRecoveryVerificationLink: string
+  ) {
+    const user = await this.getUserByConditions({
+      passwordRecoveryVerificationLink,
+    });
+    if (!user) {
+      throw new BadRequestException('Email verification link is not correct');
+    }
+    return user;
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const { id, passwordRecoveryVerificationLink, password } = dto;
+    const user = await this.getUserByConditions({
+      id,
+      passwordRecoveryVerificationLink,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    const hashedPassword = this.hashPassword(password);
+
+    user.password = hashedPassword;
+    return this.userRepository.save(user);
+  }
+
+  async resetPasswordByToken(user: any, dto: ResetPasswordByTokenDto) {
+    const { password, currentPassword } = dto;
+
+    const isPasswordVerified = this.verifyPassword(
+      currentPassword,
+      user.password
+    );
+
+    if (!isPasswordVerified) {
+      throw new BadRequestException('Wrong current password');
+    }
+
+    const hashedPassword = this.hashPassword(password);
+    user.password = hashedPassword;
+    this.userRepository.save(user);
+    return user;
+  }
+
   private hashPassword(password: string) {
     return hashSync(password, genSaltSync(5));
+  }
+
+  private verifyPassword(password: string, hashedPassword: string) {
+    return compareSync(password, hashedPassword);
   }
 }

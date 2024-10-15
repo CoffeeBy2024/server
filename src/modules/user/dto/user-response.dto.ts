@@ -13,6 +13,7 @@ export class UserResponseDto implements UserResponseDtoType {
   provider: Provider;
   emailVerified: boolean;
   emailVerificationLink: string;
+  passwordRecoveryVerificationLink: string;
 
   @Exclude()
   password: string;

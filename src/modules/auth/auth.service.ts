@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
@@ -17,6 +18,8 @@ import { ConfigService } from '@nestjs/config';
 import { Provider, User } from '@user/entities';
 import { GoogleAuthUserInfo } from './types';
 import { CreateUserDto } from '@user/dto';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
+import { MailService } from '@mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +28,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(Token)
-    private readonly tokenRepository: Repository<Token>
+    private readonly tokenRepository: Repository<Token>,
+    private readonly mailService: MailService
   ) {}
 
   async register(dto: RegisterUserDto, provider: Provider) {
@@ -152,6 +156,35 @@ export class AuthService {
     );
 
     return newToken;
+  }
+
+  async recoverPassword(dto: RecoverPasswordDto) {
+    const { email } = dto;
+
+    const user = await this.userService.getUserByConditions({ email });
+
+    if (!user) {
+      throw new NotFoundException(`User with ${email} email not found`);
+    }
+
+    if (user.provider === Provider.GOOGLE) {
+      return user;
+    }
+
+    const passwordRecoveryVerificationLink = v4();
+
+    await this.userService.updateUser(
+      {
+        passwordRecoveryVerificationLink,
+      },
+      user.id
+    );
+
+    this.mailService.verifyPasswordRecovery({
+      email,
+      passwordRecoveryVerificationLink,
+    });
+    return user;
   }
 
   private getTokenExpiresAt(timeToAlive: string | undefined) {
