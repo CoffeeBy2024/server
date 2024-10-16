@@ -17,8 +17,9 @@ import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
-import { getUserCacheKey } from '@common/utils/getUserCacheKey';
+import { getUserCacheKey, invalidateCache } from '@common/utils';
 
+@NoCache()
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
@@ -39,12 +40,9 @@ export class UserController {
   }
 
   @Get('/by-token')
-  @NoCache()
   async getUserByToken(@User() requestUser: any) {
     const { id } = requestUser;
-    const cacheKey = getUserCacheKey(id);
-
-    const cachedUser = await this.cacheManager.get(cacheKey);
+    const cachedUser = await this.getCachedUser(id);
 
     if (cachedUser) {
       return cachedUser;
@@ -53,9 +51,7 @@ export class UserController {
     const user = await this.userService.getUserByConditions({ id });
     if (user) {
       const userResponse = new UserResponseDto(user);
-
-      await this.cacheManager.set(cacheKey, userResponse, TTLVariables.common);
-
+      await this.setUserToCache(id, userResponse);
       return userResponse;
     }
     return null;
@@ -63,15 +59,24 @@ export class UserController {
 
   @Get(':id')
   async getUserById(@Param('id', ParseIntPipe) id: number) {
+    const cachedUser = await this.getCachedUser(id);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
     const user = await this.userService.getUserByConditions({ id });
     if (user) {
-      return new UserResponseDto(user);
+      const userResponse = new UserResponseDto(user);
+      await this.setUserToCache(id, userResponse);
+      return userResponse;
     }
     return null;
   }
 
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    await this.invalidateUserCache(id);
     const user = await this.userService.deleteUser(id);
     if (user) {
       return new UserResponseDto(user);
@@ -85,13 +90,7 @@ export class UserController {
     @Body() dto: UpdateUserDto
   ) {
     const { id } = requestUser;
-    const cacheKey = getUserCacheKey(id);
-
-    const cachedUser = await this.cacheManager.get(cacheKey);
-
-    if (cachedUser) {
-      await this.cacheManager.del(cacheKey);
-    }
+    await this.invalidateUserCache(id);
 
     const user = await this.userService.updateUser(dto, id);
 
@@ -103,6 +102,8 @@ export class UserController {
     @Body() dto: UpdateUserDto,
     @Param('id', ParseIntPipe) id: number
   ) {
+    await this.invalidateUserCache(id);
+
     const user = await this.userService.updateUser(dto, id);
     return new UserResponseDto(user);
   }
@@ -114,5 +115,21 @@ export class UserController {
   ) {
     const user = await this.userService.verifyEmail(emailVerificationLink);
     return new UserResponseDto(user);
+  }
+
+  private async invalidateUserCache(id: number) {
+    const cacheKey = getUserCacheKey(id);
+    await invalidateCache(this.cacheManager, cacheKey);
+  }
+
+  private async getCachedUser(id: number) {
+    const cacheKey = getUserCacheKey(id);
+    const cachedUser = await this.cacheManager.get(cacheKey);
+    return cachedUser || null;
+  }
+
+  private async setUserToCache(id: number, user: UserResponseDto) {
+    const cacheKey = getUserCacheKey(id);
+    await this.cacheManager.set(cacheKey, user, TTLVariables.common);
   }
 }
