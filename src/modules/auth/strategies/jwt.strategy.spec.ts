@@ -1,18 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { JWTStrategy } from './jwt.strategy';
 import { UserService } from '@user/user.service';
-import { configServiceProvider } from '@auth/mocks';
+import { configServiceProvider, mockJWTPayload } from '@auth/mocks';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockUser, userRepositoryProvider } from '@user/mocks';
-import { JWTPayload } from '@auth/types';
 import { UnauthorizedException } from '@nestjs/common';
-
-const mockJWTPayload: JWTPayload = {
-  id: mockUser.id,
-  email: mockUser.email,
-  exp: Date.now(),
-  iat: Date.now(),
-};
 
 describe('JWTStrategy', () => {
   let jwtStrategy: JWTStrategy;
@@ -52,7 +44,7 @@ describe('JWTStrategy', () => {
       const spyMethod = jest.spyOn(userService, 'getUserByConditions');
       await jwtStrategy.validate(mockJWTPayload);
       expect(spyMethod).toHaveBeenCalledTimes(1);
-      expect(spyMethod).toHaveBeenCalledWith({ id: mockJWTPayload.id });
+      expect(spyMethod).toHaveBeenCalledWith({ id: mockJWTPayload.sub });
     });
 
     describe('for existing user', () => {

@@ -21,8 +21,6 @@ import { CreateUserDto } from '@user/dto';
 import { GoogleAuthUserInfo } from './types';
 import {
   configServiceProvider,
-  createMockToken,
-  generateJwtToken,
   jwtServiceProvider,
   mockAgents,
   mockLoginUserDto,
@@ -31,6 +29,9 @@ import {
   mockUserWithoutPassword,
   tokenRepositoryProvider,
   mockNow,
+  mockAccessToken,
+  mockRefreshToken,
+  mockTokensResult,
 } from './mocks';
 import { ConfigService } from '@nestjs/config';
 
@@ -48,7 +49,6 @@ describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
   let tokenRepository: MockRepository<Token>;
-  let mockToken: Token;
   let configService: ConfigService;
 
   beforeEach(async () => {
@@ -69,14 +69,14 @@ describe('AuthService', () => {
       getRepositoryToken(Token)
     );
     configService = module.get<ConfigService>(ConfigService);
-    mockToken = createMockToken();
+
+    jest.spyOn(Date, 'now').mockReturnValue(mockNow);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
     expect(userService).toBeDefined();
     expect(tokenRepository).toBeDefined();
-    expect(mockToken).toBeDefined();
     expect(configService).toBeDefined();
   });
 
@@ -150,7 +150,7 @@ describe('AuthService', () => {
     describe('positive', () => {
       it('should call userService.getUserByConditions', async () => {
         (compareSync as jest.Mock).mockReturnValue(true);
-        (v4 as jest.Mock).mockReturnValue(mockToken.value);
+        (v4 as jest.Mock).mockReturnValue(mockRefreshToken.value);
 
         const spyMethod = jest.spyOn(userService, 'getUserByConditions');
 
@@ -161,27 +161,18 @@ describe('AuthService', () => {
           email: mockLoginUserDto.email,
         });
       });
+
       it('should return pair of tokens', async () => {
         (compareSync as jest.Mock).mockReturnValue(true);
-        (v4 as jest.Mock).mockReturnValue(mockToken.value);
+        (v4 as jest.Mock).mockReturnValue(mockRefreshToken.value);
         tokenRepository.findOne?.mockResolvedValue(null);
-
-        jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
 
         const result = await service.login(
           mockLoginUserDto,
           mockAgents.POSTMAN
         );
 
-        expect(result).toEqual({
-          accessToken: generateJwtToken({
-            id: mockUser.id,
-            email: mockUser.email,
-          }),
-          refreshToken: {
-            ...mockToken,
-          },
-        });
+        expect(result).toEqual(mockTokensResult);
       });
     });
 
@@ -229,12 +220,12 @@ describe('AuthService', () => {
   describe('refresh-tokens', () => {
     describe('positive', () => {
       it('should call tokenRepository.findOne method', async () => {
-        await service.refreshTokens(mockToken.value, mockAgents.POSTMAN);
+        await service.refreshTokens(mockRefreshToken.value, mockAgents.POSTMAN);
 
         expect(tokenRepository.findOne).toHaveBeenCalledTimes(2);
         expect(tokenRepository.findOne).toHaveBeenCalledWith({
           where: {
-            value: mockToken.value,
+            value: mockRefreshToken.value,
           },
           relations: {
             user: true,
@@ -243,22 +234,16 @@ describe('AuthService', () => {
       });
 
       it('should return pair of tokens', async () => {
-        (v4 as jest.Mock).mockReturnValue(mockToken.value);
-        jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
+        (v4 as jest.Mock).mockReturnValue(mockRefreshToken.value);
 
         const result = await service.refreshTokens(
-          mockToken.value,
+          // mockToken.value,
+          mockRefreshToken.value,
           mockAgents.POSTMAN
         );
-
         expect(result).toEqual({
-          accessToken: generateJwtToken({
-            id: mockUser.id,
-            email: mockUser.email,
-          }),
-          refreshToken: {
-            ...mockToken,
-          },
+          accessToken: mockAccessToken,
+          refreshToken: mockRefreshToken,
         });
       });
     });
@@ -268,7 +253,10 @@ describe('AuthService', () => {
         tokenRepository.findOne?.mockResolvedValue(null);
 
         try {
-          await service.refreshTokens(mockToken.value, mockAgents.POSTMAN);
+          await service.refreshTokens(
+            mockRefreshToken.value,
+            mockAgents.POSTMAN
+          );
         } catch (err) {
           expect(err).toBeInstanceOf(UnauthorizedException);
         }
@@ -276,13 +264,16 @@ describe('AuthService', () => {
 
       it('for expired token should call tokenRepository.remove method and throw UnauthorizedException', async () => {
         const expiredToken: Token = {
-          ...mockToken,
+          ...mockRefreshToken,
           expiresAt: new Date(0),
         };
         tokenRepository.findOne?.mockResolvedValue(expiredToken);
 
         try {
-          await service.refreshTokens(mockToken.value, mockAgents.POSTMAN);
+          await service.refreshTokens(
+            mockRefreshToken.value,
+            mockAgents.POSTMAN
+          );
           expect(tokenRepository.findOne).toHaveBeenCalledTimes(1);
           expect(tokenRepository.findOne).toHaveBeenCalledWith(expiredToken);
         } catch (err) {
@@ -294,34 +285,25 @@ describe('AuthService', () => {
 
   describe('removeRefreshToken', () => {
     it('should call tokenRepository.findOneBy method', async () => {
-      await service.removeRefreshToken(mockToken.value);
+      await service.removeRefreshToken(mockRefreshToken.value);
 
       expect(tokenRepository.findOneBy).toHaveBeenCalledTimes(1);
       expect(tokenRepository.findOneBy).toHaveBeenCalledWith({
-        value: mockToken.value,
+        value: mockRefreshToken.value,
       });
     });
 
     describe('for existing refresh token', () => {
       it('should call tokenRepository.remove method', async () => {
-        jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
-
-        await service.removeRefreshToken(mockToken.value);
+        await service.removeRefreshToken(mockRefreshToken.value);
 
         expect(tokenRepository.remove).toHaveBeenCalledTimes(1);
-        expect(tokenRepository.remove).toHaveBeenCalledWith({
-          ...mockToken,
-        });
+        expect(tokenRepository.remove).toHaveBeenCalledWith(mockRefreshToken);
       });
 
       it('should return removed token ', async () => {
-        jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
-
-        const result = await service.removeRefreshToken(mockToken.value);
-
-        expect(result).toEqual({
-          ...mockToken,
-        });
+        const result = await service.removeRefreshToken(mockRefreshToken.value);
+        expect(result).toEqual(mockRefreshToken);
       });
     });
 
@@ -329,7 +311,7 @@ describe('AuthService', () => {
       it('should return null value', async () => {
         tokenRepository.findOneBy?.mockResolvedValue(null);
 
-        const result = await service.removeRefreshToken(mockToken.value);
+        const result = await service.removeRefreshToken(mockRefreshToken.value);
 
         expect(result).toBeNull();
       });
@@ -352,9 +334,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('for existing user should return tokens', async () => {
-      jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
-
+    it('for existing user should return pair of tokens', async () => {
       jest
         .spyOn(userService, 'getUserByConditions')
         .mockResolvedValue(mockUserGoogle);
@@ -365,13 +345,8 @@ describe('AuthService', () => {
       );
 
       expect(result).toEqual({
-        accessToken: generateJwtToken({
-          id: mockUserGoogle.id,
-          email: mockUserGoogle.email,
-        }),
-        refreshToken: {
-          ...mockToken,
-        },
+        accessToken: mockAccessToken,
+        refreshToken: mockRefreshToken,
       });
     });
 
@@ -394,7 +369,6 @@ describe('AuthService', () => {
 
     it('for non existing user should return pair of tokens', async () => {
       jest.spyOn(userService, 'getUserByConditions').mockResolvedValue(null);
-      jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
 
       const result = await service.providerAuth(
         mockGoogleUserInfo,
@@ -403,13 +377,8 @@ describe('AuthService', () => {
       );
 
       expect(result).toEqual({
-        accessToken: generateJwtToken({
-          id: mockUserGoogle.id,
-          email: mockUserGoogle.email,
-        }),
-        refreshToken: {
-          ...mockToken,
-        },
+        accessToken: mockAccessToken,
+        refreshToken: mockRefreshToken,
       });
     });
   });

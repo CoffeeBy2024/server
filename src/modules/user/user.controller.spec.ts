@@ -5,6 +5,7 @@ import {
   hashedPassword,
   mockUser,
   passwordDto,
+  provideMockCacheManager,
   updateUserDto,
   userArr,
   userRepositoryProvider,
@@ -22,7 +23,11 @@ describe('UserController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [UserService, userRepositoryProvider()],
+      providers: [
+        UserService,
+        userRepositoryProvider(),
+        provideMockCacheManager(),
+      ],
     }).compile();
 
     controller = module.get<UserController>(UserController);
@@ -71,20 +76,20 @@ describe('UserController', () => {
     describe('for existing user', () => {
       it('should call getUser', async () => {
         jest.spyOn(spyService, 'getUserByConditions');
-        await controller.getUser(id);
+        await controller.getUserById(id);
         expect(spyService.getUserByConditions).toHaveBeenCalledTimes(1);
         expect(spyService.getUserByConditions).toHaveBeenCalledWith({ id });
       });
       it('should return user', async () => {
         jest.spyOn(spyService, 'getUserByConditions');
-        const result = await controller.getUser(id);
+        const result = await controller.getUserById(id);
         expect(result).toEqual(mockUser);
       });
     });
     describe('for non existing user', () => {
       it('should return null', async () => {
         jest.spyOn(spyService, 'getUserByConditions').mockResolvedValue(null);
-        const result = await controller.getUser(id);
+        const result = await controller.getUserById(id);
         expect(result).toBeNull();
       });
     });

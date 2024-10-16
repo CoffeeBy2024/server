@@ -2,12 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserService } from '@user/user.service';
-import { mockUser, mockUserGoogle, userRepositoryProvider } from '@user/mocks';
+import { mockUser, userRepositoryProvider } from '@user/mocks';
 import { HttpService } from '@nestjs/axios';
 import {
   configServiceProvider,
-  createMockToken,
-  generateJwtToken,
   httpServiceProvider,
   jwtServiceProvider,
   mockAgents,
@@ -18,15 +16,17 @@ import {
   tokenRepositoryProvider,
   mockNow,
   mockAccessTokenDto,
+  mockConfigData,
+  mockTokensResult,
+  mockRefreshToken,
 } from './mocks';
 import { Provider } from '@user/entities';
 import { Request, Response } from 'express';
-import { REFRESH_TOKEN } from './constants';
 import { compareSync, hashSync } from 'bcrypt';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { Token } from './entities';
 import { v4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { COOKIES, QUERIES } from './constants';
 
 jest.mock('uuid');
 jest.mock('bcrypt');
@@ -36,7 +36,6 @@ describe('AuthController', () => {
   let spyService: AuthService;
   let userService: UserService;
   let httpService: Pick<HttpService, 'get'>;
-  let mockToken: Token;
   let response: Partial<Response>;
   let request: Partial<Request>;
   let configService: ConfigService;
@@ -60,7 +59,6 @@ describe('AuthController', () => {
     userService = module.get<UserService>(UserService);
     httpService = module.get<Pick<HttpService, 'get'>>(HttpService);
     configService = module.get<ConfigService>(ConfigService);
-    mockToken = createMockToken();
     response = {
       cookie: jest.fn(),
       clearCookie: jest.fn(),
@@ -76,7 +74,6 @@ describe('AuthController', () => {
     expect(spyService).toBeDefined();
     expect(userService).toBeDefined();
     expect(httpService).toBeDefined();
-    expect(mockToken).toBeDefined();
     expect(response).toBeDefined();
     expect(configService).toBeDefined();
   });
@@ -95,7 +92,7 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return created user', async () => {
+    it('should return clear message', async () => {
       (hashSync as jest.Mock).mockReturnValue(mockUser.password);
       (v4 as jest.Mock).mockReturnValue(mockUser.emailVerificationLink);
 
@@ -103,7 +100,9 @@ describe('AuthController', () => {
 
       const result = await controller.register(mockRegisterUserDto);
 
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual({
+        message: 'Register successful',
+      });
     });
   });
 
@@ -125,10 +124,8 @@ describe('AuthController', () => {
       );
     });
 
-    it('should call response.cookie method', async () => {
-      (v4 as jest.Mock).mockReturnValue(mockToken.value);
-      (compareSync as jest.Mock).mockReturnValue(true);
-      jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
+    it('should call response.cookie method twice', async () => {
+      jest.spyOn(spyService, 'login').mockResolvedValue(mockTokensResult);
 
       await controller.login(
         mockLoginUserDto,
@@ -136,18 +133,28 @@ describe('AuthController', () => {
         response as Response
       );
 
-      expect(response.cookie).toHaveBeenCalledTimes(1);
+      const { accessToken, refreshToken } = mockTokensResult;
+
+      expect(response.cookie).toHaveBeenCalledTimes(2);
       expect(response.cookie).toHaveBeenCalledWith(
-        REFRESH_TOKEN,
-        mockToken.value,
+        COOKIES.ACCESS_TOKEN,
+        accessToken.value,
         {
           httpOnly: true,
-          expires: mockToken.expiresAt,
+          expires: accessToken.expiresAt,
+        }
+      );
+      expect(response.cookie).toHaveBeenCalledWith(
+        COOKIES.REFRESH_TOKEN,
+        refreshToken.value,
+        {
+          httpOnly: true,
+          expires: refreshToken.expiresAt,
         }
       );
     });
 
-    it('should return expected value', async () => {
+    it('should return clear message', async () => {
       (compareSync as jest.Mock).mockReturnValue(true);
 
       const result = await controller.login(
@@ -156,12 +163,8 @@ describe('AuthController', () => {
         response as Response
       );
 
-      expect(result).toStrictEqual({
-        accessToken: generateJwtToken({
-          id: mockUser.id,
-          email: mockUser.email,
-        }),
-        user: result.user,
+      expect(result).toEqual({
+        message: 'Login successful',
       });
     });
   });
@@ -181,7 +184,7 @@ describe('AuthController', () => {
         jest.spyOn(spyService, 'removeRefreshToken').mockResolvedValue(null);
 
         try {
-          await controller.logout(mockToken.value, response as Response);
+          await controller.logout(mockRefreshToken.value, response as Response);
         } catch (e) {
           expect(e).toBeInstanceOf(UnauthorizedException);
           expect(e.message).toBe('Invalid or expired refresh token');
@@ -193,26 +196,27 @@ describe('AuthController', () => {
       it('should call authService.removeRefreshToken method', async () => {
         const spyMethod = jest.spyOn(spyService, 'removeRefreshToken');
 
-        await controller.logout(mockToken.value, response as Response);
-
+        await controller.logout(mockRefreshToken.value, response as Response);
         expect(spyMethod).toHaveBeenCalledTimes(1);
-        expect(spyMethod).toHaveBeenCalledWith(mockToken.value);
+        expect(spyMethod).toHaveBeenCalledWith(mockRefreshToken.value);
       });
 
-      it('for removed from DB token should call response.clearCookie method', async () => {
-        await controller.logout(mockToken.value, response as Response);
-
-        expect(response.clearCookie).toHaveBeenCalledTimes(1);
-        expect(response.clearCookie).toHaveBeenCalledWith(REFRESH_TOKEN);
+      it('when remove token from DB should call response.clearCookie method twice', async () => {
+        await controller.logout(mockRefreshToken.value, response as Response);
+        expect(response.clearCookie).toHaveBeenCalledTimes(2);
+        expect(response.clearCookie).toHaveBeenCalledWith(COOKIES.ACCESS_TOKEN);
+        expect(response.clearCookie).toHaveBeenCalledWith(
+          COOKIES.REFRESH_TOKEN
+        );
       });
 
       it('should return successful message', async () => {
         jest
           .spyOn(spyService, 'removeRefreshToken')
-          .mockResolvedValue(mockToken);
+          .mockResolvedValue(mockRefreshToken);
 
         const result = await controller.logout(
-          mockToken.value,
+          mockRefreshToken.value,
           response as Response
         );
 
@@ -228,54 +232,61 @@ describe('AuthController', () => {
       const mockMethod = jest.spyOn(spyService, 'refreshTokens');
 
       await controller.refreshTokens(
-        mockToken.value,
+        mockRefreshToken.value,
         mockAgents.POSTMAN,
         response as Response
       );
 
       expect(mockMethod).toHaveBeenCalledTimes(1);
       expect(mockMethod).toHaveBeenCalledWith(
-        mockToken.value,
+        mockRefreshToken.value,
         mockAgents.POSTMAN
       );
     });
 
-    it('should call response.cookie method', async () => {
-      (v4 as jest.Mock).mockReturnValue(mockToken.value);
-      jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
+    it('should call response.cookie method twice', async () => {
+      jest
+        .spyOn(spyService, 'refreshTokens')
+        .mockResolvedValue(mockTokensResult);
 
       await controller.refreshTokens(
-        mockToken.value,
+        mockRefreshToken.value,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(response.cookie).toHaveBeenCalledTimes(1);
+      const { accessToken, refreshToken } = mockTokensResult;
+
+      expect(response.cookie).toHaveBeenCalledTimes(2);
       expect(response.cookie).toHaveBeenCalledWith(
-        REFRESH_TOKEN,
-        mockToken.value,
+        COOKIES.ACCESS_TOKEN,
+        accessToken.value,
         {
           httpOnly: true,
-          expires: mockToken.expiresAt,
+          expires: accessToken.expiresAt,
+        }
+      );
+      expect(response.cookie).toHaveBeenCalledWith(
+        COOKIES.REFRESH_TOKEN,
+        refreshToken.value,
+        {
+          httpOnly: true,
+          expires: refreshToken.expiresAt,
         }
       );
     });
 
-    it('should return expected value', async () => {
+    it('should return clear message', async () => {
       jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
 
       const result = await controller.refreshTokens(
-        mockToken.value,
+        mockRefreshToken.value,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(result).toStrictEqual({
-        accessToken: generateJwtToken({
-          id: mockUser.id,
-          email: mockUser.email,
-        }),
-        user: result.user,
+      expect(result).toEqual({
+        message: 'Tokens refreshed successfully',
       });
     });
 
@@ -302,7 +313,7 @@ describe('AuthController', () => {
 
       expect(response.redirect).toHaveBeenCalledTimes(1);
       expect(response.redirect).toHaveBeenCalledWith(
-        `http://localhost:3000/auth/google?access-token=${mockGoogleUserValidateResponse.accessToken}`
+        `${mockConfigData.API_URL}/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${mockGoogleUserValidateResponse.accessToken}`
       );
     });
   });
@@ -310,7 +321,7 @@ describe('AuthController', () => {
   describe('googleProfile', () => {
     it('should call httpService.get method on googleUserProfile endpoint', async () => {
       await controller.googleProfile(
-        mockAccessTokenDto,
+        mockAccessTokenDto.accessToken,
         mockAgents.POSTMAN,
         response as Response
       );
@@ -332,7 +343,7 @@ describe('AuthController', () => {
       const spyMethod = jest.spyOn(spyService, 'providerAuth');
 
       await controller.googleProfile(
-        mockAccessTokenDto,
+        mockAccessTokenDto.accessToken,
         mockAgents.POSTMAN,
         response as Response
       );
@@ -351,43 +362,48 @@ describe('AuthController', () => {
     });
 
     it('should call response.cookies method', async () => {
-      (v4 as jest.Mock).mockReturnValue(mockToken.value);
-      jest.spyOn(userService, 'getUserByConditions').mockResolvedValue(null);
-      jest.spyOn(Date, 'now').mockReturnValueOnce(mockNow);
+      jest
+        .spyOn(spyService, 'providerAuth')
+        .mockResolvedValue(mockTokensResult);
 
       await controller.googleProfile(
-        mockAccessTokenDto,
+        mockAccessTokenDto.accessToken,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(response.cookie).toHaveBeenCalledTimes(1);
+      const { accessToken, refreshToken } = mockTokensResult;
+
+      expect(response.cookie).toHaveBeenCalledTimes(2);
       expect(response.cookie).toHaveBeenCalledWith(
-        REFRESH_TOKEN,
-        mockToken.value,
+        COOKIES.ACCESS_TOKEN,
+        accessToken.value,
         {
           httpOnly: true,
-          expires: mockToken.expiresAt,
+          expires: accessToken.expiresAt,
+        }
+      );
+      expect(response.cookie).toHaveBeenCalledWith(
+        COOKIES.REFRESH_TOKEN,
+        refreshToken.value,
+        {
+          httpOnly: true,
+          expires: refreshToken.expiresAt,
         }
       );
     });
 
-    it('should return expectedValue', async () => {
+    it('should redirect on expected page', async () => {
       jest.spyOn(userService, 'getUserByConditions').mockResolvedValue(null);
 
-      const result = await controller.googleProfile(
-        mockAccessTokenDto,
+      await controller.googleProfile(
+        mockAccessTokenDto.accessToken,
         mockAgents.POSTMAN,
         response as Response
       );
 
-      expect(result).toStrictEqual({
-        accessToken: generateJwtToken({
-          id: mockUserGoogle.id,
-          email: mockUserGoogle.email,
-        }),
-        user: result.user,
-      });
+      expect(response.redirect).toHaveBeenCalledTimes(1);
+      expect(response.redirect).toHaveBeenCalledWith(mockConfigData.CLIENT_URL);
     });
 
     it('should catch errors and throw BadRequestException with clear message', async () => {
