@@ -17,7 +17,7 @@ import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
-import { getUserCacheKey, invalidateCache } from '@common/utils';
+import { invalidateCache } from '@common/utils';
 
 @NoCache()
 @Controller('user')
@@ -112,19 +112,23 @@ export class UserController {
     return new UserResponseDto(user);
   }
 
+  private getUserCacheKey(id: number) {
+    return `user_by_token_${id}`;
+  }
+
   private async invalidateUserCache(id: number) {
-    const cacheKey = getUserCacheKey(id);
+    const cacheKey = this.getUserCacheKey(id);
     await invalidateCache(this.cacheManager, cacheKey);
   }
 
   private async getCachedUser(id: number) {
-    const cacheKey = getUserCacheKey(id);
+    const cacheKey = this.getUserCacheKey(id);
     const cachedUser = await this.cacheManager.get(cacheKey);
     return cachedUser || null;
   }
 
   private async setUserToCache(id: number, user: UserResponseDto) {
-    const cacheKey = getUserCacheKey(id);
+    const cacheKey = this.getUserCacheKey(id);
     await this.cacheManager.set(cacheKey, user, TTLVariables.common);
   }
 }
