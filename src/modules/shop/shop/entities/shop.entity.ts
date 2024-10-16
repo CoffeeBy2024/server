@@ -19,6 +19,9 @@ export class Shop {
   @Column({ type: 'geometry', nullable: true })
   coordinates: Point;
 
+  @Column()
+  photo: string;
+
   @OneToMany(() => WorkingHour, (workingHour) => workingHour.shop, {
     cascade: true,
     onDelete: 'CASCADE',

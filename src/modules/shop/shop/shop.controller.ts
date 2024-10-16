@@ -9,6 +9,9 @@ import {
   Query,
   BadRequestException,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -19,6 +22,7 @@ import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../../common/enums/category.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('shops')
 @Controller('shops')
@@ -78,8 +82,21 @@ export class ShopController {
   }
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
-    return this.shopService.create(createShopDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  create(
+    @Body() createShopDto: CreateShopDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file: Express.Multer.File
+  ) {
+    return this.shopService.create({ image: file.buffer }, createShopDto);
   }
 
   @Get(':id')
@@ -99,8 +116,22 @@ export class ShopController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopService.update(id, updateShopDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  update(
+    @Param('id') id: number,
+    @Body() updateShopDto: UpdateShopDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build({ fileIsRequired: false })
+    )
+    file?: Express.Multer.File
+  ) {
+    return this.shopService.update(id, { image: file?.buffer }, updateShopDto);
   }
 
   @Delete(':id')
