@@ -9,6 +9,9 @@ import {
   Query,
   BadRequestException,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -19,13 +22,14 @@ import { ShopCategoryService } from '../shop-category/shop-category.service';
 import { CategoryService } from '../../category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../../common/enums/category.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('shops')
 @Controller('shops')
 export class ShopController {
   constructor(
     private readonly shopService: ShopService,
-    private readonly shopCategoryServcie: ShopCategoryService,
+    private readonly shopCategoryService: ShopCategoryService,
     private readonly categoryService: CategoryService
   ) {}
 
@@ -66,7 +70,11 @@ export class ShopController {
       throw new NotFoundException(`Category with name ${category} not found`);
 
     const shopsByCategory =
-      await this.shopCategoryServcie.findAllByCategory(categoryEntity);
+      await this.shopCategoryService.findAllByCategory(categoryEntity);
+
+    if (!shopsByCategory.length) {
+      throw new NotFoundException(`Category ${category} was not found in shop`);
+    }
 
     return Promise.all(
       shopsByCategory.map(({ shop }) => this.shopService.findOne(shop.id))
@@ -74,8 +82,21 @@ export class ShopController {
   }
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
-    return this.shopService.create(createShopDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  create(
+    @Body() createShopDto: CreateShopDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file: Express.Multer.File
+  ) {
+    return this.shopService.create({ image: file.buffer }, createShopDto);
   }
 
   @Get(':id')
@@ -83,9 +104,34 @@ export class ShopController {
     return this.shopService.findOne(id);
   }
 
+  @Get(':id/categories')
+  async findShopCategories(@Param('id') id: number) {
+    const categories = await this.shopCategoryService.findAllById(id);
+
+    if (!categories.length) {
+      return categories;
+    }
+
+    return Promise.all(categories.map(({ category: { name } }) => name));
+  }
+
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopService.update(id, updateShopDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: Math.pow(1024, 2) * 3 },
+    })
+  )
+  update(
+    @Param('id') id: number,
+    @Body() updateShopDto: UpdateShopDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
+        .build()
+    )
+    file?: Express.Multer.File
+  ) {
+    return this.shopService.update(id, { image: file?.buffer }, updateShopDto);
   }
 
   @Delete(':id')

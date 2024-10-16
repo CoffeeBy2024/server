@@ -28,9 +28,11 @@ import { CATEGORY } from '../../common/enums/category.enum';
 import {
   fileMock,
   photoDto,
-  photoRepositoryProvider,
-} from './mocks/photoProvider';
+  shopPhotoRepositoryProvider,
+  productPhotoRepositoryProvider,
+} from '../photo/mocks/photoProvider';
 import { NotFoundException } from '@nestjs/common';
+import { PhotoService } from '../photo/photo.service';
 
 describe('Product Controller', () => {
   let controller: ProductController;
@@ -45,7 +47,6 @@ describe('Product Controller', () => {
       controllers: [ProductController],
       providers: [
         ProductService,
-        photoRepositoryProvider,
         productRepositoryProvider,
         ShopService,
         shopRepositoryProvider,
@@ -53,6 +54,9 @@ describe('Product Controller', () => {
         shopCategoryRepositoryProvider,
         CategoryService,
         categoryRepositoryProvider,
+        PhotoService,
+        shopPhotoRepositoryProvider,
+        productPhotoRepositoryProvider,
       ],
     }).compile();
 
