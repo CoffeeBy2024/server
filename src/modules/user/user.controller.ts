@@ -42,36 +42,12 @@ export class UserController {
   @Get('/by-token')
   async getUserByToken(@User() requestUser: any) {
     const { id } = requestUser;
-    const cachedUser = await this.getCachedUser(id);
-
-    if (cachedUser) {
-      return cachedUser;
-    }
-
-    const user = await this.userService.getUserByConditions({ id });
-    if (user) {
-      const userResponse = new UserResponseDto(user);
-      await this.setUserToCache(id, userResponse);
-      return userResponse;
-    }
-    return null;
+    return this.getUser(id);
   }
 
   @Get(':id')
   async getUserById(@Param('id', ParseIntPipe) id: number) {
-    const cachedUser = await this.getCachedUser(id);
-
-    if (cachedUser) {
-      return cachedUser;
-    }
-
-    const user = await this.userService.getUserByConditions({ id });
-    if (user) {
-      const userResponse = new UserResponseDto(user);
-      await this.setUserToCache(id, userResponse);
-      return userResponse;
-    }
-    return null;
+    return this.getUser(id);
   }
 
   @Delete(':id')
@@ -90,22 +66,16 @@ export class UserController {
     @Body() dto: UpdateUserDto
   ) {
     const { id } = requestUser;
-    await this.invalidateUserCache(id);
 
-    const user = await this.userService.updateUser(dto, id);
-
-    return new UserResponseDto(user);
+    return this.updateUser(dto, id);
   }
 
   @Patch(':id')
-  async updateUser(
+  async updateUserById(
     @Body() dto: UpdateUserDto,
     @Param('id', ParseIntPipe) id: number
   ) {
-    await this.invalidateUserCache(id);
-
-    const user = await this.userService.updateUser(dto, id);
-    return new UserResponseDto(user);
+    return this.updateUser(dto, id);
   }
 
   @Public()
@@ -114,6 +84,31 @@ export class UserController {
     @Param('emailVerificationLink') emailVerificationLink: string
   ) {
     const user = await this.userService.verifyEmail(emailVerificationLink);
+    return new UserResponseDto(user);
+  }
+
+  private async getUser(id: number) {
+    const cachedUser = await this.getCachedUser(id);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
+    const user = await this.userService.getUserByConditions({ id });
+
+    if (!user) {
+      return null;
+    }
+
+    const userResponse = new UserResponseDto(user);
+    await this.setUserToCache(id, userResponse);
+    return userResponse;
+  }
+
+  private async updateUser(dto: UpdateUserDto, id: number) {
+    await this.invalidateUserCache(id);
+
+    const user = await this.userService.updateUser(dto, id);
     return new UserResponseDto(user);
   }
 
