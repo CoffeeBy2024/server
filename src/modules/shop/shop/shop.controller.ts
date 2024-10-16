@@ -127,7 +127,7 @@ export class ShopController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: /(jpg|jpeg|png|webp)$/ })
-        .build()
+        .build({ fileIsRequired: false })
     )
     file?: Express.Multer.File
   ) {
