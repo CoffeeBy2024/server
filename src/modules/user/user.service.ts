@@ -30,7 +30,7 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const hashedPassword = dto.password && this.hashPassword(dto.password);
+    const hashedPassword = this.hashPassword(dto.password);
     return this.userRepository.save(
       this.userRepository.create({ ...dto, password: hashedPassword })
     );
@@ -114,7 +114,10 @@ export class UserService {
     return user;
   }
 
-  private hashPassword(password: string) {
+  private hashPassword(password: string | undefined) {
+    if (!password) {
+      return null;
+    }
     return hashSync(password, genSaltSync(5));
   }
 

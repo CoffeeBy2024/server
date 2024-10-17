@@ -20,8 +20,9 @@ import { COOKIES, QUERIES } from './constants';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
-import { GoogleUserInfo, GoogleUserValidateResponse } from './types';
+import { GoogleUserInfo, GoogleUserValidateResponse, TokenBase } from './types';
 import { Provider } from '@user/entities';
+import { ConfigService } from '@nestjs/config';
 import { RecoverPasswordDto } from './dto/recover-password.dto';
 import { UserResponseDto } from '@user/dto';
 
@@ -30,7 +31,8 @@ import { UserResponseDto } from '@user/dto';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {}
 
   @Public()
@@ -54,8 +56,8 @@ export class AuthController {
       dto,
       agent
     );
-    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokensToCookie(res, accessToken, refreshToken);
+
     return {
       message: 'Login successful',
     };
@@ -75,8 +77,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    this.removeValueFromCookies(res, COOKIES.REFRESH_TOKEN);
-    this.removeValueFromCookies(res, COOKIES.ACCESS_TOKEN);
+    this.removeTokensFromCookie(res);
 
     return {
       message: 'Logout successful',
@@ -97,8 +98,7 @@ export class AuthController {
       cookieRefreshToken,
       agent
     );
-    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokensToCookie(res, accessToken, refreshToken);
 
     return {
       message: 'Tokens refreshed successfully',
@@ -123,9 +123,8 @@ export class AuthController {
   @Get('google/redirect')
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
-    const redirectURI = `http://localhost:3001/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
+    const redirectURI = `${this.configService.getOrThrow<string>('API_URL')}/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
     res.redirect(redirectURI);
-    return redirectURI;
   }
 
   @Public()
@@ -158,9 +157,8 @@ export class AuthController {
               )
           ),
           tap(({ accessToken, refreshToken }) => {
-            this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
-            this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
-            res.redirect('http://localhost:3000/');
+            this.saveTokensToCookie(res, accessToken, refreshToken);
+            res.redirect(this.configService.getOrThrow<string>('CLIENT_URL'));
           }),
           catchError((err) => {
             throw new BadRequestException(err.message);
@@ -169,7 +167,16 @@ export class AuthController {
     );
   }
 
-  private saveTokenToCookie<T extends { value: string; expiresAt: Date }>(
+  private saveTokensToCookie<T extends TokenBase, K extends TokenBase>(
+    res: Response,
+    accessToken: T,
+    refreshToken: K
+  ) {
+    this.saveTokenToCookie(res, COOKIES.ACCESS_TOKEN, accessToken);
+    this.saveTokenToCookie(res, COOKIES.REFRESH_TOKEN, refreshToken);
+  }
+
+  private saveTokenToCookie<T extends TokenBase>(
     res: Response,
     key: string,
     { value, expiresAt }: T,
@@ -191,7 +198,12 @@ export class AuthController {
     res.cookie(key, value, options);
   }
 
-  private removeValueFromCookies(res: Response, key: string) {
+  private removeTokensFromCookie(res: Response) {
+    this.removeValueFromCookie(res, COOKIES.REFRESH_TOKEN);
+    this.removeValueFromCookie(res, COOKIES.ACCESS_TOKEN);
+  }
+
+  private removeValueFromCookie(res: Response, key: string) {
     res.clearCookie(key);
   }
 }

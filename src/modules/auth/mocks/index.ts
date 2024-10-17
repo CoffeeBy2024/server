@@ -1,6 +1,10 @@
 import { LoginUserDto, RegisterUserDto } from '@auth/dto';
 import { Token } from '@auth/entities';
-import { GoogleUserInfo, GoogleUserValidateResponse } from '@auth/types';
+import {
+  GoogleUserInfo,
+  GoogleUserValidateResponse,
+  JWTPayload,
+} from '@auth/types';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -19,34 +23,53 @@ export enum mockAgents {
   INSOMNIA = 'insomnia',
 }
 
-const mockConfigData = {
+export const mockConfigData = {
   JWT_REFRESH_EXP: 100000000,
   JWT_ACCESS_SECRET: 'secret-secret',
+  JWT_ACCESS_EXP: 10000,
   GOOGLE_CLIENT_ID: 'GOOGLE_CLIENT_ID',
   GOOGLE_CLIENT_SECRET: 'GOOGLE_CLIENT_SECRET',
   HTTP_TIMEOUT: 1,
   HTTP_MAX_REDIRECTS: 1,
+  API_URL: 'https://api-url',
+  CLIENT_URL: 'https://client-url',
 };
 
 export const mockNow = Date.now();
 
-const dateResult = new Date(mockNow + mockConfigData['JWT_REFRESH_EXP']);
+export const refreshTokenExpiresAt = new Date(
+  mockNow + mockConfigData.JWT_REFRESH_EXP
+);
+export const accessTokenExpiresAt = new Date(
+  mockNow + mockConfigData.JWT_ACCESS_EXP
+);
 
-export const mockToken: Token = {
+export const generateJwtToken = (data: { sub: number }) =>
+  `jwt-token-${data.sub}`;
+
+export const mockAccessToken = {
+  value: generateJwtToken({ sub: mockUser.id }),
+  expiresAt: accessTokenExpiresAt,
+};
+
+export const mockRefreshToken: Token = {
   id: 1,
-  expiresAt: dateResult,
+  expiresAt: refreshTokenExpiresAt,
   userAgent: mockAgents.POSTMAN,
-  value: 'wdfcqtrewvtwertvwt',
+  value: 'mock-refreshToken',
   user: mockUser,
 };
 
-export const createMockToken = (): Token => ({
-  id: 1,
-  expiresAt: dateResult,
-  userAgent: mockAgents.POSTMAN,
-  value: 'wdfcqtrewvtwertvwt',
-  user: mockUser,
-});
+export const mockTokensResult = {
+  accessToken: mockAccessToken,
+  refreshToken: mockRefreshToken,
+};
+
+export const mockJWTPayload: JWTPayload = {
+  sub: mockUser.id,
+  exp: Date.now(),
+  iat: Date.now(),
+};
 
 export const tokenBase = {
   id: 1,
@@ -55,8 +78,8 @@ export const tokenBase = {
 export const createMockRepository = <
   T extends ObjectLiteral = any,
 >(): MockRepository<T> => ({
-  findOne: jest.fn().mockResolvedValue(mockToken),
-  findOneBy: jest.fn().mockResolvedValue(mockToken),
+  findOne: jest.fn().mockResolvedValue(mockRefreshToken),
+  findOneBy: jest.fn().mockResolvedValue(mockRefreshToken),
   create: jest.fn().mockImplementation((dto) => {
     return { ...tokenBase, ...dto };
   }),
@@ -104,6 +127,11 @@ export const configServiceProvider = () => ({
       .mockImplementation(
         (key: keyof typeof mockConfigData) => mockConfigData[key]
       ),
+    getOrThrow: jest
+      .fn()
+      .mockImplementation(
+        (key: keyof typeof mockConfigData) => mockConfigData[key]
+      ),
   },
 });
 
@@ -112,21 +140,13 @@ export const tokenRepositoryProvider = () => ({
   useValue: createMockRepository(),
 });
 
-export const generateJwtToken = ({
-  id,
-  email,
-}: {
-  id: number;
-  email: string;
-}) => `jwt-token-${id}${email}`;
-
 export const jwtServiceProvider = () => ({
   provide: JwtService,
   useValue: {
     sign: jest
       .fn()
-      .mockImplementation((userData: { id: number; email: string }) =>
-        generateJwtToken(userData)
+      .mockImplementation((userData: { sub: number }) =>
+        generateJwtToken({ sub: userData.sub })
       ),
   },
 });

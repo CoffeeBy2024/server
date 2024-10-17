@@ -18,11 +18,12 @@ import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
-import { getUserCacheKey } from '@common/utils/getUserCacheKey';
+import { invalidateCache } from '@common/utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 import { Response } from 'express';
 
+@NoCache()
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
@@ -43,39 +44,19 @@ export class UserController {
   }
 
   @Get('/by-token')
-  @NoCache()
   async getUserByToken(@User() requestUser: any) {
     const { id } = requestUser;
-    const cacheKey = getUserCacheKey(id);
-
-    const cachedUser = await this.cacheManager.get(cacheKey);
-
-    if (cachedUser) {
-      return cachedUser;
-    }
-
-    const user = await this.userService.getUserByConditions({ id });
-    if (user) {
-      const userResponse = new UserResponseDto(user);
-
-      await this.cacheManager.set(cacheKey, userResponse, TTLVariables.common);
-
-      return userResponse;
-    }
-    return null;
+    return this.getUser(id);
   }
 
   @Get(':id')
   async getUserById(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.getUserByConditions({ id });
-    if (user) {
-      return new UserResponseDto(user);
-    }
-    return null;
+    return this.getUser(id);
   }
 
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
+    await this.invalidateUserCache(id);
     const user = await this.userService.deleteUser(id);
     if (user) {
       return new UserResponseDto(user);
@@ -89,26 +70,16 @@ export class UserController {
     @Body() dto: UpdateUserDto
   ) {
     const { id } = requestUser;
-    const cacheKey = getUserCacheKey(id);
 
-    const cachedUser = await this.cacheManager.get(cacheKey);
-
-    if (cachedUser) {
-      await this.cacheManager.del(cacheKey);
-    }
-
-    const user = await this.userService.updateUser(dto, id);
-
-    return new UserResponseDto(user);
+    return this.updateUser(dto, id);
   }
 
   @Patch(':id')
-  async updateUser(
+  async updateUserById(
     @Body() dto: UpdateUserDto,
     @Param('id', ParseIntPipe) id: number
   ) {
-    const user = await this.userService.updateUser(dto, id);
-    return new UserResponseDto(user);
+    return this.updateUser(dto, id);
   }
 
   @Public()
@@ -118,6 +89,51 @@ export class UserController {
   ) {
     const user = await this.userService.verifyEmail(emailVerificationLink);
     return new UserResponseDto(user);
+  }
+
+  private async getUser(id: number) {
+    const cachedUser = await this.getCachedUser(id);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
+    const user = await this.userService.getUserByConditions({ id });
+
+    if (!user) {
+      return null;
+    }
+
+    const userResponse = new UserResponseDto(user);
+    await this.setUserToCache(id, userResponse);
+    return userResponse;
+  }
+
+  private async updateUser(dto: UpdateUserDto, id: number) {
+    await this.invalidateUserCache(id);
+
+    const user = await this.userService.updateUser(dto, id);
+    return new UserResponseDto(user);
+  }
+
+  private getUserCacheKey(id: number) {
+    return `user_by_token_${id}`;
+  }
+
+  private async invalidateUserCache(id: number) {
+    const cacheKey = this.getUserCacheKey(id);
+    await invalidateCache(this.cacheManager, cacheKey);
+  }
+
+  private async getCachedUser(id: number) {
+    const cacheKey = this.getUserCacheKey(id);
+    const cachedUser = await this.cacheManager.get(cacheKey);
+    return cachedUser || null;
+  }
+
+  private async setUserToCache(id: number, user: UserResponseDto) {
+    const cacheKey = this.getUserCacheKey(id);
+    await this.cacheManager.set(cacheKey, user, TTLVariables.common);
   }
 
   @Public()
@@ -130,7 +146,7 @@ export class UserController {
     const user = await this.userService.confirmPasswordRecoveryVerificationLink(
       passwordRecoveryVerificationLink
     );
-    const cacheKey = getUserCacheKey(user.id);
+    const cacheKey = this.getUserCacheKey(user.id);
 
     const cachedUser = await this.cacheManager.get(cacheKey);
 

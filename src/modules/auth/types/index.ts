@@ -25,3 +25,8 @@ export type GoogleAuthUserInfo = {
   lastName?: string;
   emailVerified: boolean;
 };
+
+export type TokenBase = {
+  value: string;
+  expiresAt: Date;
+};

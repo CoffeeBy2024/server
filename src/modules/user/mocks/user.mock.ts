@@ -1,3 +1,4 @@
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from '@user/dto';
 import { Provider, User } from '@user/entities';
@@ -91,3 +92,18 @@ export const userRepositoryProvider = () => ({
   provide: getRepositoryToken(User),
   useValue: createMockRepository(),
 });
+
+export const getMockCacheManager = () => ({
+  get: jest.fn().mockResolvedValue(mockUser),
+  set: jest.fn(),
+  del: jest.fn().mockResolvedValue(mockUser),
+});
+
+export const provideMockCacheManager = () => ({
+  provide: CACHE_MANAGER,
+  useValue: getMockCacheManager(),
+});
+const cacheManagerProvider = getMockCacheManager();
+export type MockCacheManagerType = typeof cacheManagerProvider;
+
+export const mockGetUserCacheKey = (id: number) => `user_by_token_${id}`;

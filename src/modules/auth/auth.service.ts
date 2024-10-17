@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -124,7 +123,7 @@ export class AuthService {
         sub: id,
       }),
       expiresAt: this.getTokenExpiresAt(
-        this.configService.get('JWT_ACCESS_EXP')
+        this.configService.getOrThrow('JWT_ACCESS_EXP')
       ),
     };
   }
@@ -139,7 +138,7 @@ export class AuthService {
     if (token) {
       token.value = v4();
       token.expiresAt = this.getTokenExpiresAt(
-        this.configService.get('JWT_REFRESH_EXP')
+        this.configService.getOrThrow('JWT_REFRESH_EXP')
       );
       await this.tokenRepository.save(token);
       return token;
@@ -148,7 +147,7 @@ export class AuthService {
       this.tokenRepository.create({
         value: v4(),
         expiresAt: this.getTokenExpiresAt(
-          this.configService.get('JWT_REFRESH_EXP')
+          this.configService.getOrThrow('JWT_REFRESH_EXP')
         ),
         userAgent: agent,
         user: user,
@@ -187,10 +186,7 @@ export class AuthService {
     return user;
   }
 
-  private getTokenExpiresAt(timeToAlive: string | undefined) {
-    if (!timeToAlive) {
-      throw new InternalServerErrorException('No time to alive for token');
-    }
+  private getTokenExpiresAt(timeToAlive: string) {
     return new Date(Date.now() + Number(timeToAlive));
   }
 }
