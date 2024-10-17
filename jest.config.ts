@@ -10,12 +10,16 @@ const configFile = ts.readConfigFile(
 const compilerOptions = configFile.config.compilerOptions;
 
 const jestConfig: JestConfigWithTsJest = {
+  rootDir: '.',
   moduleFileExtensions: ['js', 'json', 'ts'],
   coveragePathIgnorePatterns: [
     'main.ts',
-    '<rootDir>/modules/app',
+    '<rootDir>/src/modules/app',
+    '<rootDir>/src/config',
+    '<rootDir>/src/databases',
     '.entity.ts',
     '.module.ts',
+    'mocks',
   ],
   testRegex: '.*\\.spec\\.ts$',
   transform: {
