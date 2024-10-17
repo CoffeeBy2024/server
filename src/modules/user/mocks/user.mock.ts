@@ -92,11 +92,17 @@ export const userRepositoryProvider = () => ({
   useValue: createMockRepository(),
 });
 
+export const getMockCacheManager = () => ({
+  get: jest.fn().mockResolvedValue(mockUser),
+  set: jest.fn(),
+  del: jest.fn().mockResolvedValue(mockUser),
+});
+
 export const provideMockCacheManager = () => ({
   provide: CACHE_MANAGER,
-  useValue: {
-    get: jest.fn().mockResolvedValue(mockUser),
-    set: jest.fn(),
-    del: jest.fn().mockResolvedValue(mockUser),
-  },
+  useValue: getMockCacheManager(),
 });
+const cacheManagerProvider = getMockCacheManager();
+export type MockCacheManagerType = typeof cacheManagerProvider;
+
+export const mockGetUserCacheKey = (id: number) => `user_by_token_${id}`;

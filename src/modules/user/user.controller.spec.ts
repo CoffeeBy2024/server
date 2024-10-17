@@ -3,6 +3,8 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import {
   hashedPassword,
+  MockCacheManagerType,
+  mockGetUserCacheKey,
   mockUser,
   passwordDto,
   provideMockCacheManager,
@@ -11,14 +13,26 @@ import {
   userRepositoryProvider,
 } from './mocks';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from './dto';
+import { UpdateUserDto, UserResponseDto } from './dto';
 import { hashSync } from 'bcrypt';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { invalidateCache } from '@common/utils';
 
+const commonTTLValue = 111;
 jest.mock('bcrypt');
+jest.mock('@common/utils');
+jest.mock('src/utils/constants/cache', () => {
+  return {
+    TTLVariables: {
+      common: 111,
+    },
+  };
+});
 
 describe('UserController', () => {
   let controller: UserController;
   let spyService: UserService;
+  let cacheManager: MockCacheManagerType;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,6 +46,7 @@ describe('UserController', () => {
 
     controller = module.get<UserController>(UserController);
     spyService = module.get<UserService>(UserService);
+    cacheManager = module.get<MockCacheManagerType>(CACHE_MANAGER);
   });
 
   afterEach(() => {
@@ -41,6 +56,7 @@ describe('UserController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(spyService).toBeDefined();
+    expect(cacheManager).toBeDefined();
   });
 
   describe('createUser', () => {
@@ -71,34 +87,75 @@ describe('UserController', () => {
     });
   });
 
-  describe('getUser', () => {
-    const { id } = mockUser;
-    describe('for existing user', () => {
-      it('should call getUser', async () => {
-        jest.spyOn(spyService, 'getUserByConditions');
-        await controller.getUserById(id);
-        expect(spyService.getUserByConditions).toHaveBeenCalledTimes(1);
-        expect(spyService.getUserByConditions).toHaveBeenCalledWith({ id });
-      });
-      it('should return user', async () => {
-        jest.spyOn(spyService, 'getUserByConditions');
-        const result = await controller.getUserById(id);
+  const testGetUser = (methodToCall: () => any, id: number) => {
+    const mockUserCacheKey = mockGetUserCacheKey(id);
+    describe('for cached user', () => {
+      it('should return cached user', async () => {
+        const result = await methodToCall();
+        expect(cacheManager.get).toHaveBeenCalledTimes(1);
+        expect(cacheManager.get).toHaveBeenCalledWith(mockUserCacheKey);
         expect(result).toEqual(mockUser);
       });
     });
-    describe('for non existing user', () => {
-      it('should return null', async () => {
-        jest.spyOn(spyService, 'getUserByConditions').mockResolvedValue(null);
-        const result = await controller.getUserById(id);
-        expect(result).toBeNull();
+    describe('for uncached user', () => {
+      beforeEach(() => {
+        cacheManager.get.mockReturnValue(null);
+      });
+      describe('for existing user', () => {
+        it('should call UserService.getUserByConditions method', async () => {
+          jest.spyOn(spyService, 'getUserByConditions');
+          await methodToCall();
+          expect(spyService.getUserByConditions).toHaveBeenCalledTimes(1);
+          expect(spyService.getUserByConditions).toHaveBeenCalledWith({ id });
+        });
+        it('should return user', async () => {
+          jest.spyOn(spyService, 'getUserByConditions');
+          const result = await methodToCall();
+          expect(result).toEqual(mockUser);
+        });
+        it('should set user to cache', async () => {
+          await methodToCall();
+          expect(cacheManager.set).toHaveBeenCalledTimes(1);
+          expect(cacheManager.set).toHaveBeenCalledWith(
+            mockUserCacheKey,
+            mockUser,
+            commonTTLValue
+          );
+        });
+      });
+      describe('for non existing user', () => {
+        it('should return null', async () => {
+          jest.spyOn(spyService, 'getUserByConditions').mockResolvedValue(null);
+          const result = await methodToCall();
+          expect(result).toBeNull();
+        });
       });
     });
+  };
+
+  describe('getUserByToken', () => {
+    testGetUser(() => controller.getUserByToken(mockUser), mockUser.id);
+  });
+
+  describe('getUserById', () => {
+    const { id } = mockUser;
+    testGetUser(() => controller.getUserById(id), id);
   });
 
   describe('deleteUser', () => {
     const { id } = mockUser;
+    const mockUserCacheKey = mockGetUserCacheKey(id);
     describe('for existing user', () => {
-      it('should call deleteUser', async () => {
+      it("should invalidate user's cache", async () => {
+        invalidateCache as jest.Mock;
+        await controller.deleteUser(id);
+        expect(invalidateCache).toHaveBeenCalledTimes(1);
+        expect(invalidateCache).toHaveBeenCalledWith(
+          cacheManager,
+          mockUserCacheKey
+        );
+      });
+      it('should call UserService.deleteUser', async () => {
         jest.spyOn(spyService, 'deleteUser');
         await controller.deleteUser(id);
         expect(spyService.deleteUser).toHaveBeenCalledTimes(1);
@@ -118,18 +175,50 @@ describe('UserController', () => {
     });
   });
 
-  describe('updateUser', () => {
-    const { id } = mockUser;
-    it('should call updateUser', async () => {
+  const testUpdateUser = (
+    methodToCall: () => any,
+    updateUserDto: UpdateUserDto,
+    id: number
+  ) => {
+    const mockUserCacheKey = mockGetUserCacheKey(id);
+
+    it("should invalidate user's cache", async () => {
+      invalidateCache as jest.Mock;
+      await methodToCall();
+      expect(invalidateCache).toHaveBeenCalledTimes(1);
+      expect(invalidateCache).toHaveBeenCalledWith(
+        cacheManager,
+        mockUserCacheKey
+      );
+    });
+    it('should call UserService.updateUser', async () => {
       jest.spyOn(spyService, 'updateUser');
-      await controller.updateUser(updateUserDto, id);
+      await methodToCall();
       expect(spyService.updateUser).toHaveBeenCalledTimes(1);
       expect(spyService.updateUser).toHaveBeenCalledWith(updateUserDto, id);
     });
     it('it should return user', async () => {
-      const result = await controller.updateUser(updateUserDto, id);
+      const result = await methodToCall();
       expect(result).toEqual(mockUser);
     });
+  };
+
+  describe('updateUserByToken', () => {
+    const { id } = mockUser;
+    testUpdateUser(
+      () => controller.updateUserByToken(mockUser, updateUserDto),
+      updateUserDto,
+      id
+    );
+  });
+
+  describe('updateUserById', () => {
+    const { id } = mockUser;
+    testUpdateUser(
+      () => controller.updateUserById(updateUserDto, id),
+      updateUserDto,
+      id
+    );
   });
 
   describe('verifyEmail', () => {
