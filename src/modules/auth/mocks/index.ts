@@ -9,6 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { MailService } from '@mail/mail.service';
 import { Provider } from '@user/entities';
 import { googleDto, mockUser, passwordDto } from '@user/mocks';
 import { of } from 'rxjs';
@@ -33,6 +34,7 @@ export const mockConfigData = {
   HTTP_MAX_REDIRECTS: 1,
   API_URL: 'https://api-url',
   CLIENT_URL: 'https://client-url',
+  SENDGRID_EMAIL_FROM: 'SENDGRID_EMAIL_FROM',
 };
 
 export const mockNow = Date.now();
@@ -161,3 +163,14 @@ export const httpServiceProvider = () => ({
 export const mockAccessTokenDto = {
   accessToken: 'access-token',
 };
+
+const getMockMailService = () => ({
+  verifyPasswordRecovery: jest.fn(),
+});
+const mockMailService = getMockMailService();
+export type MockMailServiceType = typeof mockMailService;
+
+export const provideMockMailService = () => ({
+  provide: MailService,
+  useValue: getMockMailService(),
+});

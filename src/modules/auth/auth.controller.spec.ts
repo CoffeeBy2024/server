@@ -19,6 +19,7 @@ import {
   mockConfigData,
   mockTokensResult,
   mockRefreshToken,
+  provideMockMailService,
 } from './mocks';
 import { Provider } from '@user/entities';
 import { Request, Response } from 'express';
@@ -51,6 +52,7 @@ describe('AuthController', () => {
         jwtServiceProvider(),
         httpServiceProvider(),
         configServiceProvider(),
+        provideMockMailService(),
       ],
     }).compile();
 

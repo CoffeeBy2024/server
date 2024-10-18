@@ -32,8 +32,11 @@ import {
   mockAccessToken,
   mockRefreshToken,
   mockTokensResult,
+  provideMockMailService,
+  MockMailServiceType,
 } from './mocks';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '@mail/mail.service';
 
 jest.mock('uuid');
 jest.mock('bcrypt');
@@ -50,6 +53,7 @@ describe('AuthService', () => {
   let userService: UserService;
   let tokenRepository: MockRepository<Token>;
   let configService: ConfigService;
+  let mailService: MockMailServiceType;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,6 +64,7 @@ describe('AuthService', () => {
         configServiceProvider(),
         tokenRepositoryProvider(),
         jwtServiceProvider(),
+        provideMockMailService(),
       ],
     }).compile();
 
@@ -69,6 +74,7 @@ describe('AuthService', () => {
       getRepositoryToken(Token)
     );
     configService = module.get<ConfigService>(ConfigService);
+    mailService = module.get<MockMailServiceType>(MailService);
 
     jest.spyOn(Date, 'now').mockReturnValue(mockNow);
   });
@@ -78,6 +84,7 @@ describe('AuthService', () => {
     expect(userService).toBeDefined();
     expect(tokenRepository).toBeDefined();
     expect(configService).toBeDefined();
+    expect(mailService).toBeDefined();
   });
 
   describe('register', () => {

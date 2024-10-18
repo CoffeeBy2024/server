@@ -67,6 +67,7 @@ export const userBase = {
   lastName: null,
   password: null,
   emailVerificationLink: null,
+  passwordRecoveryVerificationLink: null,
   location: null,
   tokens: [],
 };
@@ -81,7 +82,10 @@ export const createMockRepository = <
   findOne: jest.fn().mockResolvedValue(mockUser),
   findOneBy: jest.fn().mockResolvedValue(mockUser),
   create: jest.fn().mockImplementation((dto) => {
-    return { ...userBase, ...dto, password: dto.password || null };
+    const passwordRecoveryVerificationLink =
+      dto.passwordRecoveryVerificationLink ||
+      userBase.passwordRecoveryVerificationLink;
+    return { ...userBase, ...dto, passwordRecoveryVerificationLink };
   }),
   save: jest.fn().mockImplementation((user) => Promise.resolve(user)),
   find: jest.fn().mockResolvedValue(userArr),

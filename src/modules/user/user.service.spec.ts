@@ -85,7 +85,7 @@ describe('UserService', () => {
         expect(userRepository.create).toHaveBeenCalledTimes(1);
         expect(userRepository.create).toHaveBeenCalledWith({
           ...googleDto,
-          password: undefined,
+          password: null,
         });
         expect(userRepository.save).toHaveBeenCalledWith(mockUserGoogle);
       });
