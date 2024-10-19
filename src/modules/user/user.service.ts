@@ -110,8 +110,7 @@ export class UserService {
 
     const hashedPassword = this.hashPassword(password);
     user.password = hashedPassword;
-    this.userRepository.save(user);
-    return user;
+    return this.userRepository.save(user);
   }
 
   private hashPassword(password: string | undefined) {
