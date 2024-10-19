@@ -22,6 +22,7 @@ import { invalidateCache } from '@common/utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @NoCache()
 @Controller('user')
@@ -29,7 +30,8 @@ import { Response } from 'express';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly configService: ConfigService
   ) {}
 
   @Post()
@@ -146,16 +148,9 @@ export class UserController {
     const user = await this.userService.confirmPasswordRecoveryVerificationLink(
       passwordRecoveryVerificationLink
     );
-    const cacheKey = this.getUserCacheKey(user.id);
-
-    const cachedUser = await this.cacheManager.get(cacheKey);
-
-    if (cachedUser) {
-      await this.cacheManager.del(cacheKey);
-    }
-    const redirectURI = `http://localhost:3000/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+    await this.invalidateUserCache(user.id);
+    const redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
     res.redirect(redirectURI);
-    return redirectURI;
   }
 
   @Public()
