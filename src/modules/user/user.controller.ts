@@ -156,7 +156,8 @@ export class UserController {
   @Public()
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    await this.userService.resetPassword(dto);
+    const user = await this.userService.resetPassword(dto);
+    await this.invalidateUserCache(user.id);
     return {
       message: 'Password reset success',
     };
@@ -167,7 +168,8 @@ export class UserController {
     @User() requestUser: any,
     @Body() dto: ResetPasswordByTokenDto
   ) {
-    await this.userService.resetPasswordByToken(requestUser, dto);
+    const user = await this.userService.resetPasswordByToken(requestUser, dto);
+    await this.invalidateUserCache(user.id);
     return {
       message: 'Password reset success',
     };
