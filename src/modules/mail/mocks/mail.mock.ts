@@ -3,15 +3,16 @@ import {
   EmailVerificationDto,
   PasswordRecoveryVerificationDto,
 } from '@mail/dto';
+import { mockUser } from '@user/mocks';
 
 export const mockVerifyEmailDto: EmailVerificationDto = {
-  email: '123',
+  email: mockUser.email,
   emailVerificationLink: '123123-123',
 };
 
 export const mockPasswordRecoveryVerificationDto: PasswordRecoveryVerificationDto =
   {
-    email: '123',
+    email: mockUser.email,
     passwordRecoveryVerificationLink: '123123-123',
   };
 export const mockMailOrganizationName: typeof MAIL_ORGANIZATION_NAME = {
