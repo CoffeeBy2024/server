@@ -28,6 +28,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import { COOKIES, QUERIES } from './constants';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
 
 jest.mock('uuid');
 jest.mock('bcrypt');
@@ -303,6 +304,22 @@ describe('AuthController', () => {
       } catch (err) {
         expect(err).toBeInstanceOf(UnauthorizedException);
       }
+    });
+  });
+
+  describe('recoverPassword', () => {
+    const mockRecoverPasswordDto: RecoverPasswordDto = {
+      email: 'antonio-banderas',
+    };
+    it('should call authService.recoverPassword', async () => {
+      const spyMethod = jest.spyOn(controller, 'recoverPassword');
+      await controller.recoverPassword(mockRecoverPasswordDto);
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+      expect(spyMethod).toHaveBeenCalledWith(mockRecoverPasswordDto);
+    });
+    it('should return user', async () => {
+      const result = await controller.recoverPassword(mockRecoverPasswordDto);
+      expect(result).toEqual(mockUser);
     });
   });
 
