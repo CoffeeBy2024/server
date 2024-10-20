@@ -3,8 +3,8 @@ import { UserService } from './user.service';
 import { FindOneOptions } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Provider, User } from './entities';
-import { BadRequestException } from '@nestjs/common';
-import { hashSync } from 'bcrypt';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { compareSync, hashSync } from 'bcrypt';
 import {
   googleDto,
   hashedPassword,
@@ -16,6 +16,8 @@ import {
   userArr,
   userRepositoryProvider,
 } from './mocks';
+import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 jest.mock('bcrypt');
 
@@ -157,8 +159,7 @@ describe('UserService', () => {
         expect(spyService).toHaveBeenCalledWith({ id });
         expect(userRepository.save).toHaveBeenCalledTimes(1);
       });
-      it('should return updated user with hashed password ', async () => {
-        (hashSync as jest.Mock).mockReturnValue(hashedPassword);
+      it('should return updated user', async () => {
         const result = await service.updateUser(updateUserDto, id);
 
         expect(result).toEqual(mockUser);
@@ -176,6 +177,146 @@ describe('UserService', () => {
           expect(err).toBeInstanceOf(BadRequestException);
           expect(err.message).toBe(`Cannot find user with '${id}' id`);
         }
+      });
+    });
+  });
+
+  describe('confirmPasswordRecoveryVerificationLink', () => {
+    const mockPasswordRecoveryVerificationLink = 'mock-psw-rec-verif-link';
+    describe('for invalid passwordRecoveryVerificationLink', () => {
+      it('should call service.getUserByConditions method', async () => {
+        const getUserByConditions = jest.spyOn(service, 'getUserByConditions');
+        await service.confirmPasswordRecoveryVerificationLink(
+          mockPasswordRecoveryVerificationLink
+        );
+
+        expect(getUserByConditions).toHaveBeenCalledTimes(1);
+        expect(getUserByConditions).toHaveBeenCalledWith({
+          passwordRecoveryVerificationLink:
+            mockPasswordRecoveryVerificationLink,
+        });
+      });
+      it('should return user', async () => {
+        const result = await service.confirmPasswordRecoveryVerificationLink(
+          mockPasswordRecoveryVerificationLink
+        );
+        expect(result).toEqual(mockUser);
+      });
+    });
+    describe('for invalid passwordRecoveryVerificationLink', () => {
+      beforeEach(() => {
+        userRepository.findOne?.mockResolvedValue(null);
+      });
+      it('should throw BadRequestException exception with clear message', async () => {
+        try {
+          await service.confirmPasswordRecoveryVerificationLink(
+            mockPasswordRecoveryVerificationLink
+          );
+          expect(true).toBeFalsy();
+        } catch (e) {
+          expect(e).toBeInstanceOf(BadRequestException);
+          expect(e.message).toBe('Email verification link is not correct');
+        }
+      });
+    });
+  });
+
+  describe('resetPassword', () => {
+    const mockResetPasswordDto: ResetPasswordDto = {
+      id: 1,
+      passwordRecoveryVerificationLink: '123',
+      confirmPassword: '123123123',
+      password: '123123123',
+    };
+    it('should call service.getUserByConditions method', async () => {
+      const getUserByConditions = jest.spyOn(service, 'getUserByConditions');
+      await service.resetPassword(mockResetPasswordDto);
+
+      expect(getUserByConditions).toHaveBeenCalledTimes(1);
+      expect(getUserByConditions).toHaveBeenCalledWith({
+        id: mockResetPasswordDto.id,
+        passwordRecoveryVerificationLink:
+          mockResetPasswordDto.passwordRecoveryVerificationLink,
+      });
+    });
+    it('for invalid id or passwordRecoveryVerificationLink should throw not found error with clear message', async () => {
+      jest.spyOn(service, 'getUserByConditions').mockResolvedValue(null);
+      try {
+        await service.resetPassword(mockResetPasswordDto);
+        expect(true).toBeFalsy();
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+        expect(e.message).toBe('User not found');
+      }
+    });
+    it('should call repository.save method', async () => {
+      const myMockUser = { ...mockUser };
+      const hashedPasswordTwo = 'hashed-password-resetPassword';
+      (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
+      const spyMethod = userRepository.save;
+
+      await service.resetPassword(mockResetPasswordDto);
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+      expect(spyMethod).toHaveBeenCalledWith({
+        ...myMockUser,
+        password: hashedPasswordTwo,
+      });
+    });
+    it('should return user', async () => {
+      const myMockUser = { ...mockUser };
+      const hashedPasswordTwo = 'hashed-password';
+      (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
+      const result = await service.resetPassword(mockResetPasswordDto);
+      expect(result).toEqual({ ...myMockUser, password: hashedPasswordTwo });
+    });
+  });
+
+  describe('resetPasswordByToken', () => {
+    const mockResetPasswordByTokenDto: ResetPasswordByTokenDto = {
+      password: '123',
+      confirmPassword: '123',
+      currentPassword: '1233',
+    };
+    const hashedPasswordTwo = 'hashed-password';
+    beforeEach(() => {
+      (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
+    });
+    it('for non-verified password should throw BadRequestException with clear message', async () => {
+      (compareSync as jest.Mock).mockReturnValue(false);
+      try {
+        await service.resetPasswordByToken(
+          mockUser,
+          mockResetPasswordByTokenDto
+        );
+        expect(true).toBeFalsy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(BadRequestException);
+        expect(err.message).toBe('Wrong current password');
+      }
+    });
+    it('should call repository.save method', async () => {
+      const myMockUser: User = { ...mockUser };
+      (compareSync as jest.Mock).mockReturnValue(true);
+      (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
+      const spyMethod = userRepository.save;
+      await service.resetPasswordByToken(mockUser, mockResetPasswordByTokenDto);
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+      expect(spyMethod).toHaveBeenCalledWith({
+        ...myMockUser,
+        password: hashedPasswordTwo,
+      });
+    });
+    it('should return user', async () => {
+      const myMockUser: User = { ...mockUser };
+      (compareSync as jest.Mock).mockReturnValue(true);
+      (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
+      const result = await service.resetPasswordByToken(
+        mockUser,
+        mockResetPasswordByTokenDto
+      );
+      expect(result).toEqual({
+        ...myMockUser,
+        password: hashedPasswordTwo,
       });
     });
   });
