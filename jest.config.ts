@@ -20,6 +20,7 @@ const jestConfig: JestConfigWithTsJest = {
     '.entity.ts',
     '.module.ts',
     'mocks',
+    'index.ts',
   ],
   testRegex: '.*\\.spec\\.ts$',
   transform: {
