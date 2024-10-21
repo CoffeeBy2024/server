@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JWTPayload } from '@auth/types';
+import { JWTPayload, RequestUser } from '@auth/types';
 import { UserService } from '@user/user.service';
 import { Request } from 'express';
 import { COOKIES } from '@auth/constants';
@@ -23,7 +23,7 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate({ sub: id }: JWTPayload) {
+  async validate({ sub: id }: JWTPayload): Promise<RequestUser> {
     const user = await this.userService.getUserByConditions({ id });
     if (!user) {
       throw new UnauthorizedException();

@@ -27,6 +27,7 @@ import { TTLVariables } from 'src/utils/constants/cache';
 import { invalidateCache } from '@common/utils';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { RequestUser } from '@auth/types';
 
 @NoCache()
 @Controller('user')
@@ -50,7 +51,7 @@ export class UserController {
   }
 
   @Get('/by-token')
-  async getUserByToken(@User() requestUser: any) {
+  async getUserByToken(@User() requestUser: RequestUser) {
     const { id } = requestUser;
     return this.getUser(id);
   }
@@ -72,7 +73,7 @@ export class UserController {
 
   @Patch('/by-token')
   async updateUserByToken(
-    @User() requestUser: any,
+    @User() requestUser: RequestUser,
     @Body() dto: UpdateUserDto
   ) {
     const { id } = requestUser;
@@ -183,7 +184,7 @@ export class UserController {
 
   @Post('profile/reset-password')
   async resetPasswordByToken(
-    @User() requestUser: any,
+    @User() requestUser: RequestUser,
     @Body() dto: ResetPasswordByTokenDto
   ) {
     const user = await this.userService.resetPasswordByToken(requestUser, dto);
