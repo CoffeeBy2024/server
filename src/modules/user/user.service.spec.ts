@@ -16,8 +16,7 @@ import {
   userArr,
   userRepositoryProvider,
 } from './mocks';
-import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordByRecoverLinkDto, ResetPasswordByTokenDto } from './dto';
 
 jest.mock('bcrypt');
 
@@ -224,8 +223,8 @@ describe('UserService', () => {
     });
   });
 
-  describe('resetPassword', () => {
-    const mockResetPasswordDto: ResetPasswordDto = {
+  describe('resetPasswordByRecoverLink', () => {
+    const mockResetPasswordDto: ResetPasswordByRecoverLinkDto = {
       id: 1,
       passwordRecoveryVerificationLink: '123',
       confirmPassword: '123123123',
@@ -233,7 +232,7 @@ describe('UserService', () => {
     };
     it('should call service.getUserByConditions method', async () => {
       const getUserByConditions = jest.spyOn(service, 'getUserByConditions');
-      await service.resetPassword(mockResetPasswordDto);
+      await service.resetPasswordByRecoverLink(mockResetPasswordDto);
 
       expect(getUserByConditions).toHaveBeenCalledTimes(1);
       expect(getUserByConditions).toHaveBeenCalledWith({
@@ -245,7 +244,7 @@ describe('UserService', () => {
     it('for invalid id or passwordRecoveryVerificationLink should throw not found error with clear message', async () => {
       jest.spyOn(service, 'getUserByConditions').mockResolvedValue(null);
       try {
-        await service.resetPassword(mockResetPasswordDto);
+        await service.resetPasswordByRecoverLink(mockResetPasswordDto);
         expect(true).toBeFalsy();
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
@@ -258,7 +257,7 @@ describe('UserService', () => {
       (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
       const spyMethod = userRepository.save;
 
-      await service.resetPassword(mockResetPasswordDto);
+      await service.resetPasswordByRecoverLink(mockResetPasswordDto);
       expect(spyMethod).toHaveBeenCalledTimes(1);
       expect(spyMethod).toHaveBeenCalledWith({
         ...myMockUser,
@@ -269,7 +268,8 @@ describe('UserService', () => {
       const myMockUser = { ...mockUser };
       const hashedPasswordTwo = 'hashed-password';
       (hashSync as jest.Mock).mockReturnValue(hashedPasswordTwo);
-      const result = await service.resetPassword(mockResetPasswordDto);
+      const result =
+        await service.resetPasswordByRecoverLink(mockResetPasswordDto);
       expect(result).toEqual({ ...myMockUser, password: hashedPasswordTwo });
     });
   });

@@ -7,10 +7,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities';
 import { FindOneOptions, Repository } from 'typeorm';
 import { genSaltSync, hashSync, compareSync } from 'bcrypt';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import {
+  CreateUserDto,
+  ResetPasswordByRecoverLinkDto,
+  ResetPasswordByTokenDto,
+  UpdateUserDto,
+} from './dto';
 import { OptionalWithoutNull } from './types';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 
 @Injectable()
 export class UserService {
@@ -81,7 +84,7 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async resetPassword(dto: ResetPasswordDto) {
+  async resetPasswordByRecoverLink(dto: ResetPasswordByRecoverLinkDto) {
     const { id, passwordRecoveryVerificationLink, password } = dto;
     const user = await this.getUserByConditions({
       id,

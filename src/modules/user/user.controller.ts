@@ -12,15 +12,19 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateUserDto, UserResponseDto, UpdateUserDto } from './dto';
+import {
+  CreateUserDto,
+  UserResponseDto,
+  UpdateUserDto,
+  ResetPasswordByRecoverLinkDto,
+  ResetPasswordByTokenDto,
+} from './dto';
 import { UserService } from './user.service';
 import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { TTLVariables } from 'src/utils/constants/cache';
 import { invalidateCache } from '@common/utils';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
@@ -169,8 +173,8 @@ export class UserController {
 
   @Public()
   @Post('reset-password')
-  async resetPassword(@Body() dto: ResetPasswordDto) {
-    const user = await this.userService.resetPassword(dto);
+  async resetPasswordByRecoverLink(@Body() dto: ResetPasswordByRecoverLinkDto) {
+    const user = await this.userService.resetPasswordByRecoverLink(dto);
     await this.invalidateUserCache(user.id);
     return {
       message: 'Password reset success',

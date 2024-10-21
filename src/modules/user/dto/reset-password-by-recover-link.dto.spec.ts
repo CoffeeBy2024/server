@@ -4,7 +4,7 @@ import {
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
 } from '@auth/dto/register-user.dto.spec';
-import { ResetPasswordDto } from './reset-password.dto';
+import { ResetPasswordByRecoverLinkDto } from './reset-password-by-recover-link.dto';
 import { mockUser } from '@user/mocks';
 import { plainToInstance } from 'class-transformer';
 import { testNegativeDtoPropertyIsNumber } from './find-user.dto.spec';
@@ -26,31 +26,31 @@ export const testNegativeDtoPropertyTransformToNumber = async <
   expect(errors[0]?.constraints?.isNumber).toBeDefined();
 };
 
-describe('ResetPasswordDto', () => {
-  let dto: ResetPasswordDto;
+describe('ResetPasswordByRecoverLinkDto', () => {
+  let dto: ResetPasswordByRecoverLinkDto;
 
-  const mockResetPasswordDto: ResetPasswordDto = {
+  const mockResetPasswordByRecoverLinkDto: ResetPasswordByRecoverLinkDto = {
     id: mockUser.id,
     password: 'password',
     confirmPassword: 'password',
     passwordRecoveryVerificationLink: 'passwordRecoveryVerificationLink',
   };
   beforeEach(() => {
-    dto = new ResetPasswordDto();
+    dto = new ResetPasswordByRecoverLinkDto();
   });
   afterEach(() => {
-    dto = {} as ResetPasswordDto;
+    dto = {} as ResetPasswordByRecoverLinkDto;
   });
 
   describe('positive test', () => {
     it('should succeed with valid data', async () => {
-      Object.assign(dto, mockResetPasswordDto);
+      Object.assign(dto, mockResetPasswordByRecoverLinkDto);
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
     it('should transform id from string to number', async () => {
-      const dto = plainToInstance(ResetPasswordDto, {
-        ...mockResetPasswordDto,
+      const dto = plainToInstance(ResetPasswordByRecoverLinkDto, {
+        ...mockResetPasswordByRecoverLinkDto,
         id: `${mockUser.id}`,
       });
 
@@ -66,14 +66,14 @@ describe('ResetPasswordDto', () => {
         await testNegativeDtoPropertyIsNotEmpty<'id'>(
           'id',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
       it('should fail if id is not valid number', async () => {
         await testNegativeDtoPropertyIsNumber<'id'>(
           'id',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
     });
@@ -82,14 +82,14 @@ describe('ResetPasswordDto', () => {
         await testNegativeDtoPropertyIsNotEmpty<'passwordRecoveryVerificationLink'>(
           'passwordRecoveryVerificationLink',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
       it('should fail if passwordRecoveryVerificationLink is not string', async () => {
         await testNegativeDtoPropertyIsString<'passwordRecoveryVerificationLink'>(
           'passwordRecoveryVerificationLink',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
     });
@@ -98,14 +98,14 @@ describe('ResetPasswordDto', () => {
         await testNegativeDtoPropertyIsNotEmpty<'password'>(
           'password',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
       it('should fail if password is not string', async () => {
         await testNegativeDtoPropertyIsString<'password'>(
           'password',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
     });
@@ -114,21 +114,21 @@ describe('ResetPasswordDto', () => {
         await testNegativeDtoPropertyIsNotEmpty<'confirmPassword'>(
           'confirmPassword',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
       it('should fail if confirmPassword does not match password', async () => {
         await testNegativeDtoConfirmPasswordNotMatch<'confirmPassword'>(
           'confirmPassword',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
       it('should fail if confirmPassword is not string', async () => {
         await testNegativeDtoPropertyIsString<'confirmPassword'>(
           'confirmPassword',
           () => dto,
-          mockResetPasswordDto
+          mockResetPasswordByRecoverLinkDto
         );
       });
     });

@@ -3,7 +3,7 @@ import { PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class ResetPasswordDto extends PickType(RegisterUserDto, [
+export class ResetPasswordByRecoverLinkDto extends PickType(RegisterUserDto, [
   'password',
   'confirmPassword',
 ] as const) {

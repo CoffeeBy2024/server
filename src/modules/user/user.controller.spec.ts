@@ -13,7 +13,12 @@ import {
   userRepositoryProvider,
 } from './mocks';
 import { plainToInstance } from 'class-transformer';
-import { UpdateUserDto, UserResponseDto } from './dto';
+import {
+  ResetPasswordByRecoverLinkDto,
+  UpdateUserDto,
+  UserResponseDto,
+  ResetPasswordByTokenDto,
+} from './dto';
 import { compareSync, hashSync } from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { invalidateCache } from '@common/utils';
@@ -21,8 +26,6 @@ import { mockPasswordRecoveryVerificationDto } from '@mail/mocks/mail.mock';
 import { Response } from 'express';
 import { configServiceProvider, mockConfigData } from '@auth/mocks';
 import { ConfigService } from '@nestjs/config';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ResetPasswordByTokenDto } from './dto/reset-password-by-token.dto';
 
 const commonTTLValue = 111;
 jest.mock('bcrypt');
@@ -343,33 +346,36 @@ describe('UserController', () => {
       expect(mockResponse.redirect).toHaveBeenCalledWith(mockRedirectUrl);
     });
   });
-  describe('resetPassword', () => {
-    const mockResetPasswordDto: ResetPasswordDto = {
+
+  describe('resetPasswordByRecoverLink', () => {
+    const mockResetPasswordDto: ResetPasswordByRecoverLinkDto = {
       id: 1,
       passwordRecoveryVerificationLink: '123',
       confirmPassword: '123123123',
       password: '123123123',
     };
-    it('should call userService.resetPassword method', async () => {
-      const spyMethod = jest.spyOn(spyService, 'resetPassword');
-      await controller.resetPassword(mockResetPasswordDto);
+    it('should call userService.resetPasswordByRecoverLink method', async () => {
+      const spyMethod = jest.spyOn(spyService, 'resetPasswordByRecoverLink');
+      await controller.resetPasswordByRecoverLink(mockResetPasswordDto);
       expect(spyMethod).toHaveBeenCalledTimes(1);
       expect(spyMethod).toHaveBeenCalledWith(mockResetPasswordDto);
     });
     it('should invalidate cache', async () => {
       invalidateCache as jest.Mock;
-      await controller.resetPassword(mockResetPasswordDto);
+      await controller.resetPasswordByRecoverLink(mockResetPasswordDto);
       const userCacheKey = mockGetUserCacheKey(mockUser.id);
       expect(invalidateCache).toHaveBeenCalledTimes(1);
       expect(invalidateCache).toHaveBeenCalledWith(cacheManager, userCacheKey);
     });
     it('should return expected message', async () => {
-      const result = await controller.resetPassword(mockResetPasswordDto);
+      const result =
+        await controller.resetPasswordByRecoverLink(mockResetPasswordDto);
       expect(result).toEqual({
         message: 'Password reset success',
       });
     });
   });
+
   describe('resetPasswordByToken', () => {
     const mockResetPasswordByTokenDto: ResetPasswordByTokenDto = {
       password: '123',
