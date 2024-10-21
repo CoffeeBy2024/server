@@ -21,7 +21,6 @@ export class UserResponseDto implements UserResponseDtoType {
   @Exclude()
   confirmPassword: string;
 
-  location: string;
   tokens: Token[];
 
   constructor(partial: Partial<User>) {

@@ -27,7 +27,6 @@ export const mockUser: User = {
   emailVerified: passwordDto.emailVerified,
   emailVerificationLink: passwordDto.emailVerificationLink as string,
   passwordRecoveryVerificationLink: null,
-  location: null,
   tokens: [],
 };
 
@@ -49,7 +48,6 @@ export const mockUserGoogle: User = {
   emailVerified: googleDto.emailVerified,
   emailVerificationLink: null,
   passwordRecoveryVerificationLink: null,
-  location: null,
   tokens: [],
 };
 
@@ -68,7 +66,6 @@ export const userBase = {
   password: null,
   emailVerificationLink: null,
   passwordRecoveryVerificationLink: null,
-  location: null,
   tokens: [],
 };
 
