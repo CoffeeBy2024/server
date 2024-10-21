@@ -42,14 +42,14 @@ export class MailService {
       subject,
       from: {
         name: MAIL_ORGANIZATION_NAME.value,
-        email: this.configService.get('SENDGRID_EMAIL_FROM'),
+        email: this.configService.getOrThrow<string>('SENDGRID_EMAIL_FROM'),
       },
       html,
     };
   }
 
   private getVerifyEmailTemplate(emailVerificationLink: string) {
-    const emailVerificationURL = `${this.configService.get<string>('API_URL')}/user/verify-email/${emailVerificationLink}`;
+    const emailVerificationURL = `${this.configService.getOrThrow<string>('API_URL')}/user/verify-email/${emailVerificationLink}`;
     const { title, btnText } = MAIL_DATA.verifyEmail;
 
     return this.createHtmlTemplate(title, btnText, emailVerificationURL);
@@ -58,7 +58,7 @@ export class MailService {
   private getVerifyPasswordRecoveryTemplate(
     passwordRecoveryVerificationLink: string
   ) {
-    const passwordRecoveryVerificationURL = `${this.configService.get('API_URL')}/user/recover-password/${passwordRecoveryVerificationLink}`;
+    const passwordRecoveryVerificationURL = `${this.configService.getOrThrow<string>('API_URL')}/user/recover-password/${passwordRecoveryVerificationLink}`;
     const { title, btnText } = MAIL_DATA.verifyPasswordRecovery;
 
     return this.createHtmlTemplate(

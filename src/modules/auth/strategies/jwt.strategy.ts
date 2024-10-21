@@ -19,7 +19,7 @@ export class JWTStrategy extends PassportStrategy(Strategy) {
           this.extractValueFromCookies(req, COOKIES.ACCESS_TOKEN),
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_ACCESS_SECRET'),
+      secretOrKey: configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
     });
   }
 

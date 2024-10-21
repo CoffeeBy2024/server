@@ -99,9 +99,9 @@ export class UserController {
     try {
       const user = await this.userService.verifyEmail(emailVerificationLink);
       await this.invalidateUserCache(user.id);
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/profile`;
+      redirectURI = `${this.configService.getOrThrow<string>('CLIENT_URL')}/profile`;
     } catch (e) {
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
+      redirectURI = `${this.configService.getOrThrow<string>('CLIENT_URL')}`;
     }
     res.redirect(redirectURI);
   }
@@ -120,9 +120,9 @@ export class UserController {
           passwordRecoveryVerificationLink
         );
       await this.invalidateUserCache(user.id);
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+      redirectURI = `${this.configService.getOrThrow<string>('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
     } catch (e) {
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
+      redirectURI = `${this.configService.getOrThrow<string>('CLIENT_URL')}`;
     }
     res.redirect(redirectURI);
   }

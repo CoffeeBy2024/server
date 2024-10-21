@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MailController } from './mail.controller';
 import { SendgridService } from './sendgrid/sendgrid.service';
 import { sendgridMailServiceProvider, mockReturnValue } from './sendgrid/mocks';
-import { ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
 import { mockVerifyEmailDto } from './mocks/mail.mock';
+import { configServiceProvider } from '@auth/mocks';
 
 describe('MailController', () => {
   let controller: MailController;
@@ -17,12 +17,7 @@ describe('MailController', () => {
         MailService,
         SendgridService,
         sendgridMailServiceProvider,
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn(),
-          },
-        },
+        configServiceProvider(),
       ],
     }).compile();
 

@@ -124,7 +124,7 @@ export class AuthService {
         sub: id,
       }),
       expiresAt: this.getTokenExpiresAt(
-        this.configService.getOrThrow('JWT_ACCESS_EXP')
+        this.configService.getOrThrow<string>('JWT_ACCESS_EXP')
       ),
     };
   }
@@ -139,7 +139,7 @@ export class AuthService {
     if (token) {
       token.value = v4();
       token.expiresAt = this.getTokenExpiresAt(
-        this.configService.getOrThrow('JWT_REFRESH_EXP')
+        this.configService.getOrThrow<string>('JWT_REFRESH_EXP')
       );
       await this.tokenRepository.save(token);
       return token;
@@ -148,7 +148,7 @@ export class AuthService {
       this.tokenRepository.create({
         value: v4(),
         expiresAt: this.getTokenExpiresAt(
-          this.configService.getOrThrow('JWT_REFRESH_EXP')
+          this.configService.getOrThrow<string>('JWT_REFRESH_EXP')
         ),
         userAgent: agent,
         user: user,

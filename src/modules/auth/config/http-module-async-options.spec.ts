@@ -19,21 +19,21 @@ describe('httpModuleAsyncOptions', () => {
 
     expect(options.inject).toEqual([ConfigService]);
   });
-  it('should call configService.get method', async () => {
+  it('should call configService.getOrThrow method', async () => {
     const options = httpModuleAsyncOptions();
     await options.useFactory?.(configService);
 
-    expect(configService.get).toHaveBeenCalledTimes(2);
-    expect(configService.get).toHaveBeenCalledWith('HTTP_TIMEOUT');
-    expect(configService.get).toHaveBeenCalledWith('HTTP_MAX_REDIRECTS');
+    expect(configService.getOrThrow).toHaveBeenCalledTimes(2);
+    expect(configService.getOrThrow).toHaveBeenCalledWith('HTTP_TIMEOUT');
+    expect(configService.getOrThrow).toHaveBeenCalledWith('HTTP_MAX_REDIRECTS');
   });
   it('should return correct factory', async () => {
     const options = httpModuleAsyncOptions();
     const factoryResult = await options.useFactory?.(configService);
 
     expect(factoryResult).toEqual({
-      timeout: configService.get('HTTP_TIMEOUT'),
-      maxRedirects: configService.get('HTTP_MAX_REDIRECTS'),
+      timeout: configService.getOrThrow('HTTP_TIMEOUT'),
+      maxRedirects: configService.getOrThrow('HTTP_MAX_REDIRECTS'),
     });
   });
 });

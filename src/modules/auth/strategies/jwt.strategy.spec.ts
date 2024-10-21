@@ -33,9 +33,11 @@ describe('JWTStrategy', () => {
   });
 
   describe('constructor', () => {
-    it('should call configService.get method', () => {
-      expect(configService.get).toHaveBeenCalledTimes(1);
-      expect(configService.get).toHaveBeenCalledWith('JWT_ACCESS_SECRET');
+    it('should call configService.getOrThrow method', () => {
+      expect(configService.getOrThrow).toHaveBeenCalledTimes(1);
+      expect(configService.getOrThrow).toHaveBeenCalledWith(
+        'JWT_ACCESS_SECRET'
+      );
     });
   });
 

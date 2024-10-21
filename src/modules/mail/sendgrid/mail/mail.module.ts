@@ -1,4 +1,4 @@
-import { InternalServerErrorException, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@sendgrid/mail';
 
@@ -7,13 +7,7 @@ import { MailService } from '@sendgrid/mail';
     {
       provide: MailService,
       useFactory: (configService: ConfigService) => {
-        const apiKey = configService.get<string>('SENDGRID_API_KEY');
-
-        if (!apiKey) {
-          throw new InternalServerErrorException(
-            'SENDGRID_API_KEY is not defined'
-          );
-        }
+        const apiKey = configService.getOrThrow<string>('SENDGRID_API_KEY');
 
         const mailService = new MailService();
         mailService.setApiKey(apiKey);
