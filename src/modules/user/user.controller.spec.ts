@@ -330,6 +330,18 @@ describe('UserController', () => {
       expect(mockResponse.redirect).toHaveBeenCalledTimes(1);
       expect(mockResponse.redirect).toHaveBeenCalledWith(mockRedirectUrl);
     });
+    it('for invalid confirmPasswordRecoveryVerificationLink should redirect on expected url', async () => {
+      const mockRedirectUrl = `${mockConfigData.CLIENT_URL}`;
+      jest
+        .spyOn(spyService, 'confirmPasswordRecoveryVerificationLink')
+        .mockRejectedValue(123);
+      await controller.recoverPassword(
+        null as unknown as string,
+        mockResponse as Response
+      );
+      expect(mockResponse.redirect).toHaveBeenCalledTimes(1);
+      expect(mockResponse.redirect).toHaveBeenCalledWith(mockRedirectUrl);
+    });
   });
   describe('resetPassword', () => {
     const mockResetPasswordDto: ResetPasswordDto = {

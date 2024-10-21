@@ -153,11 +153,17 @@ export class UserController {
     passwordRecoveryVerificationLink: string,
     @Res() res: Response
   ) {
-    const user = await this.userService.confirmPasswordRecoveryVerificationLink(
-      passwordRecoveryVerificationLink
-    );
-    await this.invalidateUserCache(user.id);
-    const redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+    let redirectURI;
+    try {
+      const user =
+        await this.userService.confirmPasswordRecoveryVerificationLink(
+          passwordRecoveryVerificationLink
+        );
+      await this.invalidateUserCache(user.id);
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+    } catch (e) {
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
+    }
     res.redirect(redirectURI);
   }
 
