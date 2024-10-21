@@ -64,6 +64,7 @@ export class UserService {
       throw new BadRequestException('Email verification link is not correct');
     }
     user.emailVerified = true;
+    user.emailVerificationLink = null;
     return this.userRepository.save(user);
   }
 

@@ -345,6 +345,7 @@ describe('UserService', () => {
         expect(userRepository.save).toHaveBeenCalledWith({
           ...mockUser,
           emailVerified: true,
+          emailVerificationLink: null,
         });
       });
     });
