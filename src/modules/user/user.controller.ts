@@ -106,6 +106,49 @@ export class UserController {
     res.redirect(redirectURI);
   }
 
+  @Public()
+  @Get('recover-password/:passwordRecoveryVerificationLink')
+  async recoverPassword(
+    @Param('passwordRecoveryVerificationLink')
+    passwordRecoveryVerificationLink: string,
+    @Res() res: Response
+  ) {
+    let redirectURI;
+    try {
+      const user =
+        await this.userService.confirmPasswordRecoveryVerificationLink(
+          passwordRecoveryVerificationLink
+        );
+      await this.invalidateUserCache(user.id);
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
+    } catch (e) {
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
+    }
+    res.redirect(redirectURI);
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPasswordByRecoverLink(@Body() dto: ResetPasswordByRecoverLinkDto) {
+    const user = await this.userService.resetPasswordByRecoverLink(dto);
+    await this.invalidateUserCache(user.id);
+    return {
+      message: 'Password reset success',
+    };
+  }
+
+  @Post('profile/reset-password')
+  async resetPasswordByToken(
+    @User() requestUser: RequestUser,
+    @Body() dto: ResetPasswordByTokenDto
+  ) {
+    const user = await this.userService.resetPasswordByToken(requestUser, dto);
+    await this.invalidateUserCache(user.id);
+    return {
+      message: 'Password reset success',
+    };
+  }
+
   private async getUser(id: number) {
     const cachedUser = await this.getCachedUser(id);
 
@@ -149,48 +192,5 @@ export class UserController {
   private async setUserToCache(id: number, user: UserResponseDto) {
     const cacheKey = this.getUserCacheKey(id);
     await this.cacheManager.set(cacheKey, user, TTLVariables.common);
-  }
-
-  @Public()
-  @Get('recover-password/:passwordRecoveryVerificationLink')
-  async recoverPassword(
-    @Param('passwordRecoveryVerificationLink')
-    passwordRecoveryVerificationLink: string,
-    @Res() res: Response
-  ) {
-    let redirectURI;
-    try {
-      const user =
-        await this.userService.confirmPasswordRecoveryVerificationLink(
-          passwordRecoveryVerificationLink
-        );
-      await this.invalidateUserCache(user.id);
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/reset-password?passwordRecoveryVerificationLink=${passwordRecoveryVerificationLink}&id=${user.id}`;
-    } catch (e) {
-      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
-    }
-    res.redirect(redirectURI);
-  }
-
-  @Public()
-  @Post('reset-password')
-  async resetPasswordByRecoverLink(@Body() dto: ResetPasswordByRecoverLinkDto) {
-    const user = await this.userService.resetPasswordByRecoverLink(dto);
-    await this.invalidateUserCache(user.id);
-    return {
-      message: 'Password reset success',
-    };
-  }
-
-  @Post('profile/reset-password')
-  async resetPasswordByToken(
-    @User() requestUser: RequestUser,
-    @Body() dto: ResetPasswordByTokenDto
-  ) {
-    const user = await this.userService.resetPasswordByToken(requestUser, dto);
-    await this.invalidateUserCache(user.id);
-    return {
-      message: 'Password reset success',
-    };
   }
 }
