@@ -232,6 +232,9 @@ describe('UserController', () => {
   });
 
   describe('verifyEmail', () => {
+    const mockResponse: Partial<Response> = {
+      redirect: jest.fn(),
+    };
     const { emailVerificationLink } = mockUser;
     if (!emailVerificationLink) {
       throw new Error('mockUser does not have emailVerificationLink');
@@ -239,15 +242,43 @@ describe('UserController', () => {
 
     it('should call verifyEmail', async () => {
       jest.spyOn(spyService, 'verifyEmail');
-      await controller.verifyEmail(emailVerificationLink);
+      await controller.verifyEmail(
+        emailVerificationLink,
+        mockResponse as Response
+      );
       expect(spyService.verifyEmail).toHaveBeenCalledTimes(1);
       expect(spyService.verifyEmail).toHaveBeenCalledWith(
         emailVerificationLink
       );
     });
-    it('should return user', async () => {
-      const result = await controller.verifyEmail(emailVerificationLink);
-      expect(result).toEqual(mockUser);
+    it('should invalidate cache', async () => {
+      invalidateCache as jest.Mock;
+      await controller.verifyEmail(
+        emailVerificationLink,
+        mockResponse as Response
+      );
+      const mockId = mockGetUserCacheKey(mockUser.id);
+      expect(invalidateCache).toHaveBeenCalledTimes(1);
+      expect(invalidateCache).toHaveBeenCalledWith(cacheManager, mockId);
+    });
+    it('should redirect on expected url', async () => {
+      const mockRedirectUrl = `${mockConfigData.CLIENT_URL}/profile`;
+      await controller.verifyEmail(
+        emailVerificationLink,
+        mockResponse as Response
+      );
+      expect(mockResponse.redirect).toHaveBeenCalledTimes(1);
+      expect(mockResponse.redirect).toHaveBeenCalledWith(mockRedirectUrl);
+    });
+    it('for invalid emailVerificationLink should redirect on expected url', async () => {
+      const mockRedirectUrl = `${mockConfigData.CLIENT_URL}`;
+      jest.spyOn(spyService, 'verifyEmail').mockRejectedValue(123);
+      await controller.verifyEmail(
+        null as unknown as string,
+        mockResponse as Response
+      );
+      expect(mockResponse.redirect).toHaveBeenCalledTimes(1);
+      expect(mockResponse.redirect).toHaveBeenCalledWith(mockRedirectUrl);
     });
   });
 

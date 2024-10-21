@@ -87,10 +87,18 @@ export class UserController {
   @Public()
   @Get('verify-email/:emailVerificationLink')
   async verifyEmail(
-    @Param('emailVerificationLink') emailVerificationLink: string
+    @Param('emailVerificationLink') emailVerificationLink: string,
+    @Res() res: Response
   ) {
-    const user = await this.userService.verifyEmail(emailVerificationLink);
-    return new UserResponseDto(user);
+    let redirectURI;
+    try {
+      const user = await this.userService.verifyEmail(emailVerificationLink);
+      await this.invalidateUserCache(user.id);
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}/profile`;
+    } catch (e) {
+      redirectURI = `${this.configService.getOrThrow('CLIENT_URL')}`;
+    }
+    res.redirect(redirectURI);
   }
 
   private async getUser(id: number) {
