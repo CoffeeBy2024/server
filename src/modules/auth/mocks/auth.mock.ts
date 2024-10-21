@@ -166,6 +166,7 @@ export const mockAccessTokenDto = {
 
 const getMockMailService = () => ({
   verifyPasswordRecovery: jest.fn(),
+  verifyEmail: jest.fn(),
 });
 const mockMailService = getMockMailService();
 export type MockMailServiceType = typeof mockMailService;

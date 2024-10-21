@@ -48,6 +48,7 @@ export class AuthService {
       emailVerified,
       emailVerificationLink,
     });
+    this.mailService.verifyEmail({ email: dto.email, emailVerificationLink });
     return this.userService.createUser(createUserDto);
   }
 

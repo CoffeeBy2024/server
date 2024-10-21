@@ -128,6 +128,18 @@ describe('AuthService', () => {
         expect(createUser).toHaveBeenCalledWith(mockCreateUserDto);
       });
 
+      it('should call mailService.verifyEmail method', async () => {
+        const mockV4 = 'mock-v4';
+        (v4 as jest.Mock).mockReturnValueOnce(mockV4);
+        const spyMethod = jest.spyOn(mailService, 'verifyEmail');
+        await service.register(mockRegisterUserDto, mockProvider);
+        expect(spyMethod).toHaveBeenCalledTimes(1);
+        expect(spyMethod).toHaveBeenCalledWith({
+          email: mockRegisterUserDto.email,
+          emailVerificationLink: mockV4,
+        });
+      });
+
       it('should return created user', async () => {
         (hashSync as jest.Mock).mockReturnValue(mockUser.password);
 
