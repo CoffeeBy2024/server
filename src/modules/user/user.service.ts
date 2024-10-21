@@ -80,7 +80,6 @@ export class UserService {
     if (!user) {
       throw new BadRequestException('Email verification link is not correct');
     }
-    user.passwordRecoveryVerificationLink = null;
     return this.userRepository.save(user);
   }
 
@@ -98,6 +97,7 @@ export class UserService {
     const hashedPassword = this.hashPassword(password);
 
     user.password = hashedPassword;
+    user.passwordRecoveryVerificationLink = null;
     return this.userRepository.save(user);
   }
 

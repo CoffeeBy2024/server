@@ -199,10 +199,7 @@ describe('UserService', () => {
         const result = await service.confirmPasswordRecoveryVerificationLink(
           mockPasswordRecoveryVerificationLink
         );
-        expect(result).toEqual({
-          ...mockUser,
-          passwordRecoveryVerificationLink: null,
-        });
+        expect(result).toEqual(mockUser);
       });
     });
     describe('for invalid passwordRecoveryVerificationLink', () => {
@@ -262,6 +259,7 @@ describe('UserService', () => {
       expect(spyMethod).toHaveBeenCalledWith({
         ...myMockUser,
         password: hashedPasswordTwo,
+        passwordRecoveryVerificationLink: null,
       });
     });
     it('should return user', async () => {
