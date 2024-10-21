@@ -183,7 +183,7 @@ describe('UserService', () => {
 
   describe('confirmPasswordRecoveryVerificationLink', () => {
     const mockPasswordRecoveryVerificationLink = 'mock-psw-rec-verif-link';
-    describe('for invalid passwordRecoveryVerificationLink', () => {
+    describe('for valid passwordRecoveryVerificationLink', () => {
       it('should call service.getUserByConditions method', async () => {
         const getUserByConditions = jest.spyOn(service, 'getUserByConditions');
         await service.confirmPasswordRecoveryVerificationLink(
@@ -200,7 +200,10 @@ describe('UserService', () => {
         const result = await service.confirmPasswordRecoveryVerificationLink(
           mockPasswordRecoveryVerificationLink
         );
-        expect(result).toEqual(mockUser);
+        expect(result).toEqual({
+          ...mockUser,
+          passwordRecoveryVerificationLink: null,
+        });
       });
     });
     describe('for invalid passwordRecoveryVerificationLink', () => {

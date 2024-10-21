@@ -77,7 +77,8 @@ export class UserService {
     if (!user) {
       throw new BadRequestException('Email verification link is not correct');
     }
-    return user;
+    user.passwordRecoveryVerificationLink = null;
+    return this.userRepository.save(user);
   }
 
   async resetPassword(dto: ResetPasswordDto) {
