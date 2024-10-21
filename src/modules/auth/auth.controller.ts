@@ -25,7 +25,9 @@ import { Provider } from '@user/entities';
 import { ConfigService } from '@nestjs/config';
 import { RecoverPasswordDto } from './dto/recover-password.dto';
 import { UserResponseDto } from '@user/dto';
+import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @NoCache()
 @Controller('auth')
 export class AuthController {
@@ -37,6 +39,16 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @ApiResponse({
+    status: 201,
+    description: 'Register successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Register successful' },
+      },
+    },
+  })
   async register(@Body() dto: RegisterUserDto) {
     await this.authService.register(dto, Provider.PASSWORD);
 
@@ -47,6 +59,16 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @ApiResponse({
+    status: 201,
+    description: 'Login successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Login successful' },
+      },
+    },
+  })
   async login(
     @Body() dto: LoginUserDto,
     @UserAgent() agent: string,
@@ -64,6 +86,16 @@ export class AuthController {
   }
 
   @Get('logout')
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Logout successful' },
+      },
+    },
+  })
   async logout(
     @Cookies(COOKIES.REFRESH_TOKEN) refreshTokenValue: string,
     @Res({ passthrough: true }) res: Response
@@ -86,6 +118,16 @@ export class AuthController {
 
   @Public()
   @Get('refresh-tokens')
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens refreshed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Tokens refreshed successfully' },
+      },
+    },
+  })
   async refreshTokens(
     @Cookies(COOKIES.REFRESH_TOKEN) cookieRefreshToken: string,
     @UserAgent() agent: string,
@@ -108,6 +150,7 @@ export class AuthController {
   @Public()
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('recover-password')
+  @ApiOkResponse({ type: UserResponseDto, description: 'User object' })
   async recoverPassword(@Body() dto: RecoverPasswordDto) {
     const user = await this.authService.recoverPassword(dto);
     return new UserResponseDto(user);
@@ -121,6 +164,20 @@ export class AuthController {
   @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection to the google profile endpoint',
+    headers: {
+      Location: {
+        description: 'The URL to which the user is being redirected',
+        schema: {
+          type: 'string',
+          example:
+            'https://example-api/auth/google/profile?accessToken=accessToken',
+        },
+      },
+    },
+  })
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     const user = req.user as GoogleUserValidateResponse;
     const redirectURI = `${this.configService.getOrThrow<string>('API_URL')}/auth/google/profile?${QUERIES.ACCESS_TOKEN}=${user.accessToken}`;
@@ -129,6 +186,19 @@ export class AuthController {
 
   @Public()
   @Get('google/profile')
+  @ApiResponse({
+    status: 302,
+    description: 'Redirection to client URL',
+    headers: {
+      Location: {
+        description: 'The URL to which the user is being redirected',
+        schema: {
+          type: 'string',
+          example: 'https://example-client.com',
+        },
+      },
+    },
+  })
   async googleProfile(
     @Query(`${QUERIES.ACCESS_TOKEN}`) accessToken: string,
     @UserAgent() agent: string,
