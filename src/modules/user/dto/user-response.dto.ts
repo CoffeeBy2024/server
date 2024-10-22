@@ -2,6 +2,7 @@ import { Provider, User } from '@user/entities';
 import { Exclude } from 'class-transformer';
 import { RegisterUserDto } from '@auth/dto';
 import { Token } from '@auth/entities';
+import { ApiHideProperty } from '@nestjs/swagger';
 
 type UserResponseDtoType = User & RegisterUserDto;
 
@@ -16,9 +17,11 @@ export class UserResponseDto implements UserResponseDtoType {
   passwordRecoveryVerificationLink: string;
 
   @Exclude()
+  @ApiHideProperty()
   password: string;
 
   @Exclude()
+  @ApiHideProperty()
   confirmPassword: string;
 
   tokens: Token[];
