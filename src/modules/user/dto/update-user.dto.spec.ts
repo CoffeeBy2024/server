@@ -1,13 +1,5 @@
 import { validate } from 'class-validator';
-import {
-  // testNegativeDtoPropertyIsNotEmpty,
-  // testNegativeDtoConfirmPasswordNotMatch,
-  // testNegativeDtoPropertyIsNotEmpty,
-  testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
-// import { ResetPasswordDto } from './reset-password.dto';
-// import { mockUser } from '@user/mocks';
-// import { plainToInstance } from 'class-transformer';
+import { testNegativeDtoPropertyIsString } from '@auth/dto/register-user.dto.spec';
 import { UpdateUserDto } from './update-user.dto';
 import { Provider } from '@user/entities';
 import {
