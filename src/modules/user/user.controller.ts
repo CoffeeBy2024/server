@@ -23,7 +23,7 @@ import { UserService } from './user.service';
 import { plainToInstance } from 'class-transformer';
 import { NoCache, Public, User } from '@common/decorators';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
-import { TTLVariables } from 'src/utils/constants/cache';
+import { TTLVariables } from '@common/constants/cache';
 import { invalidateCache } from '@common/utils';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
