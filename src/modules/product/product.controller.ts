@@ -22,6 +22,7 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CATEGORY } from '../../common/enums/category.enum';
 import { Product } from './entities/product.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from '@common/decorators';
 
 @ApiTags('products')
 @Controller('shops/:id/products')
@@ -89,6 +90,7 @@ export class ProductController {
     );
   }
 
+  @Public()
   @Get()
   @ApiQuery({
     name: 'category',
@@ -123,6 +125,7 @@ export class ProductController {
     return this.productService.findAllByCategory(shopCategory.id);
   }
 
+  @Public()
   @Get('/:pid')
   findOne(@Param('pid') id: number) {
     return this.productService.findOneBy(id);

@@ -13,6 +13,7 @@ import { ShopService } from '../shop/shop.service';
 import { WorkingHoursService } from './working_hours.service';
 import { ApiTags } from '@nestjs/swagger';
 import { WorkingHour } from './entities/working_hour.entity';
+import { Public } from '@common/decorators';
 
 @ApiTags('working_hours')
 @Controller('working_hours/:id')
@@ -39,6 +40,7 @@ export class WorkingHoursController {
     });
   }
 
+  @Public()
   @Get()
   findByShop(@Param('id') id: number): Promise<WorkingHour[]> {
     return this.workingHoursService.findAllById(id);

@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { TTLVariables } from '../../utils/constants/cache';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { CATEGORY } from '../../common/enums/category.enum';
+import { Public } from '@common/decorators';
 
 @ApiTags('category')
 @Controller('categories')
@@ -24,11 +25,13 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.categoryService.findAll();
   }
 
+  @Public()
   @Get(':category')
   async findOne(@Param('category') category: CATEGORY) {
     const categoryEntity = await this.categoryService.findOne(category);
