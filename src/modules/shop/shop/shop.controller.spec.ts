@@ -8,15 +8,15 @@ import {
   shopMock,
   shopRepositoryProvider,
   updatedShop,
-} from './mocks/shopProvider';
+} from './mocks';
 import {
   shopCategoryMock,
   shopCategoryRepositoryProvider,
-} from '../shop-category/mocks/shopCategoryProvider';
+} from '../shop-category/mocks';
 import {
   categoryMock,
   categoryRepositoryProvider,
-} from '../../../modules/category/mocks/categoryProvider';
+} from '../../../modules/category/mocks';
 import { CATEGORY } from '../../../common/enums/category.enum';
 import { NotFoundException } from '@nestjs/common';
 import {
@@ -28,7 +28,7 @@ import {
   updatedPhotoMock,
   fileUpdateMock,
   photoDto,
-} from '../../photo/mocks/photoProvider';
+} from '../../photo/mocks';
 import { PhotoService } from '../../photo/photo.service';
 
 describe('Shop Controller', () => {

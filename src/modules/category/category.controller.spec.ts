@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
-import {
-  categoryDto,
-  categoryMock,
-  categoryRepositoryProvider,
-} from './mocks/categoryProvider';
+import { categoryDto, categoryMock, categoryRepositoryProvider } from './mocks';
 import { NotFoundException } from '@nestjs/common';
 import { CATEGORY } from 'src/common/enums/category.enum';
 

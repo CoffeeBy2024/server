@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PhotoController } from './photo.controller';
 import { PhotoService, PhotoType } from './photo.service';
-import { photoDto } from './mocks/photoProvider';
+import { photoDto } from './mocks';
 
 describe('PhotoController', () => {
   let controller: PhotoController;

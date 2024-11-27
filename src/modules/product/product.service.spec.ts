@@ -9,16 +9,16 @@ import {
   productRepositoryProvider,
   updatedProductDto,
   updateProduct,
-} from './mocks/productProvider';
+} from './mocks';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { shopCategoryMock } from '../shop/shop-category/mocks/shopCategoryProvider';
+import { shopCategoryMock } from '../shop/shop-category/mocks';
 import {
   photoDto,
   productPhotoMock as photoMock,
   updatePhotoDto,
   shopPhotoRepositoryProvider,
   productPhotoRepositoryProvider,
-} from '../photo/mocks/photoProvider';
+} from '../photo/mocks';
 import { ProductPhoto as Photo } from '../photo/entities/photo.entity';
 import { PhotoService } from '../photo/photo.service';
 

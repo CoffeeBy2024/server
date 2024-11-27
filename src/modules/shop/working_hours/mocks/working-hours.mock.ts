@@ -1,5 +1,5 @@
 import { WorkingHour } from '../entities/working_hour.entity';
-import { shopMock as shop } from '../../shop/mocks/shopProvider';
+import { shopMock as shop } from '../../shop/mocks';
 import { CreateWorkingHoursDto } from '../dto/create-working_hour.dto';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';

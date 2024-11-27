@@ -8,8 +8,8 @@ import {
   updateWorkingHours,
   workingHoursDto,
   workingHoursRepositoryProvider,
-} from './mocks/workingHoursProvider';
-import { shopMock } from '../shop/mocks/shopProvider';
+} from './mocks';
+import { shopMock } from '../shop/mocks';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 

@@ -8,7 +8,7 @@ import {
   shopMock,
   shopRepositoryProvider,
   updatedShop,
-} from './mocks/shopProvider';
+} from './mocks';
 import { BadRequestException } from '@nestjs/common';
 import {
   photoDto,
@@ -16,7 +16,7 @@ import {
   shopPhotoRepositoryProvider,
   productPhotoRepositoryProvider,
   shopPhotoMock as photoMock,
-} from '../../photo/mocks/photoProvider';
+} from '../../photo/mocks';
 import { PhotoService } from '../../photo/photo.service';
 
 type MockRepository<T extends ObjectLiteral = any> = {

@@ -5,7 +5,7 @@ import {
   productPhotoMock,
   productPhotoRepositoryProvider,
   shopPhotoRepositoryProvider,
-} from './mocks/photoProvider';
+} from './mocks';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ObjectId } from 'mongodb';

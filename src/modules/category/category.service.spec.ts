@@ -4,11 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { CATEGORY } from '../../common/enums/category.enum';
 import { ObjectLiteral, Repository } from 'typeorm';
-import {
-  categoryDto,
-  categoryMock,
-  categoryRepositoryProvider,
-} from './mocks/categoryProvider';
+import { categoryDto, categoryMock, categoryRepositoryProvider } from './mocks';
 import { BadRequestException } from '@nestjs/common';
 
 type MockRepository<T extends ObjectLiteral = any> = {

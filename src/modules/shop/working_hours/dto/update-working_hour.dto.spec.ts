@@ -1,6 +1,6 @@
 import { validate } from 'class-validator';
 import { UpdateWorkingHoursDto } from './update-working_hour.dto';
-import { shopMock } from '../../shop/mocks/shopProvider';
+import { shopMock } from '../../shop/mocks';
 
 describe('UpdateWorkingHoursDto', () => {
   let dto: UpdateWorkingHoursDto;

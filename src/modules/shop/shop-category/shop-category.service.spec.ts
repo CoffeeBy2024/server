@@ -4,13 +4,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ShopCategory } from './entities/shop-category.entity';
 import { Category } from '../../category/entities/category.entity';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { categoryMock } from '../../../modules/category/mocks/categoryProvider';
-import { shopMock } from '../shop/mocks/shopProvider';
+import { categoryMock } from '../../../modules/category/mocks';
+import { shopMock } from '../shop/mocks';
 import {
   createShopCategoryDto,
   shopCategoryMock,
   shopCategoryRepositoryProvider,
-} from './mocks/shopCategoryProvider';
+} from './mocks';
 
 type MockRepository<T extends ObjectLiteral = any> = Partial<
   Record<keyof Repository<T>, jest.Mock>

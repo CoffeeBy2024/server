@@ -1,7 +1,7 @@
 import { validate } from 'class-validator';
 import { CreateShopCategoryDto } from './create-shop-category.dto';
-import { shopMock } from '../../shop/mocks/shopProvider';
-import { categoryMock } from '../../../../modules/category/mocks/categoryProvider';
+import { shopMock } from '../../shop/mocks';
+import { categoryMock } from '../../../../modules/category/mocks';
 
 describe('CreateShopCategoryDto', () => {
   let dto: CreateShopCategoryDto;

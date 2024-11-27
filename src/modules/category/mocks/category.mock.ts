@@ -1,5 +1,5 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { shopCategoryMock } from '../../../modules/shop/shop-category/mocks/shopCategoryProvider';
+import { shopCategoryMock } from '../../../modules/shop/shop-category/mocks';
 import { Category } from '../entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateCategoryDto } from '../dto/create-category.dto';

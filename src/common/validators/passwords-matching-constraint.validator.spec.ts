@@ -1,14 +1,10 @@
 import { ValidationArguments } from 'class-validator';
 import { PasswordsMatchingConstraint } from './passwords-matching-constraint.validator';
-
-const mockPasswordValue = '123123123';
-const mockCorrectConfirmPasswordValue = mockPasswordValue;
-const mockWrongConfirmPasswordValue = '12312';
-const mockValidationArguments: Partial<ValidationArguments> = {
-  object: {
-    password: mockCorrectConfirmPasswordValue,
-  },
-};
+import {
+  mockCorrectConfirmPasswordValue,
+  mockValidationArguments,
+  mockWrongConfirmPasswordValue,
+} from './mocks';
 
 describe('PasswordsMatchingConstraint', () => {
   let constraint: PasswordsMatchingConstraint;

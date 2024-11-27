@@ -175,3 +175,13 @@ export const provideMockMailService = () => ({
   provide: MailService,
   useValue: getMockMailService(),
 });
+
+export const getMockResponse = () => ({
+  cookie: jest.fn(),
+  clearCookie: jest.fn(),
+  redirect: jest.fn(),
+});
+
+export const getMockRequest = () => ({
+  user: mockGoogleUserValidateResponse,
+});

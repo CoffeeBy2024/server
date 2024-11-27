@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GoogleStrategy } from './google.strategy';
 import { ConfigService } from '@nestjs/config';
 import { configServiceProvider } from '@auth/mocks';
-import { Profile } from 'passport-google-oauth20';
-
-const mockGoogleAccessToken = 'mockGoogleAccessToken';
-const mockGoogleRefreshToken = 'mockGoogleRefreshToken';
-const mockGoogleProfile = {} as Profile;
-const mockDone = jest.fn();
+import {
+  mockDone,
+  mockGoogleAccessToken,
+  mockGoogleProfile,
+  mockGoogleRefreshToken,
+} from './mocks';
 
 describe('GoogleStrategy', () => {
   let googleStrategy: GoogleStrategy;
