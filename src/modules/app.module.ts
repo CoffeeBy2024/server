@@ -10,9 +10,16 @@ import { ShopModule } from './shop/shop/shop.module';
 import { ShopCategoryModule } from './shop/shop-category/shop-category.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { UserModule } from '@user/user.module';
+import { AuthModule } from '@auth/auth.module';
+import { SendgridModule } from '@mail/sendgrid/sendgrid.module';
+import { MailModule } from '@mail/mail.module';
+
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
+import { JwtAuthGuard } from '@auth/guards';
+import { CustomCacheInterceptor } from '@common/interceptors';
 import config from 'src/config/dbconfig';
 
 @Module({
@@ -29,6 +36,10 @@ import config from 'src/config/dbconfig';
     ShopCategoryModule,
     ProductModule,
     CategoryModule,
+    UserModule,
+    AuthModule,
+    SendgridModule,
+    MailModule,
     CacheModule.register({
       max: 100,
       ttl: TTLVariables.common,
@@ -37,7 +48,11 @@ import config from 'src/config/dbconfig';
   ],
   providers: [
     AppService,
-    { provide: APP_INTERCEPTOR, useClass: CacheInterceptor },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    { provide: APP_INTERCEPTOR, useClass: CustomCacheInterceptor },
   ],
   controllers: [AppController],
 })

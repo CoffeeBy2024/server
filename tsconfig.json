@@ -16,6 +16,50 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@common": [
+        "src/common"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@auth": [
+        "src/modules/auth"
+      ],
+      "@auth/*": [
+        "src/modules/auth/*"
+      ],
+      "@category": [
+        "src/modules/category"
+      ],
+      "@category/*": [
+        "src/modules/category/*"
+      ],
+      "@mail": [
+        "src/modules/mail"
+      ],
+      "@mail/*": [
+        "src/modules/mail/*"
+      ],
+      "@product": [
+        "src/modules/product"
+      ],
+      "@product/*": [
+        "src/modules/product/*"
+      ],
+      "@shop": [
+        "src/modules/shop"
+      ],
+      "@shop/*": [
+        "src/modules/shop/*"
+      ],
+      "@user": [
+        "src/modules/user"
+      ],
+      "@user/*": [
+        "src/modules/user/*"
+      ],
+    }
   }
 }
