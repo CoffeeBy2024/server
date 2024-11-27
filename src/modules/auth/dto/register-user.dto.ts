@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, Validate } from 'class-validator';
-import { PasswordsMatchingConstraint } from '@common/decorators';
+import { PasswordsMatchingConstraint } from '@common/validators';
 
 export class RegisterUserDto {
   @IsNotEmpty()

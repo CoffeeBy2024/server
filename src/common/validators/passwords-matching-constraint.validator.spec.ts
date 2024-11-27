@@ -1,5 +1,5 @@
 import { ValidationArguments } from 'class-validator';
-import { PasswordsMatchingConstraint } from './passwords-matching-constraint.decorator';
+import { PasswordsMatchingConstraint } from './passwords-matching-constraint.validator';
 
 const mockPasswordValue = '123123123';
 const mockCorrectConfirmPasswordValue = mockPasswordValue;
