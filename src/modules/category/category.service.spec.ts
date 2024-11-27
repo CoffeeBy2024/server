@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryService } from './category.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { CATEGORY } from '../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { categoryDto, categoryMock, categoryRepositoryProvider } from './mocks';
 import { BadRequestException } from '@nestjs/common';

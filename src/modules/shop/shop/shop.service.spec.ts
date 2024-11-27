@@ -16,8 +16,8 @@ import {
   shopPhotoRepositoryProvider,
   productPhotoRepositoryProvider,
   shopPhotoMock as photoMock,
-} from '../../photo/mocks';
-import { PhotoService } from '../../photo/photo.service';
+} from '@photo/mocks';
+import { PhotoService } from '@photo/photo.service';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

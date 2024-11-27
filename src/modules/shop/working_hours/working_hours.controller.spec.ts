@@ -1,14 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { WorkingHoursController } from './working_hours.controller';
 import { WorkingHoursService } from './working_hours.service';
-import { ShopService } from '../shop/shop.service';
-import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
+import { ShopService } from '@shop/shop/shop.service';
+import { UpdateWorkingHoursDto } from './dto';
 
 import {
   shopMock as shop,
   shopMock,
   shopRepositoryProvider,
-} from '../shop/mocks';
+} from '@shop/shop/mocks';
 import {
   mockWorkingHours,
   updateWorkingHours,
@@ -16,11 +16,11 @@ import {
   workingHoursRepositoryProvider,
 } from './mocks';
 import { NotFoundException } from '@nestjs/common';
-import { PhotoService } from '../../photo/photo.service';
+import { PhotoService } from '@photo/photo.service';
 import {
   productPhotoRepositoryProvider,
   shopPhotoRepositoryProvider,
-} from '../../photo/mocks';
+} from '@photo/mocks';
 
 describe('WorkingHoursController', () => {
   let controller: WorkingHoursController;

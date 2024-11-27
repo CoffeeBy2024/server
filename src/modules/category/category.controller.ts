@@ -7,11 +7,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { TTLVariables } from '@common/constants';
 import { CacheTTL } from '@nestjs/cache-manager';
-import { CATEGORY } from '../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 import { Public } from '@common/decorators';
 
 @ApiTags('category')

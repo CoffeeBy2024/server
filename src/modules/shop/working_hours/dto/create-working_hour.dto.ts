@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, Min, Max } from 'class-validator';
-import { IsMilitaryTime } from '../../../../common/validators/is-military-time.validator';
-import { Shop } from '../../shop/entities/shop.entity';
+import { IsMilitaryTime } from '@common/validators';
+import { Shop } from '@shop/shop/entities';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateWorkingHoursDto {

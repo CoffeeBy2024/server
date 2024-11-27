@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from './entities/category.entity';
-import { CATEGORY } from '../../common/enums/category.enum';
+import { Category } from './entities';
+import { CATEGORY } from '@common/enums/category.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()

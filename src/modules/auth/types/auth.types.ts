@@ -1,4 +1,4 @@
-import { User } from '@user/entities/user.entity';
+import { User } from '@user/entities';
 
 export type JWTPayload = {
   sub: number;

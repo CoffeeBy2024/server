@@ -14,14 +14,13 @@ import {
   ParseFilePipeBuilder,
 } from '@nestjs/common';
 
-import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
+import { CreateShopDto, UpdateShopDto } from './dto';
 
 import { ShopService } from './shop.service';
-import { ShopCategoryService } from '../shop-category/shop-category.service';
-import { CategoryService } from '../../category/category.service';
+import { ShopCategoryService } from '@shop/shop-category/shop-category.service';
+import { CategoryService } from '@category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CATEGORY } from '../../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '@common/decorators';
 

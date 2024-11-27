@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Point } from 'typeorm';
-import { WorkingHour } from '../../working_hours/entities/working_hour.entity';
+import { WorkingHour } from '@shop/working_hours/entities';
 
 export class CreateShopDto {
   @IsNotEmpty()

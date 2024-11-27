@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePhotoDto } from './dto/create-photo.dto';
-import { UpdatePhotoDto } from './dto/update-photo.dto';
+import { CreatePhotoDto, UpdatePhotoDto } from './dto';
 import { MongoRepository } from 'typeorm';
 import { ObjectId } from 'mongodb';
-import { ProductPhoto, ShopPhoto } from './entities/photo.entity';
+import { ProductPhoto, ShopPhoto } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export type PhotoType = 'product' | 'shop';

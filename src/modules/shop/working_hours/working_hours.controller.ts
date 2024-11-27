@@ -7,12 +7,11 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
-import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
-import { ShopService } from '../shop/shop.service';
+import { CreateWorkingHoursDto, UpdateWorkingHoursDto } from './dto';
+import { ShopService } from '@shop/shop/shop.service';
 import { WorkingHoursService } from './working_hours.service';
 import { ApiTags } from '@nestjs/swagger';
-import { WorkingHour } from './entities/working_hour.entity';
+import { WorkingHour } from './entities';
 import { Public } from '@common/decorators';
 
 @ApiTags('working_hours')

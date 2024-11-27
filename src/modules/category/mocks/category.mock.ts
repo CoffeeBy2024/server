@@ -1,9 +1,9 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { shopCategoryMock } from '../../../modules/shop/shop-category/mocks';
-import { Category } from '../entities/category.entity';
+import { shopCategoryMock } from '@shop/shop-category/mocks';
+import { Category } from '@category/entities/category.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateCategoryDto } from '../dto/create-category.dto';
-import { CATEGORY } from '../../../common/enums/category.enum';
+import { CreateCategoryDto } from '@category/dto';
+import { CATEGORY } from '@common/enums/category.enum';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

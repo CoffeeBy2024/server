@@ -13,13 +13,12 @@ import {
   ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ShopService } from '../shop/shop/shop.service';
-import { CategoryService } from '../category/category.service';
-import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
+import { CreateProductDto, UpdateProductDto } from './dto';
+import { ShopService } from '@shop/shop/shop.service';
+import { CategoryService } from '@category/category.service';
+import { ShopCategoryService } from '@shop/shop-category/shop-category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CATEGORY } from '../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 import { Product } from './entities/product.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from '@common/decorators';

@@ -1,6 +1,7 @@
 import { validate } from 'class-validator';
 import { CreateCategoryDto } from './create-category.dto';
-import { CATEGORY } from '../../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
+
 describe('CreateCategoryDto', () => {
   let dto: CreateCategoryDto;
 

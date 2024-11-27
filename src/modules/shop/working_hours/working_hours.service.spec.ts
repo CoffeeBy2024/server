@@ -1,4 +1,4 @@
-import { WorkingHour } from './entities/working_hour.entity';
+import { WorkingHour } from './entities';
 import { WorkingHoursService } from './working_hours.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -9,7 +9,7 @@ import {
   workingHoursDto,
   workingHoursRepositoryProvider,
 } from './mocks';
-import { shopMock } from '../shop/mocks';
+import { shopMock } from '@shop/shop/mocks';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 

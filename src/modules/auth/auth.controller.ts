@@ -12,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { RegisterUserDto, LoginUserDto } from './dto';
+import { RegisterUserDto, LoginUserDto, RecoverPasswordDto } from './dto';
 import { AuthService } from './auth.service';
 import { UserAgent, Cookies, Public, NoCache } from '@common/decorators';
 import { Response, Request, CookieOptions } from 'express';
@@ -23,7 +23,6 @@ import { catchError, lastValueFrom, mergeMap, tap } from 'rxjs';
 import { GoogleUserInfo, GoogleUserValidateResponse, TokenBase } from './types';
 import { Provider } from '@user/entities';
 import { ConfigService } from '@nestjs/config';
-import { RecoverPasswordDto } from './dto/recover-password.dto';
 import { UserResponseDto } from '@user/dto';
 import { ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 

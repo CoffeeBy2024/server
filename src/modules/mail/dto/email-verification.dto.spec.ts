@@ -1,6 +1,6 @@
 import { validate } from 'class-validator';
 import { EmailVerificationDto } from './email-verification.dto';
-import { mockVerifyEmailDto } from '@mail/mocks/mail.mock';
+import { mockVerifyEmailDto } from '@mail/mocks';
 import {
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,

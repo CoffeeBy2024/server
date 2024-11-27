@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PhotoService } from './photo.service';
-import { ProductPhoto as Photo } from '../photo/entities/photo.entity';
+import { ProductPhoto as Photo } from '@photo/entities';
 import {
   productPhotoMock,
   productPhotoRepositoryProvider,

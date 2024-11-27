@@ -2,12 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
+import { CreateShopDto, UpdateShopDto } from './dto';
 import { Shop } from './entities/shop.entity';
-import { CreatePhotoDto } from '../../photo/dto/create-photo.dto';
-import { UpdatePhotoDto } from '../../photo/dto/update-photo.dto';
-import { PhotoService, PhotoType } from '../../../modules/photo/photo.service';
+import { CreatePhotoDto, UpdatePhotoDto } from '@photo/dto';
+import { PhotoService, PhotoType } from '@photo/photo.service';
 
 @Injectable()
 export class ShopService {

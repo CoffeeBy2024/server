@@ -3,7 +3,7 @@ import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
 import { categoryDto, categoryMock, categoryRepositoryProvider } from './mocks';
 import { NotFoundException } from '@nestjs/common';
-import { CATEGORY } from 'src/common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 
 describe('CategoryController', () => {
   let controller: CategoryController;

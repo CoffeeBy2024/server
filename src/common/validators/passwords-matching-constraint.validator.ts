@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { RegisterUserDto } from 'src/modules/auth/dto/register-user.dto';
+import { RegisterUserDto } from '@auth/dto/register-user.dto';
 
 @ValidatorConstraint({ name: 'passwordsMatching', async: false })
 export class PasswordsMatchingConstraint
