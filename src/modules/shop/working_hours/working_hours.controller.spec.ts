@@ -16,6 +16,11 @@ import {
   workingHoursRepositoryProvider,
 } from './mocks/workingHoursProvider';
 import { NotFoundException } from '@nestjs/common';
+import { PhotoService } from '../../photo/photo.service';
+import {
+  productPhotoRepositoryProvider,
+  shopPhotoRepositoryProvider,
+} from '../../photo/mocks/photoProvider';
 
 describe('WorkingHoursController', () => {
   let controller: WorkingHoursController;
@@ -28,6 +33,9 @@ describe('WorkingHoursController', () => {
       providers: [
         WorkingHoursService,
         ShopService,
+        PhotoService,
+        shopPhotoRepositoryProvider,
+        productPhotoRepositoryProvider,
         shopRepositoryProvider,
         workingHoursRepositoryProvider,
       ],

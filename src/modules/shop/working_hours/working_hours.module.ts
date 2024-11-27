@@ -5,9 +5,10 @@ import { WorkingHour } from './entities/working_hour.entity';
 import { Shop } from '../shop/entities/shop.entity';
 import { WorkingHoursController } from './working_hours.controller';
 import { ShopService } from '../shop/shop.service';
+import { PhotoModule } from 'src/modules/photo/photo.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([WorkingHour, Shop])],
+  imports: [TypeOrmModule.forFeature([WorkingHour, Shop]), PhotoModule],
   controllers: [WorkingHoursController],
   providers: [WorkingHoursService, ShopService],
 })

@@ -20,18 +20,17 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TTLVariables } from 'src/utils/constants/cache';
 import { JwtAuthGuard } from '@auth/guards';
 import { CustomCacheInterceptor } from '@common/interceptors';
+import config from 'src/config/dbconfig';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      entities: ['dist/**/*.entity{.ts,.js}'],
-      migrations: ['migrations/**/*.ts'],
-      autoLoadEntities: true,
-      synchronize: false,
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      load: [config],
+      isGlobal: true,
     }),
+    TypeOrmModule.forRoot({ ...config().postgres }),
+    TypeOrmModule.forRoot({ ...config().mongodb }),
     WorkingHoursModule,
     ShopModule,
     ShopCategoryModule,

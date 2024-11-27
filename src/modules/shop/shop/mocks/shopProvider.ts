@@ -2,6 +2,7 @@ import { ObjectLiteral, Repository } from 'typeorm';
 import { Shop } from '../entities/shop.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateShopDto } from '../dto/create-shop.dto';
+import { shopPhotoMock as photoMock } from '../../../../modules/photo/mocks/photoProvider';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
@@ -17,15 +18,7 @@ const createMockRepository = <
     ),
   save: jest.fn().mockImplementation((shop) => Promise.resolve(shop)),
   find: jest.fn(),
-  findOneBy: jest.fn(({ id }) => {
-    return {
-      id: id,
-      coordinates: { type: 'Point', coordinates: [31, 32] },
-      name: 'Starbucks',
-      working_hours: [],
-      shopCategories: [],
-    };
-  }),
+  findOneBy: jest.fn(({ id }) => ({ ...shopMock, id: id })),
   update: jest.fn(),
   delete: jest.fn().mockImplementation(() => ({ affected: 1 })),
 });
@@ -45,6 +38,7 @@ const shopMock: Shop = {
   id: 1,
   coordinates: { type: 'Point', coordinates: [31, 32] },
   name: 'Starbucks',
+  photo: photoMock._id.toString(),
   working_hours: [],
   shopCategories: [],
 };
