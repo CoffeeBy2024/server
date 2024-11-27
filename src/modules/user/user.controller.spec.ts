@@ -30,7 +30,7 @@ import { ConfigService } from '@nestjs/config';
 const commonTTLValue = 111;
 jest.mock('bcrypt');
 jest.mock('@common/utils');
-jest.mock('src/utils/constants/cache', () => {
+jest.mock('@common/constants/cache', () => {
   return {
     TTLVariables: {
       common: 111,
