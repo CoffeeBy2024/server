@@ -28,11 +28,15 @@ describe('GoogleStrategy', () => {
   });
 
   describe('constructor', () => {
-    it('should call configService.get method', () => {
-      expect(configService.get).toHaveBeenCalledTimes(3);
-      expect(configService.get).toHaveBeenCalledWith('GOOGLE_CLIENT_ID');
-      expect(configService.get).toHaveBeenCalledWith('GOOGLE_CLIENT_SECRET');
-      expect(configService.get).toHaveBeenCalledWith('GOOGLE_REDIRECT_URL');
+    it('should call configService.getOrThrow method', () => {
+      expect(configService.getOrThrow).toHaveBeenCalledTimes(3);
+      expect(configService.getOrThrow).toHaveBeenCalledWith('GOOGLE_CLIENT_ID');
+      expect(configService.getOrThrow).toHaveBeenCalledWith(
+        'GOOGLE_CLIENT_SECRET'
+      );
+      expect(configService.getOrThrow).toHaveBeenCalledWith(
+        'GOOGLE_REDIRECT_URL'
+      );
     });
   });
 

@@ -1,3 +1,5 @@
+import { User } from '@user/entities/user.entity';
+
 export type JWTPayload = {
   sub: number;
   iat: number;
@@ -30,3 +32,5 @@ export type TokenBase = {
   value: string;
   expiresAt: Date;
 };
+
+export type RequestUser = User;

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
@@ -16,6 +17,8 @@ import { ConfigService } from '@nestjs/config';
 import { Provider, User } from '@user/entities';
 import { GoogleAuthUserInfo } from './types';
 import { CreateUserDto } from '@user/dto';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
+import { MailService } from '@mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +27,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(Token)
-    private readonly tokenRepository: Repository<Token>
+    private readonly tokenRepository: Repository<Token>,
+    private readonly mailService: MailService
   ) {}
 
   async register(dto: RegisterUserDto, provider: Provider) {
@@ -44,6 +48,7 @@ export class AuthService {
       emailVerified,
       emailVerificationLink,
     });
+    this.mailService.verifyEmail({ email: dto.email, emailVerificationLink });
     return this.userService.createUser(createUserDto);
   }
 
@@ -119,7 +124,7 @@ export class AuthService {
         sub: id,
       }),
       expiresAt: this.getTokenExpiresAt(
-        this.configService.getOrThrow('JWT_ACCESS_EXP')
+        this.configService.getOrThrow<string>('JWT_ACCESS_EXP')
       ),
     };
   }
@@ -134,7 +139,7 @@ export class AuthService {
     if (token) {
       token.value = v4();
       token.expiresAt = this.getTokenExpiresAt(
-        this.configService.getOrThrow('JWT_REFRESH_EXP')
+        this.configService.getOrThrow<string>('JWT_REFRESH_EXP')
       );
       await this.tokenRepository.save(token);
       return token;
@@ -143,7 +148,7 @@ export class AuthService {
       this.tokenRepository.create({
         value: v4(),
         expiresAt: this.getTokenExpiresAt(
-          this.configService.getOrThrow('JWT_REFRESH_EXP')
+          this.configService.getOrThrow<string>('JWT_REFRESH_EXP')
         ),
         userAgent: agent,
         user: user,
@@ -151,6 +156,35 @@ export class AuthService {
     );
 
     return newToken;
+  }
+
+  async recoverPassword(dto: RecoverPasswordDto) {
+    const { email } = dto;
+
+    const user = await this.userService.getUserByConditions({ email });
+
+    if (!user) {
+      throw new NotFoundException(`User with ${email} email not found`);
+    }
+
+    if (user.provider === Provider.GOOGLE) {
+      return user;
+    }
+
+    const passwordRecoveryVerificationLink = v4();
+
+    await this.userService.updateUser(
+      {
+        passwordRecoveryVerificationLink,
+      },
+      user.id
+    );
+
+    this.mailService.verifyPasswordRecovery({
+      email,
+      passwordRecoveryVerificationLink,
+    });
+    return user;
   }
 
   private getTokenExpiresAt(timeToAlive: string) {

@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 const httpModuleOptions = (
   configService: ConfigService
 ): HttpModuleOptions => ({
-  timeout: configService.get('HTTP_TIMEOUT'),
-  maxRedirects: configService.get('HTTP_MAX_REDIRECTS'),
+  timeout: configService.getOrThrow<number>('HTTP_TIMEOUT'),
+  maxRedirects: configService.getOrThrow<number>('HTTP_MAX_REDIRECTS'),
 });
 
 export const httpModuleAsyncOptions = (): HttpModuleAsyncOptions => ({

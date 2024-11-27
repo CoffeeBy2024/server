@@ -10,11 +10,13 @@ import { httpModuleAsyncOptions, jwtModuleAsyncOptions } from './config';
 import { ConfigModule } from '@nestjs/config';
 import { STRATEGIES } from './strategies';
 import { HttpModule } from '@nestjs/axios';
+import { MailModule } from '@mail/mail.module';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
+    MailModule,
     ConfigModule,
     JwtModule.registerAsync(jwtModuleAsyncOptions()),
     TypeOrmModule.forFeature([Token]),

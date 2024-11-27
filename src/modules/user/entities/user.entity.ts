@@ -35,8 +35,8 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   emailVerificationLink: string | null;
 
-  @Column('jsonb', { nullable: true })
-  location: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  passwordRecoveryVerificationLink: string | null;
 
   @OneToMany(() => Token, (token) => token.user)
   tokens: Token[];

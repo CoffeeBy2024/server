@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { EmailVerificationDto } from './dto';
+import { EmailVerificationDto, PasswordRecoveryVerificationDto } from './dto';
 import { SendgridService } from './sendgrid/sendgrid.service';
 import { ConfigService } from '@nestjs/config';
+import { MailDataRequired } from '@sendgrid/mail';
+import { MAIL_DATA, MAIL_ORGANIZATION_NAME } from './constants';
 
 @Injectable()
 export class MailService {
@@ -11,27 +13,70 @@ export class MailService {
   ) {}
 
   async verifyEmail(dto: EmailVerificationDto) {
-    const emailVerificationLink = `${this.configService.get<string>('API_URL')}/user/verify-email/${dto.emailVerificationLink}`;
+    const subject = MAIL_DATA.verifyEmail.subject;
+    const to = dto.email;
+    const html = this.getVerifyEmailTemplate(dto.emailVerificationLink);
+    const mail = this.getMailData({ to, subject, html });
 
-    const html = `
-      <div>
-        <h1>For email verification click on button</h1>
-        <button>
-          <a href=${emailVerificationLink}>Verify email!</a>
-        </button>
-      </div>
-    `;
+    return await this.sendgridService.send(mail as MailDataRequired);
+  }
 
-    const mail = {
-      to: dto.email,
-      subject: 'Verify your email on CoffeeBy',
+  async verifyPasswordRecovery(dto: PasswordRecoveryVerificationDto) {
+    const subject = MAIL_DATA.verifyPasswordRecovery.subject;
+    const to = dto.email;
+    const html = this.getVerifyPasswordRecoveryTemplate(
+      dto.passwordRecoveryVerificationLink
+    );
+    const mail = this.getMailData({ to, subject, html });
+
+    return await this.sendgridService.send(mail as MailDataRequired);
+  }
+
+  private getMailData({
+    to,
+    subject,
+    html,
+  }: Pick<MailDataRequired, 'to' | 'subject' | 'html'>) {
+    return {
+      to,
+      subject,
       from: {
-        name: 'CoffeeBy',
-        email: this.configService.get('SENDGRID_EMAIL_FROM'),
+        name: MAIL_ORGANIZATION_NAME.value,
+        email: this.configService.getOrThrow<string>('SENDGRID_EMAIL_FROM'),
       },
-      html: html,
+      html,
     };
+  }
 
-    return await this.sendgridService.send(mail);
+  private getVerifyEmailTemplate(emailVerificationLink: string) {
+    const emailVerificationURL = `${this.configService.getOrThrow<string>('API_URL')}/user/verify-email/${emailVerificationLink}`;
+    const { title, btnText } = MAIL_DATA.verifyEmail;
+
+    return this.createHtmlTemplate(title, btnText, emailVerificationURL);
+  }
+
+  private getVerifyPasswordRecoveryTemplate(
+    passwordRecoveryVerificationLink: string
+  ) {
+    const passwordRecoveryVerificationURL = `${this.configService.getOrThrow<string>('API_URL')}/user/recover-password/${passwordRecoveryVerificationLink}`;
+    const { title, btnText } = MAIL_DATA.verifyPasswordRecovery;
+
+    return this.createHtmlTemplate(
+      title,
+      btnText,
+      passwordRecoveryVerificationURL
+    );
+  }
+
+  private createHtmlTemplate(title: string, btnText: string, url: string) {
+    const template = `
+  <div>
+    <h1>${title}</h1>
+    <button>
+      <a href="${url}">${btnText}</a>
+    </button>
+  </div>
+    `.trim();
+    return template;
   }
 }

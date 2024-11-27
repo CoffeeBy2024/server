@@ -2,10 +2,11 @@ import { RegisterUserDto } from '@auth/dto';
 import { PickType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class EmailVerificationDto extends PickType(RegisterUserDto, [
-  'email',
+export class ResetPasswordByTokenDto extends PickType(RegisterUserDto, [
+  'password',
+  'confirmPassword',
 ] as const) {
-  @IsNotEmpty()
   @IsString()
-  emailVerificationLink: string;
+  @IsNotEmpty()
+  currentPassword: string;
 }

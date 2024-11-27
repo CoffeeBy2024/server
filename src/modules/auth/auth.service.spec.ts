@@ -13,6 +13,7 @@ import { Provider } from '@user/entities';
 import {
   BadRequestException,
   ConflictException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
@@ -32,8 +33,12 @@ import {
   mockAccessToken,
   mockRefreshToken,
   mockTokensResult,
+  provideMockMailService,
+  MockMailServiceType,
 } from './mocks';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '@mail/mail.service';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
 
 jest.mock('uuid');
 jest.mock('bcrypt');
@@ -50,6 +55,7 @@ describe('AuthService', () => {
   let userService: UserService;
   let tokenRepository: MockRepository<Token>;
   let configService: ConfigService;
+  let mailService: MockMailServiceType;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -60,6 +66,7 @@ describe('AuthService', () => {
         configServiceProvider(),
         tokenRepositoryProvider(),
         jwtServiceProvider(),
+        provideMockMailService(),
       ],
     }).compile();
 
@@ -69,6 +76,7 @@ describe('AuthService', () => {
       getRepositoryToken(Token)
     );
     configService = module.get<ConfigService>(ConfigService);
+    mailService = module.get<MockMailServiceType>(MailService);
 
     jest.spyOn(Date, 'now').mockReturnValue(mockNow);
   });
@@ -78,6 +86,7 @@ describe('AuthService', () => {
     expect(userService).toBeDefined();
     expect(tokenRepository).toBeDefined();
     expect(configService).toBeDefined();
+    expect(mailService).toBeDefined();
   });
 
   describe('register', () => {
@@ -117,6 +126,18 @@ describe('AuthService', () => {
 
         expect(createUser).toHaveBeenCalledTimes(1);
         expect(createUser).toHaveBeenCalledWith(mockCreateUserDto);
+      });
+
+      it('should call mailService.verifyEmail method', async () => {
+        const mockV4 = 'mock-v4';
+        (v4 as jest.Mock).mockReturnValueOnce(mockV4);
+        const spyMethod = jest.spyOn(mailService, 'verifyEmail');
+        await service.register(mockRegisterUserDto, mockProvider);
+        expect(spyMethod).toHaveBeenCalledTimes(1);
+        expect(spyMethod).toHaveBeenCalledWith({
+          email: mockRegisterUserDto.email,
+          emailVerificationLink: mockV4,
+        });
       });
 
       it('should return created user', async () => {
@@ -380,6 +401,67 @@ describe('AuthService', () => {
         accessToken: mockAccessToken,
         refreshToken: mockRefreshToken,
       });
+    });
+  });
+
+  describe('recoverPassword', () => {
+    const mockRecoverPasswordDto: RecoverPasswordDto = {
+      email: 'antonio-banderas',
+    };
+    it('should call userService.getUserByConditions method', async () => {
+      const spyMethod = jest.spyOn(userService, 'getUserByConditions');
+      await service.recoverPassword(mockRecoverPasswordDto);
+      expect(spyMethod).toHaveBeenCalledTimes(2);
+      expect(spyMethod).toHaveBeenCalledWith({
+        email: mockRecoverPasswordDto.email,
+      });
+    });
+    it('if no user found should throw NotFoundException with expected message', async () => {
+      jest.spyOn(userService, 'getUserByConditions').mockResolvedValue(null);
+      try {
+        await service.recoverPassword(mockRecoverPasswordDto);
+        expect(true).toBeFalsy();
+      } catch (err) {
+        expect(err).toBeInstanceOf(NotFoundException);
+        expect(err.message).toBe(
+          `User with ${mockRecoverPasswordDto.email} email not found`
+        );
+      }
+    });
+    it('for google user should return user', async () => {
+      jest
+        .spyOn(userService, 'getUserByConditions')
+        .mockResolvedValue(mockUserGoogle);
+      const result = await service.recoverPassword(mockRecoverPasswordDto);
+      expect(result).toEqual(mockUserGoogle);
+    });
+    it('should call userService.updateUser method', async () => {
+      const mockV4 = 'mock-v4';
+      (v4 as jest.Mock).mockReturnValue(mockV4);
+      const spyMethod = jest.spyOn(userService, 'updateUser');
+      await service.recoverPassword(mockRecoverPasswordDto);
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+      expect(spyMethod).toHaveBeenCalledWith(
+        {
+          passwordRecoveryVerificationLink: mockV4,
+        },
+        mockUser.id
+      );
+    });
+    it('should call mailService.verifyPasswordRecovery method', async () => {
+      const mockV4 = 'mock-v4';
+      (v4 as jest.Mock).mockReturnValue(mockV4);
+      const spyMethod = jest.spyOn(mailService, 'verifyPasswordRecovery');
+      await service.recoverPassword(mockRecoverPasswordDto);
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+      expect(spyMethod).toHaveBeenCalledWith({
+        email: mockRecoverPasswordDto.email,
+        passwordRecoveryVerificationLink: mockV4,
+      });
+    });
+    it('should return user', async () => {
+      const result = await service.recoverPassword(mockRecoverPasswordDto);
+      expect(result).toEqual(mockUser);
     });
   });
 });

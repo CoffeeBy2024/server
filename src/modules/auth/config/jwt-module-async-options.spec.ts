@@ -21,13 +21,13 @@ describe('jwtModuleAsyncOptions', () => {
     expect(asyncOptions.inject).toEqual([ConfigService]);
   });
 
-  it('should call configService.get method', async () => {
+  it('should call configService.getOrThrow method', async () => {
     const options = jwtModuleAsyncOptions();
     await options.useFactory?.(configService);
 
-    expect(configService.get).toHaveBeenCalledTimes(2);
-    expect(configService.get).toHaveBeenCalledWith('JWT_ACCESS_SECRET');
-    expect(configService.get).toHaveBeenCalledWith('JWT_ACCESS_EXP');
+    expect(configService.getOrThrow).toHaveBeenCalledTimes(2);
+    expect(configService.getOrThrow).toHaveBeenCalledWith('JWT_ACCESS_SECRET');
+    expect(configService.getOrThrow).toHaveBeenCalledWith('JWT_ACCESS_EXP');
   });
 
   it('should return correct factory', async () => {
@@ -36,9 +36,9 @@ describe('jwtModuleAsyncOptions', () => {
     const factoryResult = await asyncOptions.useFactory?.(configService);
 
     expect(factoryResult).toEqual({
-      secret: configService.get('JWT_ACCESS_SECRET'),
+      secret: configService.getOrThrow('JWT_ACCESS_SECRET'),
       signOptions: {
-        expiresIn: configService.get('JWT_ACCESS_EXP'),
+        expiresIn: configService.getOrThrow('JWT_ACCESS_EXP'),
       },
     });
   });

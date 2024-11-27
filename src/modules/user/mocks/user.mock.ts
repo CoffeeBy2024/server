@@ -26,7 +26,7 @@ export const mockUser: User = {
   provider: passwordDto.provider,
   emailVerified: passwordDto.emailVerified,
   emailVerificationLink: passwordDto.emailVerificationLink as string,
-  location: null,
+  passwordRecoveryVerificationLink: null,
   tokens: [],
 };
 
@@ -47,13 +47,12 @@ export const mockUserGoogle: User = {
   provider: googleDto.provider,
   emailVerified: googleDto.emailVerified,
   emailVerificationLink: null,
-  location: null,
+  passwordRecoveryVerificationLink: null,
   tokens: [],
 };
 
 export const updateUserDto: UpdateUserDto = {
   firstName: 'Bob',
-  password: 'newOne',
 };
 
 export const userArr: User[] = [
@@ -66,7 +65,7 @@ export const userBase = {
   lastName: null,
   password: null,
   emailVerificationLink: null,
-  location: null,
+  passwordRecoveryVerificationLink: null,
   tokens: [],
 };
 
@@ -80,7 +79,10 @@ export const createMockRepository = <
   findOne: jest.fn().mockResolvedValue(mockUser),
   findOneBy: jest.fn().mockResolvedValue(mockUser),
   create: jest.fn().mockImplementation((dto) => {
-    return { ...userBase, ...dto, password: dto.password || null };
+    const passwordRecoveryVerificationLink =
+      dto.passwordRecoveryVerificationLink ||
+      userBase.passwordRecoveryVerificationLink;
+    return { ...userBase, ...dto, passwordRecoveryVerificationLink };
   }),
   save: jest.fn().mockImplementation((user) => Promise.resolve(user)),
   find: jest.fn().mockResolvedValue(userArr),
