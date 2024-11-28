@@ -5,7 +5,7 @@ import {
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
+} from '@common/mocks';
 
 describe('EmailVerificationDto', () => {
   let dto: EmailVerificationDto;

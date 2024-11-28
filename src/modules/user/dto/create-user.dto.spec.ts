@@ -2,60 +2,13 @@ import { passwordDto } from '@user/mocks';
 import { validate } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 import {
+  testNegativeDtoPropertyIsBoolean,
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,
+  testNegativeDtoPropertyIsNotEnum,
   testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
-
-export const testNegativeDtoPropertyIsBoolean = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: 123 });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isBoolean).toBeDefined();
-};
-
-export const testNegativeDtoPropertyIsNotEnum = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: 123 });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isEnum).toBeDefined();
-};
-
-export const testPositiveDtoPropertyIsOptional = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: undefined });
-  const errors = await validate(dto);
-  expect(errors.length).toBe(0);
-};
+  testPositiveDtoPropertyIsOptional,
+} from '@common/mocks';
 
 describe('CreateUserDto', () => {
   let dto: CreateUserDto;

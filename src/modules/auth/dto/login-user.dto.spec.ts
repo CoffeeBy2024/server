@@ -1,11 +1,11 @@
 import { validate } from 'class-validator';
+import { LoginUserDto } from './login-user.dto';
+import { mockLoginUserDto } from '@auth/mocks';
 import {
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
-} from './register-user.dto.spec';
-import { LoginUserDto } from './login-user.dto';
-import { mockLoginUserDto } from '@auth/mocks';
+} from '@common/mocks';
 
 describe('LoginUserDto', () => {
   let dto: LoginUserDto;

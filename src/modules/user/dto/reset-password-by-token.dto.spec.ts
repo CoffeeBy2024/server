@@ -4,7 +4,7 @@ import {
   testNegativeDtoConfirmPasswordNotMatch,
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
+} from '@common/mocks';
 
 describe('ResetPasswordByTokenDto', () => {
   let dto: ResetPasswordByTokenDto;
