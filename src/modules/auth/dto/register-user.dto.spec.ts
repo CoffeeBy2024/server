@@ -34,11 +34,6 @@ describe('RegisterUserDto', () => {
           () => dto,
           mockRegisterUserDto
         );
-        // const dto = getDto();
-        // Object.assign(dto, mockDto, { email: '' });
-        // const errors = await validate(dto);
-        // expect(errors.length).toBeGreaterThan(0);
-        // expect(errors[0].constraints?.isNotEmpty).toBeDefined();
       });
       it('should fail if email is invalid', async () => {
         await testNegativeDtoPropertyIsEmail<'email'>(
@@ -46,11 +41,6 @@ describe('RegisterUserDto', () => {
           () => dto,
           mockRegisterUserDto
         );
-        // const dto = getDto();
-        // Object.assign(dto, mockDto, { email: 'invalid-email' });
-        // const errors = await validate(dto);
-        // expect(errors.length).toBeGreaterThan(0);
-        // expect(errors[0].constraints?.isEmail).toBeDefined();
       });
     });
     describe('password', () => {

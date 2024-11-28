@@ -7,7 +7,7 @@ export type JWTPayload = {
 };
 
 export type GoogleUserInfo = {
-  sub: string; // Google user ID
+  sub: string;
   name: string;
   given_name: string;
   family_name: string;

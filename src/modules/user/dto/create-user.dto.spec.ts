@@ -112,7 +112,6 @@ describe('CreateUserDto', () => {
           { firstName?: string }
         >('firstName', () => dto, passwordDto);
       });
-      // testNegativeRegisterUserDtoFirstName(() => dto, passwordDto);
     });
     describe('lastName', () => {
       it('should fail if lastName is not string', async () => {

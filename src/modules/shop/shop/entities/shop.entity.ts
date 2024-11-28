@@ -30,8 +30,4 @@ export class Shop {
 
   @OneToMany(() => ShopCategory, (shopCategory) => shopCategory.shop)
   shopCategories: ShopCategory[];
-
-  // User: Producer Role
-  // @ManyToOne(() => User, (user) => user.shops)
-  // user: User;
 }

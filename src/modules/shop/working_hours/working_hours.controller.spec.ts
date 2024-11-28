@@ -80,7 +80,7 @@ describe('WorkingHoursController', () => {
 
       try {
         await controller.create(shopMock.id, workingHoursDto);
-        expect(false).toBeTruthy(); // we should never hit this line
+        expect(false).toBeTruthy();
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);
@@ -116,7 +116,7 @@ describe('WorkingHoursController', () => {
 
       try {
         await controller.update(shopMock.id, updateWorkingHours);
-        expect(false).toBeTruthy(); // we should never hit this line
+        expect(false).toBeTruthy();
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);

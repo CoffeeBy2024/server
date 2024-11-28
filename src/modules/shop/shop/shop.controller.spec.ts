@@ -131,7 +131,7 @@ describe('Shop Controller', () => {
             CATEGORY['coffee'],
             'Starbucks'
           );
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(Error);
           expect(err.message).toEqual(
@@ -147,7 +147,7 @@ describe('Shop Controller', () => {
 
         try {
           await controller.getCategorySelection(nonExistingCategory);
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(
@@ -166,7 +166,7 @@ describe('Shop Controller', () => {
 
         try {
           await controller.getCategorySelection(category);
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(

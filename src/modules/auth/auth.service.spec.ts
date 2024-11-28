@@ -258,7 +258,6 @@ describe('AuthService', () => {
         (v4 as jest.Mock).mockReturnValue(mockRefreshToken.value);
 
         const result = await service.refreshTokens(
-          // mockToken.value,
           mockRefreshToken.value,
           mockAgents.POSTMAN
         );
