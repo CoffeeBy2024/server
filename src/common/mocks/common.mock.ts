@@ -67,7 +67,9 @@ export const testNegativeDtoConfirmPasswordNotMatch = async <
   });
   const errors = await validate(dto);
   expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0].constraints?.passwordsMatching).toBeDefined();
+  expect(errors[0].constraints?.arePasswordsMatches).toBe(
+    "Passwords don't match"
+  );
 };
 
 export const testNegativeDtoPropertyIsBoolean = async <
