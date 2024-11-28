@@ -15,9 +15,9 @@ describe('JWTStrategy', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JWTStrategy,
-        configServiceProvider(),
+        configServiceProvider,
         UserService,
-        userRepositoryProvider(),
+        userRepositoryProvider,
       ],
     }).compile();
 

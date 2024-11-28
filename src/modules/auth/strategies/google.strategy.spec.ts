@@ -15,7 +15,7 @@ describe('GoogleStrategy', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GoogleStrategy, configServiceProvider()],
+      providers: [GoogleStrategy, configServiceProvider],
     }).compile();
 
     googleStrategy = module.get<GoogleStrategy>(GoogleStrategy);

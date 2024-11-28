@@ -33,8 +33,8 @@ import {
   mockAccessToken,
   mockRefreshToken,
   mockTokensResult,
-  provideMockMailService,
   MockMailServiceType,
+  MockMailServiceProvider,
 } from './mocks';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@mail/mail.service';
@@ -62,11 +62,11 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         UserService,
-        userRepositoryProvider(),
-        configServiceProvider(),
-        tokenRepositoryProvider(),
-        jwtServiceProvider(),
-        provideMockMailService(),
+        userRepositoryProvider,
+        configServiceProvider,
+        tokenRepositoryProvider,
+        jwtServiceProvider,
+        MockMailServiceProvider,
       ],
     }).compile();
 

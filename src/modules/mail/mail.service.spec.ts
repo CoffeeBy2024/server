@@ -22,7 +22,7 @@ describe('MailService', () => {
         MailService,
         SendgridService,
         sendgridMailServiceProvider,
-        configServiceProvider(),
+        configServiceProvider,
       ],
     }).compile();
 

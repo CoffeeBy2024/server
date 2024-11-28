@@ -21,5 +21,5 @@ export const createMockMailService = (): mockMailServiceType => ({
 
 export const sendgridMailServiceProvider = {
   provide: MailService,
-  useValue: createMockMailService(),
+  useFactory: createMockMailService,
 };
