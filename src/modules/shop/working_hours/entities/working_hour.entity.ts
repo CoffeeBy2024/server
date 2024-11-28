@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Shop } from '../../shop/entities/shop.entity';
+import { Shop } from '@shop/shop/entities/shop.entity';
 
 @Entity('working_hour')
 export class WorkingHour {

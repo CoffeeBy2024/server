@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShopCategoryService } from './shop-category.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ShopCategory } from './entities/shop-category.entity';
-import { Category } from '../../category/entities/category.entity';
+import { ShopCategory } from './entities';
+import { Category } from '@category/entities';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { categoryMock } from '../../../modules/category/mocks/categoryProvider';
-import { shopMock } from '../shop/mocks/shopProvider';
+import { categoryMock } from '@category/mocks';
+import { shopMock } from '@shop/shop/mocks';
 import {
   createShopCategoryDto,
   shopCategoryMock,
   shopCategoryRepositoryProvider,
-} from './mocks/shopCategoryProvider';
+} from './mocks';
 
 type MockRepository<T extends ObjectLiteral = any> = Partial<
   Record<keyof Repository<T>, jest.Mock>

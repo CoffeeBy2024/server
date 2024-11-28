@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { TimeDto } from './dto/time.dto'; // Adjust the import path as necessary
+import { TimeDto } from './dto';
 
 describe('IsMilitaryTime Validator', () => {
   let dto: TimeDto;

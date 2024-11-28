@@ -1,30 +1,13 @@
 import { validate } from 'class-validator';
-import {
-  testNegativeDtoConfirmPasswordNotMatch,
-  testNegativeDtoPropertyIsNotEmpty,
-  testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
 import { ResetPasswordByRecoverLinkDto } from './reset-password-by-recover-link.dto';
 import { mockUser } from '@user/mocks';
 import { plainToInstance } from 'class-transformer';
-import { testNegativeDtoPropertyIsNumber } from './find-user.dto.spec';
-
-export const testNegativeDtoPropertyTransformToNumber = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: 'abc' });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isNumber).toBeDefined();
-};
+import {
+  testNegativeDtoConfirmPasswordNotMatch,
+  testNegativeDtoPropertyIsNotEmpty,
+  testNegativeDtoPropertyIsNumber,
+  testNegativeDtoPropertyIsString,
+} from '@common/mocks';
 
 describe('ResetPasswordByRecoverLinkDto', () => {
   let dto: ResetPasswordByRecoverLinkDto;

@@ -1,23 +1,20 @@
 import { Test } from '@nestjs/testing';
 import { ShopController } from './shop.controller';
 import { ShopService } from './shop.service';
-import { ShopCategoryService } from '../shop-category/shop-category.service';
-import { CategoryService } from '../../../modules/category/category.service';
+import { ShopCategoryService } from '@shop/shop-category/shop-category.service';
+import { CategoryService } from '@category/category.service';
 import {
   shopDto,
   shopMock,
   shopRepositoryProvider,
   updatedShop,
-} from './mocks/shopProvider';
+} from './mocks';
 import {
   shopCategoryMock,
   shopCategoryRepositoryProvider,
-} from '../shop-category/mocks/shopCategoryProvider';
-import {
-  categoryMock,
-  categoryRepositoryProvider,
-} from '../../../modules/category/mocks/categoryProvider';
-import { CATEGORY } from '../../../common/enums/category.enum';
+} from '@shop/shop-category/mocks';
+import { categoryMock, categoryRepositoryProvider } from '@category/mocks';
+import { CATEGORY } from '@common/enums';
 import { NotFoundException } from '@nestjs/common';
 import {
   fileMock,
@@ -28,8 +25,8 @@ import {
   updatedPhotoMock,
   fileUpdateMock,
   photoDto,
-} from '../../photo/mocks/photoProvider';
-import { PhotoService } from '../../photo/photo.service';
+} from '@photo/mocks';
+import { PhotoService } from '@photo/photo.service';
 
 describe('Shop Controller', () => {
   let controller: ShopController;
@@ -134,7 +131,7 @@ describe('Shop Controller', () => {
             CATEGORY['coffee'],
             'Starbucks'
           );
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(Error);
           expect(err.message).toEqual(
@@ -150,7 +147,7 @@ describe('Shop Controller', () => {
 
         try {
           await controller.getCategorySelection(nonExistingCategory);
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(
@@ -169,7 +166,7 @@ describe('Shop Controller', () => {
 
         try {
           await controller.getCategorySelection(category);
-          expect(false).toBeTruthy(); // we should never hit this line
+          expect(false).toBeTruthy();
         } catch (err) {
           expect(err).toBeInstanceOf(NotFoundException);
           expect(err.message).toEqual(

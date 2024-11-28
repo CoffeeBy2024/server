@@ -4,7 +4,7 @@ import {
   testNegativeDtoConfirmPasswordNotMatch,
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
+} from '@common/mocks';
 
 describe('ResetPasswordByTokenDto', () => {
   let dto: ResetPasswordByTokenDto;
@@ -76,12 +76,6 @@ describe('ResetPasswordByTokenDto', () => {
           () => dto,
           mockResetPasswordByTokenDto
         );
-        // Object.assign(dto, mockRegisterUserDto, {
-        //   confirmPassword: 'differentPassword',
-        // });
-        // const errors = await validate(dto);
-        // expect(errors.length).toBeGreaterThan(0);
-        // expect(errors[0].constraints?.passwordsMatching).toBeDefined();
       });
       it('should fail if confirmPassword is not string', async () => {
         await testNegativeDtoPropertyIsString<'confirmPassword'>(

@@ -9,7 +9,7 @@ describe('jwtModuleAsyncOptions', () => {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [configServiceProvider()],
+      providers: [configServiceProvider],
     }).compile();
 
     configService = module.get<ConfigService>(ConfigService);

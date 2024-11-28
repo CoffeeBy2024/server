@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '@user/user.service';
-import { RegisterUserDto, LoginUserDto } from './dto';
+import { RegisterUserDto, LoginUserDto, RecoverPasswordDto } from './dto';
 import { compareSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { Provider, User } from '@user/entities';
 import { GoogleAuthUserInfo } from './types';
 import { CreateUserDto } from '@user/dto';
-import { RecoverPasswordDto } from './dto/recover-password.dto';
 import { MailService } from '@mail/mail.service';
 
 @Injectable()

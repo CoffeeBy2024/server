@@ -14,15 +14,15 @@ import {
   ParseFilePipeBuilder,
 } from '@nestjs/common';
 
-import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
+import { CreateShopDto, UpdateShopDto } from './dto';
 
 import { ShopService } from './shop.service';
-import { ShopCategoryService } from '../shop-category/shop-category.service';
-import { CategoryService } from '../../category/category.service';
+import { ShopCategoryService } from '@shop/shop-category/shop-category.service';
+import { CategoryService } from '@category/category.service';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CATEGORY } from '../../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from '@common/decorators';
 
 @ApiTags('shops')
 @Controller('shops')
@@ -33,6 +33,7 @@ export class ShopController {
     private readonly categoryService: CategoryService
   ) {}
 
+  @Public()
   @Get()
   @ApiQuery({
     name: 'category',
@@ -99,11 +100,13 @@ export class ShopController {
     return this.shopService.create({ image: file.buffer }, createShopDto);
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.shopService.findOne(id);
   }
 
+  @Public()
   @Get(':id/categories')
   async findShopCategories(@Param('id') id: number) {
     const categories = await this.shopCategoryService.findAllById(id);

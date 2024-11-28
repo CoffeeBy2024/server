@@ -1,76 +1,12 @@
 import { validate } from 'class-validator';
 import { RegisterUserDto } from './register-user.dto';
 import { mockRegisterUserDto } from '@auth/mocks';
-
-export const testNegativeDtoPropertyIsString = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: 123 });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isString).toBeDefined();
-};
-
-export const testNegativeDtoPropertyIsNotEmpty = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]: any } = {
-    [key in PropertyName]: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: '' });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isNotEmpty).toBeDefined();
-};
-
-export const testNegativeDtoPropertyIsEmail = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: 'invalid-email' });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isEmail).toBeDefined();
-};
-
-export const testNegativeDtoConfirmPasswordNotMatch = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, {
-    [propertyName]: 'differentPassword',
-  });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0].constraints?.passwordsMatching).toBeDefined();
-};
+import {
+  testNegativeDtoConfirmPasswordNotMatch,
+  testNegativeDtoPropertyIsEmail,
+  testNegativeDtoPropertyIsNotEmpty,
+  testNegativeDtoPropertyIsString,
+} from '@common/mocks';
 
 describe('RegisterUserDto', () => {
   let dto: RegisterUserDto;
@@ -98,11 +34,6 @@ describe('RegisterUserDto', () => {
           () => dto,
           mockRegisterUserDto
         );
-        // const dto = getDto();
-        // Object.assign(dto, mockDto, { email: '' });
-        // const errors = await validate(dto);
-        // expect(errors.length).toBeGreaterThan(0);
-        // expect(errors[0].constraints?.isNotEmpty).toBeDefined();
       });
       it('should fail if email is invalid', async () => {
         await testNegativeDtoPropertyIsEmail<'email'>(
@@ -110,11 +41,6 @@ describe('RegisterUserDto', () => {
           () => dto,
           mockRegisterUserDto
         );
-        // const dto = getDto();
-        // Object.assign(dto, mockDto, { email: 'invalid-email' });
-        // const errors = await validate(dto);
-        // expect(errors.length).toBeGreaterThan(0);
-        // expect(errors[0].constraints?.isEmail).toBeDefined();
       });
     });
     describe('password', () => {

@@ -7,11 +7,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { TTLVariables } from '../../utils/constants/cache';
+import { TTLVariables } from '@common/constants';
 import { CacheTTL } from '@nestjs/cache-manager';
-import { CATEGORY } from '../../common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
+import { Public } from '@common/decorators';
 
 @ApiTags('category')
 @Controller('categories')
@@ -24,11 +25,13 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.categoryService.findAll();
   }
 
+  @Public()
   @Get(':category')
   async findOne(@Param('category') category: CATEGORY) {
     const categoryEntity = await this.categoryService.findOne(category);

@@ -24,6 +24,18 @@
       "@common/*": [
         "src/common/*"
       ],
+      "@config": [
+        "src/config"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@databases": [
+        "src/databases"
+      ],
+      "@databases/*": [
+        "src/databases/*"
+      ],
       "@auth": [
         "src/modules/auth"
       ],
@@ -41,6 +53,12 @@
       ],
       "@mail/*": [
         "src/modules/mail/*"
+      ],
+      "@photo": [
+        "src/modules/photo"
+      ],
+      "@photo/*": [
+        "src/modules/photo/*"
       ],
       "@product": [
         "src/modules/product"

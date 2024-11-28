@@ -4,7 +4,7 @@ import { validate } from 'class-validator';
 import {
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,
-} from './register-user.dto.spec';
+} from '@common/mocks';
 
 describe('RecoverPasswordDto', () => {
   let dto: RecoverPasswordDto;

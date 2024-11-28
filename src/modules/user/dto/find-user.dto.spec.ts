@@ -1,26 +1,12 @@
 import { validate } from 'class-validator';
 import { mockVerifyEmailDto } from '@mail/mocks/mail.mock';
-import { testNegativeDtoPropertyIsEmail } from '@auth/dto/register-user.dto.spec';
 import { FindUserDto } from './find-user.dto';
 import { mockUser } from '@user/mocks';
-import { testPositiveDtoPropertyIsOptional } from './create-user.dto.spec';
-
-export const testNegativeDtoPropertyIsNumber = async <
-  PropertyName extends string,
-  MockDto extends { [key in PropertyName]?: any } = {
-    [key in PropertyName]?: any;
-  },
->(
-  propertyName: PropertyName,
-  getTestDto: () => MockDto,
-  mockDto: MockDto
-) => {
-  const dto = getTestDto();
-  Object.assign(dto, mockDto, { [propertyName]: '123' });
-  const errors = await validate(dto);
-  expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0]?.constraints?.isNumber).toBeDefined();
-};
+import {
+  testNegativeDtoPropertyIsEmail,
+  testNegativeDtoPropertyIsNumber,
+  testPositiveDtoPropertyIsOptional,
+} from '@common/mocks';
 
 describe('FindUserDto', () => {
   let dto: FindUserDto;

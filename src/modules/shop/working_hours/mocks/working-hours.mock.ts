@@ -1,9 +1,11 @@
-import { WorkingHour } from '../entities/working_hour.entity';
-import { shopMock as shop } from '../../shop/mocks/shopProvider';
-import { CreateWorkingHoursDto } from '../dto/create-working_hour.dto';
+import { WorkingHour } from '@shop/working_hours/entities';
+import { shopMock as shop } from '@shop/shop/mocks';
+import {
+  CreateWorkingHoursDto,
+  UpdateWorkingHoursDto,
+} from '@shop/working_hours/dto';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UpdateWorkingHoursDto } from '../dto/update-working_hour.dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

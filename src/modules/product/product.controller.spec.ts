@@ -8,31 +8,25 @@ import {
   productRepositoryProvider,
   updatedProductDto,
   updateProduct,
-} from './mocks/productProvider';
-import { ShopService } from '../shop/shop/shop.service';
-import { ShopCategoryService } from '../shop/shop-category/shop-category.service';
-import { CategoryService } from '../category/category.service';
-import {
-  shopMock,
-  shopRepositoryProvider,
-} from '../shop/shop/mocks/shopProvider';
+} from './mocks';
+import { ShopService } from '@shop/shop/shop.service';
+import { ShopCategoryService } from '@shop/shop-category/shop-category.service';
+import { CategoryService } from '@category/category.service';
+import { shopMock, shopRepositoryProvider } from '@shop/shop/mocks';
 import {
   shopCategoryMock,
   shopCategoryRepositoryProvider,
-} from '../shop/shop-category/mocks/shopCategoryProvider';
-import {
-  categoryMock,
-  categoryRepositoryProvider,
-} from '../category/mocks/categoryProvider';
-import { CATEGORY } from '../../common/enums/category.enum';
+} from '@shop/shop-category/mocks';
+import { categoryMock, categoryRepositoryProvider } from '@category/mocks';
+import { CATEGORY } from '@common/enums';
 import {
   fileMock,
   photoDto,
   shopPhotoRepositoryProvider,
   productPhotoRepositoryProvider,
-} from '../photo/mocks/photoProvider';
+} from '@photo/mocks';
 import { NotFoundException } from '@nestjs/common';
-import { PhotoService } from '../photo/photo.service';
+import { PhotoService } from '@photo/photo.service';
 
 describe('Product Controller', () => {
   let controller: ProductController;

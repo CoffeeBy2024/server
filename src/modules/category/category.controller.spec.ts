@@ -1,13 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
-import {
-  categoryDto,
-  categoryMock,
-  categoryRepositoryProvider,
-} from './mocks/categoryProvider';
+import { categoryDto, categoryMock, categoryRepositoryProvider } from './mocks';
 import { NotFoundException } from '@nestjs/common';
-import { CATEGORY } from 'src/common/enums/category.enum';
+import { CATEGORY } from '@common/enums';
 
 describe('CategoryController', () => {
   let controller: CategoryController;
@@ -53,7 +49,7 @@ describe('CategoryController', () => {
 
       try {
         await controller.findOne(nonExistingCategory);
-        expect(false).toBeTruthy(); // we should never hit this line
+        expect(false).toBeTruthy();
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.message).toEqual(

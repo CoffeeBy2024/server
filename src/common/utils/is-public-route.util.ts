@@ -1,5 +1,5 @@
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '@common/decorators';
 import { ExecutionContext } from '@nestjs/common';
 
 export const isPublicRoute = (

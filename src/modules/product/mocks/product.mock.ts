@@ -1,10 +1,9 @@
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Product } from '../entities/product.entity';
+import { Product } from '@product/entities';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { shopCategoryMock } from '../../../modules/shop/shop-category/mocks/shopCategoryProvider';
-import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductDto } from '../dto/update-product.dto';
-import { productPhotoMock as photoMock } from '../../photo/mocks/photoProvider';
+import { shopCategoryMock } from '@shop/shop-category/mocks';
+import { CreateProductDto, UpdateProductDto } from '@product/dto';
+import { productPhotoMock as photoMock } from '@photo/mocks';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

@@ -19,7 +19,9 @@ import {
   mockConfigData,
   mockTokensResult,
   mockRefreshToken,
-  provideMockMailService,
+  getMockResponse,
+  getMockRequest,
+  MockMailServiceProvider,
 } from './mocks';
 import { Provider } from '@user/entities';
 import { Request, Response } from 'express';
@@ -48,12 +50,12 @@ describe('AuthController', () => {
       providers: [
         AuthService,
         UserService,
-        userRepositoryProvider(),
-        tokenRepositoryProvider(),
-        jwtServiceProvider(),
-        httpServiceProvider(),
-        configServiceProvider(),
-        provideMockMailService(),
+        userRepositoryProvider,
+        tokenRepositoryProvider,
+        jwtServiceProvider,
+        httpServiceProvider,
+        configServiceProvider,
+        MockMailServiceProvider,
       ],
     }).compile();
 
@@ -62,14 +64,8 @@ describe('AuthController', () => {
     userService = module.get<UserService>(UserService);
     httpService = module.get<Pick<HttpService, 'get'>>(HttpService);
     configService = module.get<ConfigService>(ConfigService);
-    response = {
-      cookie: jest.fn(),
-      clearCookie: jest.fn(),
-      redirect: jest.fn(),
-    };
-    request = {
-      user: mockGoogleUserValidateResponse,
-    };
+    response = getMockResponse();
+    request = getMockRequest();
   });
 
   it('should be defined', () => {

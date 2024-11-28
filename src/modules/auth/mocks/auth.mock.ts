@@ -121,44 +121,50 @@ export const mockGoogleUserInfo: GoogleUserInfo = {
   name: `${googleDto.firstName} ${googleDto.lastName}`,
 };
 
-export const configServiceProvider = () => ({
+export const getMockConfigService = () => ({
+  get: jest
+    .fn()
+    .mockImplementation(
+      (key: keyof typeof mockConfigData) => mockConfigData[key]
+    ),
+  getOrThrow: jest
+    .fn()
+    .mockImplementation(
+      (key: keyof typeof mockConfigData) => mockConfigData[key]
+    ),
+});
+
+export const configServiceProvider = {
   provide: ConfigService,
-  useValue: {
-    get: jest
-      .fn()
-      .mockImplementation(
-        (key: keyof typeof mockConfigData) => mockConfigData[key]
-      ),
-    getOrThrow: jest
-      .fn()
-      .mockImplementation(
-        (key: keyof typeof mockConfigData) => mockConfigData[key]
-      ),
-  },
-});
+  useFactory: getMockConfigService,
+};
 
-export const tokenRepositoryProvider = () => ({
+export const tokenRepositoryProvider = {
   provide: getRepositoryToken(Token),
-  useValue: createMockRepository(),
+  useFactory: createMockRepository,
+};
+
+const getJwtServiceProvider = () => ({
+  sign: jest
+    .fn()
+    .mockImplementation((userData: { sub: number }) =>
+      generateJwtToken({ sub: userData.sub })
+    ),
 });
 
-export const jwtServiceProvider = () => ({
+export const jwtServiceProvider = {
   provide: JwtService,
-  useValue: {
-    sign: jest
-      .fn()
-      .mockImplementation((userData: { sub: number }) =>
-        generateJwtToken({ sub: userData.sub })
-      ),
-  },
+  useFactory: getJwtServiceProvider,
+};
+
+const getHttpServiceProvider = () => ({
+  get: jest.fn().mockReturnValue(of({ data: mockGoogleUserInfo })),
 });
 
-export const httpServiceProvider = () => ({
+export const httpServiceProvider = {
   provide: HttpService,
-  useValue: {
-    get: jest.fn().mockReturnValue(of({ data: mockGoogleUserInfo })),
-  },
-});
+  useFactory: getHttpServiceProvider,
+};
 
 export const mockAccessTokenDto = {
   accessToken: 'access-token',
@@ -168,10 +174,20 @@ const getMockMailService = () => ({
   verifyPasswordRecovery: jest.fn(),
   verifyEmail: jest.fn(),
 });
-const mockMailService = getMockMailService();
-export type MockMailServiceType = typeof mockMailService;
 
-export const provideMockMailService = () => ({
+export type MockMailServiceType = ReturnType<typeof getMockMailService>;
+
+export const MockMailServiceProvider = {
   provide: MailService,
-  useValue: getMockMailService(),
+  useFactory: getMockMailService,
+};
+
+export const getMockResponse = () => ({
+  cookie: jest.fn(),
+  clearCookie: jest.fn(),
+  redirect: jest.fn(),
+});
+
+export const getMockRequest = () => ({
+  user: mockGoogleUserValidateResponse,
 });

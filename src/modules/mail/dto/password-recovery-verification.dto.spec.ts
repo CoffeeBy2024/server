@@ -1,11 +1,11 @@
 import { validate } from 'class-validator';
 import { mockPasswordRecoveryVerificationDto } from '@mail/mocks/mail.mock';
+import { PasswordRecoveryVerificationDto } from './password-recovery-verification.dto';
 import {
   testNegativeDtoPropertyIsEmail,
   testNegativeDtoPropertyIsNotEmpty,
   testNegativeDtoPropertyIsString,
-} from '@auth/dto/register-user.dto.spec';
-import { PasswordRecoveryVerificationDto } from './password-recovery-verification.dto';
+} from '@common/mocks';
 
 describe('PasswordRecoveryVerificationDto', () => {
   let dto: PasswordRecoveryVerificationDto;

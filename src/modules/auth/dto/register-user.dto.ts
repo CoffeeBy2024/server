@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString, Validate } from 'class-validator';
-import { PasswordsMatchingConstraint } from '@common/decorators';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { ArePasswordsMatches } from '@common/validators';
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -12,7 +12,7 @@ export class RegisterUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @Validate(PasswordsMatchingConstraint)
+  @ArePasswordsMatches()
   readonly confirmPassword: string;
 
   @IsNotEmpty()

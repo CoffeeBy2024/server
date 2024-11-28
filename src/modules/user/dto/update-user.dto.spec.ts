@@ -1,12 +1,12 @@
 import { validate } from 'class-validator';
-import { testNegativeDtoPropertyIsString } from '@auth/dto/register-user.dto.spec';
 import { UpdateUserDto } from './update-user.dto';
 import { Provider } from '@user/entities';
 import {
   testNegativeDtoPropertyIsBoolean,
   testNegativeDtoPropertyIsNotEnum,
+  testNegativeDtoPropertyIsString,
   testPositiveDtoPropertyIsOptional,
-} from './create-user.dto.spec';
+} from '@common/mocks';
 
 describe('UpdateUserDto', () => {
   let dto: UpdateUserDto;

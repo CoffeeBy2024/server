@@ -17,11 +17,10 @@ import { MailModule } from '@mail/mail.module';
 
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { TTLVariables } from 'src/utils/constants/cache';
+import { TTLVariables } from '@common/constants/cache';
 import config from 'src/config/dbconfig';
 import { JwtAuthGuard } from '@auth/guards';
 import { CustomCacheInterceptor } from '@common/interceptors';
-import config from 'src/config/dbconfig';
 
 @Module({
   imports: [

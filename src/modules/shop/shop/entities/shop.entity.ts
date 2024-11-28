@@ -5,8 +5,8 @@ import {
   Point,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { WorkingHour } from '../../working_hours/entities/working_hour.entity';
-import { ShopCategory } from '../../../shop/shop-category/entities/shop-category.entity';
+import { WorkingHour } from '@shop/working_hours/entities';
+import { ShopCategory } from '@shop/shop-category/entities';
 
 @Entity()
 export class Shop {
@@ -30,8 +30,4 @@ export class Shop {
 
   @OneToMany(() => ShopCategory, (shopCategory) => shopCategory.shop)
   shopCategories: ShopCategory[];
-
-  // User: Producer Role
-  // @ManyToOne(() => User, (user) => user.shops)
-  // user: User;
 }

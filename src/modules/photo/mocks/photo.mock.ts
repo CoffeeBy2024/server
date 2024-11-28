@@ -1,10 +1,9 @@
 import { ObjectId } from 'mongodb';
-import { CreatePhotoDto } from '../dto/create-photo.dto';
+import { CreatePhotoDto, UpdatePhotoDto } from '@photo/dto';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { ProductPhoto, ShopPhoto } from '../entities/photo.entity';
+import { ProductPhoto, ShopPhoto } from '@photo/entities';
 import { Readable } from 'stream';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UpdatePhotoDto } from '../dto/update-photo.dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

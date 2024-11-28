@@ -3,11 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateWorkingHoursDto } from './dto/create-working_hour.dto';
-import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
+import { CreateWorkingHoursDto, UpdateWorkingHoursDto } from './dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { WorkingHour } from './entities/working_hour.entity';
+import { WorkingHour } from './entities';
 
 @Injectable()
 export class WorkingHoursService {

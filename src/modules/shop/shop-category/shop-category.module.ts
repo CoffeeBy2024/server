@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ShopCategoryService } from './shop-category.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ShopCategory } from './entities/shop-category.entity';
-import { Product } from '../../product/entities/product.entity';
-import { Shop } from '../shop/entities/shop.entity';
-import { Category } from '../../category/entities/category.entity';
+import { ShopCategory } from './entities';
+import { Product } from '@product/entities';
+import { Shop } from '@shop/shop/entities';
+import { Category } from '@category/entities';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ShopCategory, Product, Shop, Category])],

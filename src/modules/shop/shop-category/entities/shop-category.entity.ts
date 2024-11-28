@@ -5,9 +5,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Shop } from '../../shop/entities/shop.entity';
-import { Product } from '../../../product/entities/product.entity';
-import { Category } from '../../../category/entities/category.entity';
+import { Shop } from '@shop/shop/entities';
+import { Product } from '@product/entities';
+import { Category } from '@category/entities';
 
 @Entity()
 export class ShopCategory {

@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ShopCategory } from '../../shop/shop-category/entities/shop-category.entity';
-import { CATEGORY } from '../../../common/enums/category.enum';
+import { ShopCategory } from '@shop/shop-category/entities';
+import { CATEGORY } from '@common/enums';
 
 @Entity()
 export class Category {

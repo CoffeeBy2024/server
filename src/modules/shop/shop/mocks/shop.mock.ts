@@ -1,8 +1,8 @@
 import { ObjectLiteral, Repository } from 'typeorm';
-import { Shop } from '../entities/shop.entity';
+import { Shop } from '@shop/shop/entities';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateShopDto } from '../dto/create-shop.dto';
-import { shopPhotoMock as photoMock } from '../../../../modules/photo/mocks/photoProvider';
+import { CreateShopDto } from '@shop/shop/dto';
+import { shopPhotoMock as photoMock } from '@photo/mocks';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;

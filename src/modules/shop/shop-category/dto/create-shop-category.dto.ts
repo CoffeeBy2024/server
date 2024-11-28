@@ -1,6 +1,6 @@
-import { Shop } from '../../../../modules/shop/shop/entities/shop.entity';
+import { Shop } from '@shop/shop/entities';
 import { IsNotEmpty } from 'class-validator';
-import { Category } from '../../../category/entities/category.entity';
+import { Category } from '@category/entities';
 
 export class CreateShopCategoryDto {
   @IsNotEmpty()

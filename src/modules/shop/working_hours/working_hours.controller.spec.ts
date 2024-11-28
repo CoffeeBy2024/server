@@ -1,26 +1,26 @@
 import { Test } from '@nestjs/testing';
 import { WorkingHoursController } from './working_hours.controller';
 import { WorkingHoursService } from './working_hours.service';
-import { ShopService } from '../shop/shop.service';
-import { UpdateWorkingHoursDto } from './dto/update-working_hour.dto';
+import { ShopService } from '@shop/shop/shop.service';
+import { UpdateWorkingHoursDto } from './dto';
 
 import {
   shopMock as shop,
   shopMock,
   shopRepositoryProvider,
-} from '../shop/mocks/shopProvider';
+} from '@shop/shop/mocks';
 import {
   mockWorkingHours,
   updateWorkingHours,
   workingHoursDto,
   workingHoursRepositoryProvider,
-} from './mocks/workingHoursProvider';
+} from './mocks';
 import { NotFoundException } from '@nestjs/common';
-import { PhotoService } from '../../photo/photo.service';
+import { PhotoService } from '@photo/photo.service';
 import {
   productPhotoRepositoryProvider,
   shopPhotoRepositoryProvider,
-} from '../../photo/mocks/photoProvider';
+} from '@photo/mocks';
 
 describe('WorkingHoursController', () => {
   let controller: WorkingHoursController;
@@ -80,7 +80,7 @@ describe('WorkingHoursController', () => {
 
       try {
         await controller.create(shopMock.id, workingHoursDto);
-        expect(false).toBeTruthy(); // we should never hit this line
+        expect(false).toBeTruthy();
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);
@@ -116,7 +116,7 @@ describe('WorkingHoursController', () => {
 
       try {
         await controller.update(shopMock.id, updateWorkingHours);
-        expect(false).toBeTruthy(); // we should never hit this line
+        expect(false).toBeTruthy();
       } catch (err) {
         expect(err).toBeInstanceOf(NotFoundException);
         expect(err.message).toEqual(`Shop with id ${shopMock.id} not found`);

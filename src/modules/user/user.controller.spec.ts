@@ -2,12 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import {
+  cacheManagerProvider,
   hashedPassword,
   MockCacheManagerType,
   mockGetUserCacheKey,
   mockUser,
   passwordDto,
-  provideMockCacheManager,
   updateUserDto,
   userArr,
   userRepositoryProvider,
@@ -30,7 +30,7 @@ import { ConfigService } from '@nestjs/config';
 const commonTTLValue = 111;
 jest.mock('bcrypt');
 jest.mock('@common/utils');
-jest.mock('src/utils/constants/cache', () => {
+jest.mock('@common/constants/cache', () => {
   return {
     TTLVariables: {
       common: 111,
@@ -49,9 +49,9 @@ describe('UserController', () => {
       controllers: [UserController],
       providers: [
         UserService,
-        userRepositoryProvider(),
-        provideMockCacheManager(),
-        configServiceProvider(),
+        userRepositoryProvider,
+        cacheManagerProvider,
+        configServiceProvider,
       ],
     }).compile();
 
