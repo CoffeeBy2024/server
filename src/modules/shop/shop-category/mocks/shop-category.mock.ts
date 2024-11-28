@@ -1,9 +1,9 @@
-import { ShopCategory } from '../entities/shop-category.entity';
-import { shopMock } from '../../shop/mocks';
-import { categoryMock } from '../../../../modules/category/mocks';
+import { ShopCategory } from '@shop/shop-category/entities';
+import { shopMock } from '@shop/shop/mocks';
+import { categoryMock } from '@category/mocks';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ObjectLiteral, Repository } from 'typeorm';
-import { CreateShopCategoryDto } from '../dto/create-shop-category.dto';
+import { CreateShopCategoryDto } from '@shop/shop-category/dto';
 
 type MockRepository<T extends ObjectLiteral = any> = {
   [P in keyof Repository<T>]?: jest.Mock<any, any>;
